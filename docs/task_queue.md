@@ -4,14 +4,14 @@
 
 - LC000: bootstrap
 - LC001: 3D math and camera
+- LC002: cylindrical observation volume
 
 ## NEXT
 
-- LC002: cylindrical observation volume
+- LC003: procedural curved grass
 
 ## LATER
 
-- LC003: procedural curved grass
 - LC004: layered wind
 - LC005: sliced light
 - LC006: visual integration

@@ -36,6 +36,24 @@ without importing Pyxel.
 LC001 keeps `math3d.py`, `camera.py`, and `ControlIntent` Pyxel-independent.
 `app.py` reads Pyxel input and renders projected debug geometry.
 
+LC002 adds `CylinderWorld` as the Pyxel-independent geometry model for the
+observation volume. The default cylinder is centered on the Y axis with radius
+96 and height 240. Its bottom center is the origin and its top center is
+`Vec3(0, 240, 0)`.
+
+Cylinder containment uses:
+
+```text
+(x - center_x)^2 + (z - center_z)^2 <= radius^2
+bottom_y <= y <= top_y
+```
+
+Boundary points are considered inside, with a small epsilon for floating-point
+rounding. Ring points start at +X for theta = 0 and proceed with consistent
+angle order for top and bottom rings. Bottom sampling uses `radius *
+sqrt(u_radius)` and `2*pi*u_angle`, clamping normalized inputs to 0..1 so future
+callers can inject deterministic random values safely.
+
 ## Orbit Camera
 
 Light Cylinder uses an orbit camera because the work observes a subject from
@@ -56,6 +74,11 @@ Y increases downward. Points at or behind the near clip are not projected.
 LC001 intentionally avoids a general Matrix library and Quaternion support.
 The camera transform is target subtraction, inverse yaw, inverse pitch, distance
 offset, near-clip rejection, and perspective projection.
+
+LC002 targets the camera at 45 percent of the cylinder height, slightly below
+center, to keep future grass placement visually important. Cylinder debug lines
+are drawn as depth-sorted line segments by camera-space midpoint. No Z-buffer,
+general renderer framework, or near-plane line clipping is introduced yet.
 
 ## Resource Resolution
 

@@ -10,6 +10,7 @@ class ControlIntent:
     zoom_delta: float = 0.0
     toggle_auto_rotate: bool = False
     toggle_debug: bool = False
+    toggle_boundary: bool = False
     quit_requested: bool = False
 
 
@@ -42,5 +43,6 @@ def read_control_intent(
         zoom_delta=zoom_delta,
         toggle_auto_rotate=pyxel_module.btnp(pyxel_module.KEY_X),
         toggle_debug=pyxel_module.btnp(pyxel_module.KEY_D),
+        toggle_boundary=pyxel_module.btnp(pyxel_module.KEY_B),
         quit_requested=pyxel_module.btnp(pyxel_module.KEY_ESCAPE),
     )

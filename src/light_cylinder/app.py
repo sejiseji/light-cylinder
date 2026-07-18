@@ -5,6 +5,10 @@ from light_cylinder.config import (
     CAMERA_YAW_SPEED,
     CAMERA_ZOOM_SPEED,
     COMPOSITION_SAFE_WIDTH,
+    CYLINDER_HEIGHT,
+    CYLINDER_RADIAL_SEGMENTS,
+    CYLINDER_RADIUS,
+    CYLINDER_VERTICAL_GUIDES,
     PROJECT_TITLE,
     RENDER_HEIGHT,
     RENDER_WIDTH,
@@ -15,14 +19,22 @@ from light_cylinder.config import (
 )
 from light_cylinder.input import read_control_intent
 from light_cylinder.math3d import Vec3
+from light_cylinder.world import CylinderWorld
+
+WorldLine = tuple[Vec3, Vec3, int]
 
 
 class LightCylinderApp:
     def __init__(self) -> None:
         validate_display_config()
+        self.world = CylinderWorld()
         self.camera = Camera.create_default()
         self.auto_rotate = False
         self.debug_visible = True
+        self.boundary_visible = True
+        self.cylinder_lines = self._build_cylinder_lines()
+        self.floor_lines = self._build_floor_lines()
+        self.axis_lines = self._build_axis_lines()
 
     def run(self) -> None:
         import pyxel
@@ -42,6 +54,8 @@ class LightCylinderApp:
             self.auto_rotate = not self.auto_rotate
         if intent.toggle_debug:
             self.debug_visible = not self.debug_visible
+        if intent.toggle_boundary:
+            self.boundary_visible = not self.boundary_visible
 
         yaw_delta = intent.yaw_delta
         if self.auto_rotate:
@@ -53,62 +67,43 @@ class LightCylinderApp:
         import pyxel
 
         pyxel.cls(1)
-        self._draw_reference_grid(pyxel)
-        self._draw_axes(pyxel)
+        self._draw_cylinder_scene(pyxel)
         self._draw_debug(pyxel)
 
-    def _draw_reference_grid(self, pyxel) -> None:
-        grid_color = 5
-        for value in range(-120, 121, 60):
-            self._draw_world_line(
-                pyxel,
-                Vec3(-120.0, 0.0, value),
-                Vec3(120.0, 0.0, value),
-                grid_color,
-            )
-            self._draw_world_line(
-                pyxel,
-                Vec3(value, 0.0, -120.0),
-                Vec3(value, 0.0, 120.0),
-                grid_color,
-            )
+    def _draw_cylinder_scene(self, pyxel) -> None:
+        self._draw_depth_sorted_lines(pyxel, self.floor_lines)
+        if self.boundary_visible:
+            self._draw_depth_sorted_lines(pyxel, self.cylinder_lines)
+        self._draw_depth_sorted_lines(pyxel, self.axis_lines)
+        self._draw_reference_points(pyxel)
 
-        for point in (
-            Vec3(-80.0, 0.0, 80.0),
-            Vec3(80.0, 0.0, 80.0),
-            Vec3(-80.0, 80.0, -60.0),
-            Vec3(80.0, 120.0, -60.0),
-        ):
-            projected = self.camera.project(point)
-            if projected is not None:
-                pyxel.circ(int(projected.x), int(projected.y), 2, 6)
-
-    def _draw_axes(self, pyxel) -> None:
-        origin = Vec3(0.0, 0.0, 0.0)
-        axes = (
-            (Vec3(140.0, 0.0, 0.0), 8, "X"),
-            (Vec3(0.0, 160.0, 0.0), 11, "Y"),
-            (Vec3(0.0, 0.0, 140.0), 12, "Z"),
-        )
-
+    def _draw_reference_points(self, pyxel) -> None:
+        origin = self.world.bottom_center
         projected_origin = self.camera.project(origin)
         if projected_origin is not None:
             pyxel.circ(int(projected_origin.x), int(projected_origin.y), 3, 7)
             pyxel.text(int(projected_origin.x) + 5, int(projected_origin.y) + 4, "O", 7)
 
-        for end, color, label in axes:
-            self._draw_world_line(pyxel, origin, end, color)
-            projected = self.camera.project(end)
+        for point, color, label in (
+            (self.world.sample_bottom_point(0.0, 0.0), 7, "C"),
+            (self.world.sample_bottom_point(1.0, 0.0), 8, "+X"),
+            (self.world.sample_bottom_point(1.0, 0.25), 12, "+Z"),
+            (self.world.top_center, 11, "TOP"),
+        ):
+            projected = self.camera.project(point)
             if projected is not None:
+                pyxel.circ(int(projected.x), int(projected.y), 2, color)
                 pyxel.text(int(projected.x) + 4, int(projected.y) - 3, label, color)
 
     def _draw_debug(self, pyxel) -> None:
         pyxel.text(SAFE_LEFT + 8, 12, PROJECT_TITLE, 7)
-        pyxel.text(SAFE_LEFT + 8, 24, "LC001 CAMERA FOUNDATION", 6)
+        pyxel.text(SAFE_LEFT + 8, 24, "LC002 CYLINDER VOLUME", 6)
         pyxel.text(SAFE_LEFT + 8, 36, "ARROWS YAW/PITCH  A/S ZOOM", 6)
-        pyxel.text(SAFE_LEFT + 8, 48, "X AUTO  D DEBUG  ESC QUIT", 6)
-        pyxel.text(SAFE_LEFT + 8, 60, f"AUTO {'ON' if self.auto_rotate else 'OFF'}", 10)
-        pyxel.text(SAFE_LEFT + 8, 72, f"DEBUG {'ON' if self.debug_visible else 'OFF'}", 10)
+        pyxel.text(SAFE_LEFT + 8, 48, "X AUTO  B BOUNDARY  D DEBUG", 6)
+        pyxel.text(SAFE_LEFT + 8, 60, "ESC QUIT", 6)
+        pyxel.text(SAFE_LEFT + 8, 72, f"AUTO {'ON' if self.auto_rotate else 'OFF'}", 10)
+        pyxel.text(SAFE_LEFT + 8, 84, f"BOUNDARY {'ON' if self.boundary_visible else 'OFF'}", 10)
+        pyxel.text(SAFE_LEFT + 8, 96, f"DEBUG {'ON' if self.debug_visible else 'OFF'}", 10)
 
         if not self.debug_visible:
             return
@@ -121,10 +116,64 @@ class LightCylinderApp:
         pyxel.rectb(SAFE_LEFT, 0, COMPOSITION_SAFE_WIDTH, RENDER_HEIGHT, 11)
         pyxel.line(SAFE_LEFT, 0, SAFE_LEFT, RENDER_HEIGHT - 1, 3)
         pyxel.line(SAFE_RIGHT - 1, 0, SAFE_RIGHT - 1, RENDER_HEIGHT - 1, 3)
-        pyxel.text(SAFE_LEFT + 8, 90, f"yaw {self.camera.yaw:.2f}", 6)
-        pyxel.text(SAFE_LEFT + 8, 102, f"pitch {self.camera.pitch:.2f}", 6)
-        pyxel.text(SAFE_LEFT + 8, 114, f"distance {self.camera.distance:.1f}", 6)
-        pyxel.text(SAFE_LEFT + 8, 126, f"near {self.camera.near_clip:.1f}", 6)
+        pyxel.text(SAFE_LEFT + 8, 114, f"yaw {self.camera.yaw:.2f}", 6)
+        pyxel.text(SAFE_LEFT + 8, 126, f"pitch {self.camera.pitch:.2f}", 6)
+        pyxel.text(SAFE_LEFT + 8, 138, f"distance {self.camera.distance:.1f}", 6)
+        pyxel.text(SAFE_LEFT + 8, 150, f"radius {self.world.radius:.1f}", 6)
+        pyxel.text(SAFE_LEFT + 8, 162, f"height {self.world.height:.1f}", 6)
+        pyxel.text(SAFE_LEFT + 8, 174, f"near {self.camera.near_clip:.1f}", 6)
+
+    def _build_cylinder_lines(self) -> tuple[WorldLine, ...]:
+        bottom = self.world.bottom_ring_points(CYLINDER_RADIAL_SEGMENTS)
+        top = self.world.top_ring_points(CYLINDER_RADIAL_SEGMENTS)
+        lines: list[WorldLine] = []
+
+        for index in range(CYLINDER_RADIAL_SEGMENTS):
+            next_index = (index + 1) % CYLINDER_RADIAL_SEGMENTS
+            color = 5 if bottom[index].z < self.world.center_z else 13
+            lines.append((bottom[index], bottom[next_index], color))
+            lines.append((top[index], top[next_index], color))
+
+        for start, end in self.world.vertical_guide_segments(CYLINDER_VERTICAL_GUIDES):
+            lines.append((start, end, 6))
+
+        lines.append((self.world.bottom_center, self.world.top_center, 11))
+        return tuple(lines)
+
+    def _build_floor_lines(self) -> tuple[WorldLine, ...]:
+        lines: list[WorldLine] = []
+        for angle_index in range(8):
+            end = self.world.sample_bottom_point(1.0, angle_index / 8)
+            lines.append((self.world.bottom_center, end, 5))
+
+        for radius_factor in (0.33, 0.66):
+            ring = self.world.ring_points_at(
+                CYLINDER_RADIAL_SEGMENTS,
+                self.world.bottom_y,
+                self.world.radius * radius_factor,
+            )
+            for index in range(CYLINDER_RADIAL_SEGMENTS):
+                lines.append((ring[index], ring[(index + 1) % CYLINDER_RADIAL_SEGMENTS], 5))
+
+        return tuple(lines)
+
+    def _build_axis_lines(self) -> tuple[WorldLine, ...]:
+        origin = self.world.bottom_center
+        return (
+            (origin, Vec3(CYLINDER_RADIUS * 1.25, 0.0, 0.0), 8),
+            (origin, Vec3(0.0, CYLINDER_HEIGHT * 1.08, 0.0), 11),
+            (origin, Vec3(0.0, 0.0, CYLINDER_RADIUS * 1.25), 12),
+        )
+
+    def _draw_depth_sorted_lines(self, pyxel, lines: tuple[WorldLine, ...]) -> None:
+        sortable: list[tuple[float, WorldLine]] = []
+        for line in lines:
+            start, end, _color = line
+            midpoint = (start + end) * 0.5
+            sortable.append((self.camera.world_to_camera(midpoint).z, line))
+
+        for _depth, (start, end, color) in sorted(sortable, key=lambda item: item[0], reverse=True):
+            self._draw_world_line(pyxel, start, end, color)
 
     def _draw_world_line(self, pyxel, start: Vec3, end: Vec3, color: int) -> None:
         projected_start = self.camera.project(start)

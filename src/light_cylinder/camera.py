@@ -12,6 +12,8 @@ from light_cylinder.config import (
     CAMERA_MAX_PITCH,
     CAMERA_MIN_DISTANCE,
     CAMERA_MIN_PITCH,
+    CYLINDER_HEIGHT,
+    CYLINDER_TARGET_HEIGHT_FACTOR,
     RENDER_HEIGHT,
     RENDER_WIDTH,
 )
@@ -39,7 +41,7 @@ class Camera:
     @classmethod
     def create_default(cls) -> Camera:
         return cls(
-            target=Vec3(0.0, 0.0, 0.0),
+            target=Vec3(0.0, CYLINDER_HEIGHT * CYLINDER_TARGET_HEIGHT_FACTOR, 0.0),
             yaw=CAMERA_INITIAL_YAW,
             pitch=CAMERA_INITIAL_PITCH,
             distance=CAMERA_INITIAL_DISTANCE,

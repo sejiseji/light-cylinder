@@ -33,3 +33,8 @@ def test_camera_config_invariants() -> None:
     assert config.CAMERA_PITCH_SPEED > 0
     assert config.CAMERA_ZOOM_SPEED > 0
     assert config.AUTO_ROTATE_SPEED > 0
+    assert config.CYLINDER_RADIUS == 96.0
+    assert config.CYLINDER_HEIGHT == 240.0
+    assert config.CYLINDER_RADIAL_SEGMENTS == 32
+    assert config.CYLINDER_VERTICAL_GUIDES == 8
+    assert 0.0 <= config.CYLINDER_TARGET_HEIGHT_FACTOR <= 1.0

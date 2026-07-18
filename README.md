@@ -10,10 +10,11 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC001 adds the 3D math and orbit camera foundation. It provides testable Vec2
-and Vec3 operations, camera projection, input intent mapping, and a Pyxel debug
-view with projected X/Y/Z axes. Grass, light, rain, audio, touch input, and web
-packaging are intentionally left for later waves.
+LC002 adds the cylindrical observation volume. It provides a Pyxel-independent
+`CylinderWorld`, ring and guide generation, area-uniform bottom sampling, and a
+debug view where the orbit camera can inspect the cylinder wireframe. Grass,
+light, wind, rain, audio, touch input, and web packaging are intentionally left
+for later waves.
 
 ## Display Model
 
@@ -45,9 +46,9 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC001 screen shows projected X/Y/Z axes, the origin, reference grid points,
-camera state, auto-rotate state, debug state, and the centered composition safe
-area while debug is visible.
+The LC002 screen shows the cylinder top and bottom rings, vertical guides, bottom
+grid, center axis, camera state, boundary state, auto-rotate state, debug state,
+and the centered composition safe area while debug is visible.
 
 ## Controls
 
@@ -55,6 +56,7 @@ area while debug is visible.
 - Up and Down: pitch around the target
 - A and S: zoom in and out
 - X: toggle auto rotate
+- B: toggle cylinder boundary
 - D: toggle debug frame
 - ESC: quit
 

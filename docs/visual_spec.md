@@ -2,9 +2,18 @@
 
 ## Cylindrical Observation Area
 
-The main scene is a tall cylindrical observation volume. Future waves should
-make the cylinder legible through light, particles, grass silhouettes, rain, and
-occlusion rather than through a heavy outline.
+The main scene is a tall cylindrical observation volume. LC002 represents this
+with top and bottom rings, vertical guide lines, a center axis, and a sparse
+bottom grid. Future waves should make the cylinder legible through light,
+particles, grass silhouettes, rain, and occlusion rather than through a heavy
+outline.
+
+## Debug Boundary
+
+The LC002 boundary display is a wireframe inspection tool, not final art. The
+top and bottom rings make the volume readable, vertical guides establish height,
+and the bottom grid makes orientation and depth clear while avoiding filled
+surfaces that would hide line relationships in Pyxel.
 
 ## Natural Elements
 
@@ -16,6 +25,10 @@ particles should reveal depth without overwhelming the quiet mood.
 
 Darkness is the baseline. Brightness should feel discovered, with clear contrast
 between shaded regions and lit surfaces.
+
+LC002 uses temporary Pyxel palette colors to separate far rings, near rings,
+vertical guides, the center axis, and the bottom grid. These colors are for
+debug readability and are not the final palette.
 
 ## Vertical Composition
 

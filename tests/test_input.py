@@ -10,6 +10,7 @@ class FakePyxel:
     KEY_S = "s"
     KEY_X = "x"
     KEY_D = "d"
+    KEY_B = "b"
     KEY_ESCAPE = "escape"
 
     def __init__(self, held: set[str] | None = None, pressed: set[str] | None = None) -> None:
@@ -41,6 +42,7 @@ def test_control_intent_holds_values() -> None:
         zoom_delta=3.0,
         toggle_auto_rotate=True,
         toggle_debug=True,
+        toggle_boundary=True,
         quit_requested=True,
     )
 
@@ -49,13 +51,14 @@ def test_control_intent_holds_values() -> None:
     assert intent.zoom_delta == 3.0
     assert intent.toggle_auto_rotate
     assert intent.toggle_debug
+    assert intent.toggle_boundary
     assert intent.quit_requested
 
 
 def test_read_control_intent_from_key_state() -> None:
     pyxel = FakePyxel(
         held={FakePyxel.KEY_RIGHT, FakePyxel.KEY_UP, FakePyxel.KEY_A},
-        pressed={FakePyxel.KEY_X, FakePyxel.KEY_D, FakePyxel.KEY_ESCAPE},
+        pressed={FakePyxel.KEY_X, FakePyxel.KEY_D, FakePyxel.KEY_B, FakePyxel.KEY_ESCAPE},
     )
 
     intent = read_control_intent(pyxel, yaw_speed=0.1, pitch_speed=0.2, zoom_speed=3.0)
@@ -65,6 +68,7 @@ def test_read_control_intent_from_key_state() -> None:
     assert intent.zoom_delta == -3.0
     assert intent.toggle_auto_rotate
     assert intent.toggle_debug
+    assert intent.toggle_boundary
     assert intent.quit_requested
 
 

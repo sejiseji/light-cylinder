@@ -6,6 +6,7 @@ LC001 implements keyboard controls for orbit-camera inspection:
 - Up and Down: pitch the view up and down
 - A and S: zoom in and out
 - X: toggle auto rotate
+- B: toggle cylinder boundary visibility
 - D: toggle debug frame and camera details
 - ESC: exit
 

@@ -7,7 +7,7 @@ inside a tall cylindrical natural space.
 
 ## Current Wave
 
-LC001 3D math and camera foundation.
+LC002 cylindrical observation volume.
 
 ## Completed
 
@@ -23,11 +23,15 @@ LC001 3D math and camera foundation.
 - Orbit camera projection with near-clip rejection
 - Pyxel-independent `ControlIntent`
 - LC001 debug view with origin, X/Y/Z axes, grid, camera state, and controls
+- Pyxel-independent `CylinderWorld`
+- Cylinder containment, ring generation, vertical guides, and bottom sampling
+- LC002 debug view with top and bottom rings, vertical guides, bottom grid, and
+  boundary toggle
 
 ## Not Completed
 
-The cylinder body, grass, light, wind, rain, touch controls, audio, web packaging,
-and iOS packaging are intentionally not implemented yet.
+Grass, light, wind, rain, touch controls, audio, web packaging, and iOS packaging
+are intentionally not implemented yet.
 
 ## Run
 
@@ -54,6 +58,7 @@ python scripts/check_all.py
 - Up and Down: pitch
 - A and S: zoom
 - X: toggle auto rotate
+- B: toggle cylinder boundary
 - D: toggle debug
 - ESC: quit
 
@@ -63,6 +68,9 @@ The LC001 camera is an orbit camera. At yaw = 0 and pitch = 0, it looks along
 positive Z toward the target. Camera-space depth is positive in front of the
 camera. Points at or behind the near clip are skipped rather than clipped.
 
+The LC002 camera target is `Vec3(0, CYLINDER_HEIGHT * 0.45, 0)`, with default
+radius 96, height 240, 32 radial segments, and 8 vertical guides.
+
 ## Public Safety
 
 Run the public safety check before publishing or pushing. Do not store
@@ -71,13 +79,13 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000 was committed and pushed with approval. LC001 changes are not committed or
-pushed yet. Future commits and pushes require user approval.
+LC000 and LC001 were committed and pushed with approval. LC002 changes are not
+committed or pushed yet. Future commits and pushes require user approval.
 
 ## Next Wave
 
-LC002 should implement the cylindrical observation volume on top of the LC001
-math and camera foundation.
+LC003 should introduce procedural curved grass using the LC002 bottom sampling
+and containment rules.
 
 ## Design Decisions
 
