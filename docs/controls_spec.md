@@ -1,13 +1,12 @@
 # Controls Spec
 
-LC000 only supports ESC to quit the debug screen. The following keyboard controls
-are candidates for later waves:
+LC001 implements keyboard controls for orbit-camera inspection:
 
-- Left and Right: yaw
-- Up and Down: pitch
-- A and S: zoom
-- X: auto rotate
-- D: debug
+- Left and Right: yaw left and right around the target
+- Up and Down: pitch the view up and down
+- A and S: zoom in and out
+- X: toggle auto rotate
+- D: toggle debug frame and camera details
 - ESC: exit
 
 Touch controls are planned for a later wave after camera and scene behavior are

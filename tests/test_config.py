@@ -21,3 +21,15 @@ def test_safe_area_invariants() -> None:
 
 def test_config_validation_accepts_lc000_values() -> None:
     config.validate_display_config()
+
+
+def test_camera_config_invariants() -> None:
+    assert config.CAMERA_MIN_DISTANCE > 0
+    assert config.CAMERA_MIN_DISTANCE <= config.CAMERA_INITIAL_DISTANCE
+    assert config.CAMERA_INITIAL_DISTANCE <= config.CAMERA_MAX_DISTANCE
+    assert config.CAMERA_MIN_PITCH < config.CAMERA_MAX_PITCH
+    assert config.CAMERA_FOCAL_LENGTH > 0
+    assert config.CAMERA_YAW_SPEED > 0
+    assert config.CAMERA_PITCH_SPEED > 0
+    assert config.CAMERA_ZOOM_SPEED > 0
+    assert config.AUTO_ROTATE_SPEED > 0

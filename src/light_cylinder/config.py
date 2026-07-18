@@ -13,6 +13,19 @@ TARGET_FPS = 30
 
 PROJECT_TITLE = "Light Cylinder"
 
+CAMERA_INITIAL_YAW = 0.0
+CAMERA_INITIAL_PITCH = 0.25
+CAMERA_INITIAL_DISTANCE = 420.0
+CAMERA_MIN_DISTANCE = 180.0
+CAMERA_MAX_DISTANCE = 900.0
+CAMERA_MIN_PITCH = -1.3962634015954636
+CAMERA_MAX_PITCH = 1.3962634015954636
+CAMERA_FOCAL_LENGTH = 260.0
+CAMERA_YAW_SPEED = 0.035
+CAMERA_PITCH_SPEED = 0.025
+CAMERA_ZOOM_SPEED = 12.0
+AUTO_ROTATE_SPEED = 0.01
+
 
 def validate_display_config() -> None:
     if RENDER_WIDTH < COMPOSITION_SAFE_WIDTH:
@@ -27,3 +40,11 @@ def validate_display_config() -> None:
         raise ValueError("render height must match the reference height")
     if TARGET_FPS <= 0:
         raise ValueError("target FPS must be positive")
+    if CAMERA_MIN_DISTANCE <= 0:
+        raise ValueError("minimum camera distance must be positive")
+    if CAMERA_INITIAL_DISTANCE < CAMERA_MIN_DISTANCE:
+        raise ValueError("initial camera distance must be at least the minimum")
+    if CAMERA_INITIAL_DISTANCE > CAMERA_MAX_DISTANCE:
+        raise ValueError("initial camera distance must be at most the maximum")
+    if CAMERA_MIN_PITCH >= CAMERA_MAX_PITCH:
+        raise ValueError("minimum camera pitch must be lower than maximum pitch")

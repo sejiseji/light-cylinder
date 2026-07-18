@@ -2,9 +2,9 @@
 
 Each wave should remain small enough to review and commit on its own.
 
-- LC000: bootstrap
-- LC001: 3D math and camera
-- LC002: cylindrical observation volume
+- LC000: bootstrap - done
+- LC001: 3D math and camera - done
+- LC002: cylindrical observation volume - next
 - LC003: procedural curved grass
 - LC004: layered wind
 - LC005: sliced light

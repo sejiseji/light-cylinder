@@ -11,8 +11,9 @@ Configuration constants are centralized in `light_cylinder.config`.
 
 ## Coordinate System
 
-Future 3D-like logic will use X for horizontal movement, Y for vertical movement,
-and Z for depth. The cylinder center axis is Y. The ground plane starts at y = 0.
+LC001 adopts a right-handed coordinate system. X is horizontal, Y is vertical,
+and Z is depth. The future cylinder center axis is Y, and the ground plane
+starts at y = 0. The origin represents the future cylinder bottom center.
 
 ## Resolution Model
 
@@ -31,6 +32,30 @@ where needed. Browser UI changes must not alter the game coordinate system.
 Pyxel-specific rendering and input should stay close to the app layer. Pure
 logic, math, procedural rules, and state transitions should remain testable
 without importing Pyxel.
+
+LC001 keeps `math3d.py`, `camera.py`, and `ControlIntent` Pyxel-independent.
+`app.py` reads Pyxel input and renders projected debug geometry.
+
+## Orbit Camera
+
+Light Cylinder uses an orbit camera because the work observes a subject from
+around a fixed target rather than moving freely through a world. At yaw = 0 and
+pitch = 0, the camera is conceptually in front of the target and looks along
+positive Z. Camera-space depth is positive in front of the camera.
+
+Projection uses:
+
+```text
+screen_x = center_x + camera_x * focal_length / depth
+screen_y = center_y - camera_y * focal_length / depth
+```
+
+The negative sign in the Y projection maps world-up to screen-up because screen
+Y increases downward. Points at or behind the near clip are not projected.
+
+LC001 intentionally avoids a general Matrix library and Quaternion support.
+The camera transform is target subtraction, inverse yaw, inverse pitch, distance
+offset, near-clip rejection, and perspective projection.
 
 ## Resource Resolution
 

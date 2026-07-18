@@ -5,15 +5,15 @@ cylindrical slice of nature. Its central motif is cutting out incoming light:
 grass, wind, rain, particles, shade, and bright bands will eventually gather
 inside a tall observation space.
 
-This repository is currently in private development. Before publishing or
-pushing changes, run the public safety check and the full verification script.
+This repository is currently in early development. Before publishing or pushing
+changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC000 builds the project foundation only. It provides the Python package,
-Pyxel launcher, display constants, placeholder debug view, specifications,
-tests, and safety checks. Grass, light, rain, camera math, audio, touch input,
-and web packaging are intentionally left for later waves.
+LC001 adds the 3D math and orbit camera foundation. It provides testable Vec2
+and Vec3 operations, camera projection, input intent mapping, and a Pyxel debug
+view with projected X/Y/Z axes. Grass, light, rain, audio, touch input, and web
+packaging are intentionally left for later waves.
 
 ## Display Model
 
@@ -45,8 +45,18 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC000 screen shows the render frame, the centered composition safe area,
-project name, render size, safe size, FPS, and the ESC quit hint.
+The LC001 screen shows projected X/Y/Z axes, the origin, reference grid points,
+camera state, auto-rotate state, debug state, and the centered composition safe
+area while debug is visible.
+
+## Controls
+
+- Left and Right: yaw around the target
+- Up and Down: pitch around the target
+- A and S: zoom in and out
+- X: toggle auto rotate
+- D: toggle debug frame
+- ESC: quit
 
 ## Validate
 
