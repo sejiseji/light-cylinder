@@ -43,3 +43,9 @@ LC006.5 does not increase grass, particle, or spark counts. Camera inertia is
 constant-time app state. Micro wind, cloud shadow, and particle random walk add a
 few trigonometric calls per existing sample, keeping the performance profile in
 the same shape as LC006.
+
+LC007 adds 64 deterministic rain candidates. The default amount is 0.45, so
+about 29 drops are active before light gating. Rain draws line segments only
+after midpoint light checks pass, and it reuses one sampled wind vector per
+frame. There is no collision grid, splash simulation, wet-ground surface, or
+per-frame random sampling in LC007.

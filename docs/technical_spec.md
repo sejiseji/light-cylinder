@@ -208,6 +208,39 @@ Palette settings remain in `config.py`. Three preset dictionaries are available:
 setting updates the named `PALETTE_*` constants at import time. LC006.5 does not
 add a runtime palette toggle.
 
+## Rain Through Light
+
+LC007 adds `RainDrop` and `RainField` in `rain.py`. They do not import Pyxel.
+The clear observation state remains the default; `N` toggles rain, and `Q` / `E`
+decrease or increase the rain amount. Rain amount clamps to the normalized range
+0..1 and selects a prefix of the deterministic 64-drop candidate field.
+
+Rain samples the cylinder top disk with a fixed seed. Most candidates are biased
+toward the light corridor so the rain can reveal the beam without requiring a
+full-screen downpour. Drops fall downward over time and disappear when they
+reach the floor by wrapping back to the top on the next cycle. Wind affects the
+horizontal drift and tail tilt, so the rain moves as diagonal streaks rather than
+vertical bars.
+
+Normal rendering still does not draw the light beam. Rain is drawn only when a
+segment midpoint samples enough light from `LightBeam.intensity_at(point)` after
+the cloud-shadow multiplier is applied. This keeps rain as another medium for
+seeing the light, not a separate weather spectacle.
+
+LC007 draw order is:
+
+1. fixed dark background with sparse vertical bands
+2. floor grid with light-aware midpoint color
+3. optional cylinder boundary
+4. light particles
+5. light-gated rain segments
+6. wind-sampled, depth-sorted grass
+7. floor spark pixels
+8. debug-only axes, reference points, safe area, counters, and light guides
+
+Grass contact, splash points, wet ground, rain sound, and after-rain state are
+left for later waves.
+
 ## Resource Resolution
 
 Runtime resources should be resolved relative to source files with pathlib or

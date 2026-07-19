@@ -15,6 +15,9 @@ class FakePyxel:
     KEY_B = "b"
     KEY_W = "w"
     KEY_L = "l"
+    KEY_N = "n"
+    KEY_Q = "q"
+    KEY_E = "e"
     KEY_R = "r"
     KEY_ESCAPE = "escape"
     MOUSE_BUTTON_LEFT = "mouse-left"
@@ -52,6 +55,8 @@ def test_control_intent_defaults() -> None:
     assert not intent.toggle_boundary
     assert not intent.toggle_wind
     assert not intent.toggle_light
+    assert not intent.toggle_rain
+    assert intent.rain_intensity_delta == 0.0
     assert not intent.reset_camera
     assert not intent.quit_requested
 
@@ -66,6 +71,8 @@ def test_control_intent_holds_values() -> None:
         toggle_boundary=True,
         toggle_wind=True,
         toggle_light=True,
+        toggle_rain=True,
+        rain_intensity_delta=1.0,
         reset_camera=True,
         quit_requested=True,
     )
@@ -78,6 +85,8 @@ def test_control_intent_holds_values() -> None:
     assert intent.toggle_boundary
     assert intent.toggle_wind
     assert intent.toggle_light
+    assert intent.toggle_rain
+    assert intent.rain_intensity_delta == 1.0
     assert intent.reset_camera
     assert intent.quit_requested
 
@@ -91,6 +100,8 @@ def test_read_control_intent_from_key_state() -> None:
             FakePyxel.KEY_B,
             FakePyxel.KEY_W,
             FakePyxel.KEY_L,
+            FakePyxel.KEY_N,
+            FakePyxel.KEY_E,
             FakePyxel.KEY_R,
             FakePyxel.KEY_ESCAPE,
         },
@@ -106,8 +117,18 @@ def test_read_control_intent_from_key_state() -> None:
     assert intent.toggle_boundary
     assert intent.toggle_wind
     assert intent.toggle_light
+    assert intent.toggle_rain
+    assert intent.rain_intensity_delta == 1.0
     assert intent.reset_camera
     assert intent.quit_requested
+
+
+def test_read_control_intent_decreases_rain_intensity() -> None:
+    pyxel = FakePyxel(pressed={FakePyxel.KEY_Q})
+
+    intent = read_control_intent(pyxel, yaw_speed=0.1, pitch_speed=0.2, zoom_speed=3.0)
+
+    assert intent.rain_intensity_delta == -1.0
 
 
 def test_opposing_keys_cancel() -> None:

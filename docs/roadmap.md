@@ -5,6 +5,6 @@ mobile-first observation piece.
 
 1. Establish the project foundation, display contract, and safety workflow.
 2. Add testable math, camera, and cylindrical-space primitives.
-3. Build procedural grass, wind, sliced light, particles, and rain.
-4. Integrate mobile-friendly interaction, title flow, and ambience.
-5. Package and verify browser and mobile delivery paths.
+3. Build procedural grass, wind, sliced light, particles, and optional rain.
+4. Add rain reactions, weather transitions, and mobile-friendly interaction.
+5. Integrate title flow, ambience, and packaging for browser/mobile delivery.

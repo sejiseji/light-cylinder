@@ -97,6 +97,19 @@ LIGHT_FLOOR_THRESHOLD_LOW = 0.18
 LIGHT_FLOOR_THRESHOLD_MEDIUM = 0.4
 LIGHT_FLOOR_THRESHOLD_HIGH = 0.78
 
+RAIN_SEED = 9182
+RAIN_DROP_COUNT = 64
+RAIN_DEFAULT_INTENSITY = 0.45
+RAIN_INTENSITY_STEP = 0.15
+RAIN_MIN_FALL_SPEED = 96.0
+RAIN_MAX_FALL_SPEED = 142.0
+RAIN_MIN_LENGTH = 8.0
+RAIN_MAX_LENGTH = 15.0
+RAIN_WIND_DRIFT_SCALE = 34.0
+RAIN_WIND_TILT_SCALE = 10.0
+RAIN_LIGHT_VISIBILITY_THRESHOLD = 0.16
+RAIN_BRIGHT_VISIBILITY_THRESHOLD = 0.52
+
 PALETTE_PRESET = "morning"
 PALETTE_PRESETS = {
     "morning": {
@@ -293,6 +306,20 @@ def validate_display_config() -> None:
         <= LIGHT_FLOOR_THRESHOLD_HIGH
     ):
         raise ValueError("light floor thresholds must be ordered")
+    if RAIN_DROP_COUNT <= 0:
+        raise ValueError("rain drop count must be positive")
+    if not 0.0 <= RAIN_DEFAULT_INTENSITY <= 1.0:
+        raise ValueError("rain default intensity must be normalized")
+    if not 0.0 < RAIN_INTENSITY_STEP <= 1.0:
+        raise ValueError("rain intensity step must be normalized")
+    if RAIN_MIN_FALL_SPEED <= 0 or RAIN_MAX_FALL_SPEED < RAIN_MIN_FALL_SPEED:
+        raise ValueError("rain fall speed range must be positive and ordered")
+    if RAIN_MIN_LENGTH <= 0 or RAIN_MAX_LENGTH < RAIN_MIN_LENGTH:
+        raise ValueError("rain length range must be positive and ordered")
+    if RAIN_WIND_DRIFT_SCALE < 0 or RAIN_WIND_TILT_SCALE < 0:
+        raise ValueError("rain wind scales must be non-negative")
+    if not (0.0 <= RAIN_LIGHT_VISIBILITY_THRESHOLD <= RAIN_BRIGHT_VISIBILITY_THRESHOLD <= 1.0):
+        raise ValueError("rain light thresholds must be ordered")
     if not 0.0 <= CAMERA_INERTIA_DECAY < 1.0:
         raise ValueError("camera inertia decay must be normalized below one")
     if PALETTE_PRESET not in PALETTE_PRESETS:

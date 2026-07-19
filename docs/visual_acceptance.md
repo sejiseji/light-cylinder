@@ -48,6 +48,17 @@ LC006.5-specific completion checks:
 - Active palette preset remains coherent, and alternate presets are settings.
 - `Specimen of Light` / `光の標本` reads as the work title.
 
+LC007-specific completion checks:
+
+- The clear scene remains the default and still feels like the v0.1.0 prototype.
+- Rain becomes visible through the light, not as a full-screen curtain.
+- Wind makes rain fall diagonally without making the cylinder feel chaotic.
+- Rain disappears at the floor without splash or wet-ground behavior.
+- `N` gives an immediate clear/rain comparison.
+- `Q` and `E` adjust rain amount without making the scene feel like snow.
+- Grass remains the main subject when rain is on.
+- No meaningful FPS drop is visible.
+
 ## Artistic Review
 
 Each wave after LC006 should end with an artistic review in addition to technical

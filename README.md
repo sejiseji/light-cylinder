@@ -11,11 +11,11 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC006.5 adds observation polish without adding a new natural phenomenon. It adds
-short camera inertia, micro wind, cloud-shadow light breathing, gentle particle
-random walk, and three setting-only palette presets while preserving the HUD-off
-viewing composition. Rain, audio, touch input, and web packaging remain later
-waves.
+LC007 adds `Rain Through the Light` as an optional environment state. The scene
+still starts clear; pressing `N` introduces sparse wind-slanted rain that is only
+drawn where it crosses the light field. Rain amount can be adjusted with `Q` and
+`E`. Grass collisions, splashes, wet ground, audio, touch input, and web
+packaging remain later waves.
 
 ## Display Model
 
@@ -47,11 +47,11 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC006.5 screen starts in a viewing state: light on, wind on, boundary off,
-debug off, auto rotate off. It shows wind-animated grass, sparse particles, tip
-lighting, and subtle floor light without drawing the beam itself. Debug mode adds
-camera state, draw counters, the centered composition safe area, and light
-axis/radius guides.
+The LC007 screen starts in a clear viewing state: light on, wind on, rain off,
+boundary off, debug off, auto rotate off. It shows wind-animated grass, sparse
+particles, tip lighting, and subtle floor light without drawing the beam itself.
+Debug mode adds camera state, draw counters, the centered composition safe area,
+rain counters, and light axis/radius guides.
 
 ## Controls
 
@@ -64,6 +64,8 @@ axis/radius guides.
 - B: toggle cylinder boundary
 - W: toggle wind application
 - L: toggle light media
+- N: toggle rain
+- Q and E: decrease and increase rain amount
 - R: reset camera
 - D: toggle debug HUD, reference axes, and light guides
 - ESC: quit

@@ -10,14 +10,14 @@
 - LC005: light media and tip lighting
 - LC006: temporal and visual tuning
 - LC006.5: observation polish
+- LC007: Rain Through the Light
 
 ## NEXT
 
-- LC007: Rain Through the Light
+- LC008: rain, grass, and ground reactions
 
 ## LATER
 
-- LC008: rain, grass, and ground reactions
 - LC009: weather transitions
 - LC010: title and UI
 - LC011: touch controls

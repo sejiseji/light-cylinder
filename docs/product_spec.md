@@ -19,9 +19,9 @@ distance, and debug visibility without turning the work into an action game.
 
 ## MVP Scope
 
-The MVP should establish a stable mobile-first vertical composition, a cylindrical
-observation volume, procedural grass, layered wind, sliced light, rain, and simple
-touch controls.
+The MVP should establish a stable mobile-first vertical composition, a
+cylindrical observation volume, procedural grass, layered wind, sliced light,
+optional rain-through-light, and simple touch controls.
 
 ## Out Of Scope For MVP
 

@@ -92,6 +92,13 @@ make the field feel held in air rather than mechanically animated. The active
 palette remains `morning`, with `noon` and `evening` presets available as
 configuration options for later curation.
 
+LC007 introduces rain as a light-revealing medium. The clear scene remains the
+default. When rain is toggled on, only drops that pass through enough sampled
+light are drawn, so rain should read as thin illuminated streaks inside the beam
+rather than a full weather layer. Wind gives the streaks a diagonal fall, but
+grass remains the focal subject. Floor arrival is silent disappearance only;
+splashes, wet ground, and grass contact are reserved for a later wave.
+
 ## Vertical Composition
 
 The composition is tall and mobile-first. The internal render size is 448 x 852,

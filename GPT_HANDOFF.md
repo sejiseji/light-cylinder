@@ -8,7 +8,7 @@ cylindrical natural space.
 
 ## Current Wave
 
-LC006.5 observation polish.
+LC007 Rain Through the Light.
 
 ## Completed
 
@@ -54,11 +54,17 @@ LC006.5 observation polish.
 - Cloud-shadow light multiplier replacing direct pulse wording
 - Particle axis attraction and small random-walk motion
 - Setting-only palette presets for morning, noon, and evening
+- Pyxel-independent `RainDrop` and `RainField`
+- Optional rain with `N`, using `Q` and `E` for amount changes
+- Wind-slanted rain segments that disappear at the cylinder floor
+- Rain rendering gated by light intensity so only the light-crossing drops show
+- Rain candidates biased toward the light corridor so visible rain stays sparse
+  but legible
 
 ## Not Completed
 
-Rain, touch controls, audio, web packaging, and iOS packaging are intentionally
-not implemented yet.
+Grass collision, splash points, wet ground, after-rain state, touch controls,
+audio, web packaging, and iOS packaging are intentionally not implemented yet.
 
 ## Run
 
@@ -90,6 +96,8 @@ python scripts/check_all.py
 - B: toggle cylinder boundary
 - W: toggle wind
 - L: toggle light media
+- N: toggle rain
+- Q and E: decrease and increase rain amount
 - R: reset camera
 - D: toggle debug HUD, reference axes, and light guides
 - ESC: quit
@@ -160,6 +168,22 @@ Initial camera:
 - Normal rendering: no direct beam drawing
 - Debug rendering: axis line and three radius rings
 
+## Rain
+
+- Seed: 9182
+- Candidate drops: 64
+- Default amount: 0.45
+- Amount step: 0.15
+- Fall speed range: 96 to 142 world units per second
+- Segment length range: 8 to 15 world units
+- Wind drift scale: 34
+- Wind tilt scale: 10
+- Light visibility threshold: 0.16
+- Bright rain threshold: 0.52
+- Initial state: rain off, clear scene preserved
+- Generation: fixed-seed top-disk candidates, mostly biased to the light corridor
+- Rendering: line segments only, no direct rain volume or splash effect
+
 ## Palette
 
 - active preset: morning
@@ -189,10 +213,12 @@ Initial viewing state:
 - boundary: off
 - wind: on
 - light media: on
+- rain: off
 - auto rotate: off
 
 Use `D` for inspection and `B` to compare the restrained cylinder boundary.
-Use `R` to restore the presentation camera.
+Use `N` to compare clear and rainy observation states. Use `R` to restore the
+presentation camera.
 
 ## Visual Acceptance
 
@@ -201,13 +227,15 @@ LC006 GUI review found the HUD-off scene readable as a viewing screen: grass
 remains primary, light direction reads through sparse particles and tip lighting,
 particles do not read as snow, boundary ON is subdued, and HUD OFF can be
 watched for at least one minute without the auto rotate feeling too fast.
-LC006.5 should add Artistic Review notes to every wave result from now on.
+LC006.5 added Artistic Review notes to every wave result from now on.
 
 ## Performance
 
 - Grass count: 420
 - Nominal segments: 2,100
 - Typical visible particles in debug review: about 29 to 36
+- Rain candidates: 64, with about 29 active at the default 0.45 amount before
+  light gating
 - Approximate line draw calls are reported in debug HUD
 - GUI review kept a stable 30 FPS feel with light, wind, particles, boundary
   on/off, zoom, and slow auto rotate.
@@ -220,13 +248,16 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000 through LC006.5 were committed and pushed with approval. Future commits,
-pushes, and tags require user approval.
+LC000 through LC006.5 were committed and pushed with approval, and
+`prototype-v0.1.0` marks the first observation prototype. LC007 is in the working
+tree until explicitly approved for commit. Future commits, pushes, and tags
+require user approval.
 
 ## Next Wave
 
-LC007 Rain Through the Light should add toggleable rain without disturbing the
-LC006.5 presentation balance.
+LC008 should add rain interaction details only after LC007 is accepted: grass
+contact, sparse splash points, wet-ground cues, and rain-afterglow should remain
+separate from the initial rain-through-light layer.
 
 ## Design Decisions
 

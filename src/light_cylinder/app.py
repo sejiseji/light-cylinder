@@ -52,6 +52,9 @@ from light_cylinder.config import (
     PALETTE_SAFE_AREA,
     PALETTE_STRONGLY_LIT_GRASS,
     PROJECT_TITLE,
+    RAIN_BRIGHT_VISIBILITY_THRESHOLD,
+    RAIN_DEFAULT_INTENSITY,
+    RAIN_LIGHT_VISIBILITY_THRESHOLD,
     RENDER_HEIGHT,
     RENDER_WIDTH,
     SAFE_LEFT,
@@ -63,6 +66,7 @@ from light_cylinder.grass import GrassBlade, GrassField, compute_wind_bend, samp
 from light_cylinder.input import MouseInputState, read_control_intent
 from light_cylinder.light import LightField, LightParticle
 from light_cylinder.math3d import Vec3
+from light_cylinder.rain import RainField
 from light_cylinder.weather import WindField
 from light_cylinder.world import CylinderWorld
 
@@ -82,18 +86,21 @@ class LightCylinderApp:
         self.boundary_visible = False
         self.wind_enabled = True
         self.light_enabled = True
+        self.rain_enabled = False
         self.cylinder_lines = self._build_cylinder_lines()
         self.floor_lines = self._build_floor_lines()
         self.axis_lines = self._build_axis_lines()
         self.grass_field = GrassField.generate(self.world, seed=GRASS_SEED, grass_count=GRASS_COUNT)
         self.wind_field = WindField.create_default()
         self.light_field = LightField.create_default(self.world)
+        self.rain_field = RainField.create_default(self.world, self.light_field.beam)
         self.camera_yaw_velocity = 0.0
         self.camera_pitch_velocity = 0.0
         self.camera_zoom_velocity = 0.0
         self.visible_blade_count = 0
         self.visible_segment_count = 0
         self.visible_particle_count = 0
+        self.visible_rain_count = 0
         self.lit_segment_count = 0
         self.approx_line_draw_calls = 0
 
@@ -131,12 +138,21 @@ class LightCylinderApp:
             self.wind_enabled = not self.wind_enabled
         if intent.toggle_light:
             self.light_enabled = not self.light_enabled
+        if intent.toggle_rain:
+            self.rain_enabled = not self.rain_enabled
+            if self.rain_field.intensity == 0.0:
+                self.rain_field.set_intensity(RAIN_DEFAULT_INTENSITY)
+        if intent.rain_intensity_delta != 0.0:
+            self.rain_field.adjust_intensity(intent.rain_intensity_delta)
+            if self.rain_field.intensity > 0.0:
+                self.rain_enabled = True
         if intent.reset_camera:
             self._reset_camera()
 
         dt = 1.0 / TARGET_FPS
         self.wind_field.update(dt)
         self.light_field.update(dt)
+        self.rain_field.update(dt)
         yaw_delta = self._camera_motion_delta("yaw", intent.yaw_delta)
         pitch_delta = self._camera_motion_delta("pitch", intent.pitch_delta)
         zoom_delta = self._camera_motion_delta("zoom", intent.zoom_delta)
@@ -182,6 +198,7 @@ class LightCylinderApp:
         if self.boundary_visible:
             self._draw_depth_sorted_lines(pyxel, self.cylinder_lines)
         self._draw_light_particles(pyxel)
+        self._draw_rain(pyxel)
         self._draw_grass(pyxel)
         self._draw_ground_sparks(pyxel)
         if self.debug_visible:
@@ -239,6 +256,30 @@ class LightCylinderApp:
             else:
                 pyxel.pset(x, y, color)
             self.visible_particle_count += 1
+
+    def _draw_rain(self, pyxel) -> None:
+        self.visible_rain_count = 0
+        if not self.rain_enabled or not self.light_enabled:
+            return
+
+        wind = (
+            self.wind_field.sample(self.world.top_center)
+            if self.wind_enabled
+            else Vec3(0.0, 0.0, 0.0)
+        )
+        sortable: list[tuple[float, Vec3, Vec3, int]] = []
+        for drop, start, end in self.rain_field.segments(self.world, wind):
+            midpoint = (start + end) * 0.5
+            intensity = self._light_intensity_at(midpoint) * drop.brightness
+            if intensity < RAIN_LIGHT_VISIBILITY_THRESHOLD:
+                continue
+            depth = self.camera.world_to_camera(midpoint).z
+            color = select_rain_color(intensity)
+            sortable.append((depth, start, end, color))
+
+        for _depth, start, end, color in sorted(sortable, key=lambda item: item[0], reverse=True):
+            if self._draw_world_line(pyxel, start, end, color):
+                self.visible_rain_count += 1
 
     def _draw_grass(self, pyxel) -> None:
         self.visible_blade_count = 0
@@ -426,10 +467,10 @@ class LightCylinderApp:
 
         pyxel.text(SAFE_LEFT + 8, 12, DISPLAY_TITLE_EN, PALETTE_BRIGHT_PARTICLE)
         pyxel.text(SAFE_LEFT + 8, 24, DISPLAY_TITLE_JA, PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 36, "LC006.5 OBSERVATION POLISH", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 36, "LC007 RAIN THROUGH LIGHT", PALETTE_DEBUG_TEXT)
         pyxel.text(SAFE_LEFT + 8, 48, "ARROWS/DRAG YAW-PITCH", PALETTE_DEBUG_TEXT)
         pyxel.text(SAFE_LEFT + 8, 60, "A/S/WHEEL ZOOM  R RESET", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 72, "X AUTO  B/W/L TOGGLES", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 72, "X AUTO  B/W/L/N TOGGLES", PALETTE_DEBUG_TEXT)
         pyxel.text(SAFE_LEFT + 8, 84, "D HIDE DEBUG  ESC QUIT", PALETTE_DEBUG_TEXT)
         pyxel.text(
             SAFE_LEFT + 8, 96, f"AUTO {'ON' if self.auto_rotate else 'OFF'}", PALETTE_LIT_GRASS
@@ -449,6 +490,12 @@ class LightCylinderApp:
             f"LIGHT {'ON' if self.light_enabled else 'OFF'}",
             PALETTE_LIT_GRASS,
         )
+        pyxel.text(
+            SAFE_LEFT + 8,
+            144,
+            f"RAIN {'ON' if self.rain_enabled else 'OFF'} {self.rain_field.intensity:.2f} Q/E",
+            PALETTE_LIT_GRASS,
+        )
 
         center_x = RENDER_WIDTH // 2
         center_y = RENDER_HEIGHT // 2
@@ -458,40 +505,46 @@ class LightCylinderApp:
         pyxel.rectb(SAFE_LEFT, 0, COMPOSITION_SAFE_WIDTH, RENDER_HEIGHT, PALETTE_SAFE_AREA)
         pyxel.line(SAFE_LEFT, 0, SAFE_LEFT, RENDER_HEIGHT - 1, PALETTE_DISTANT_GRASS)
         pyxel.line(SAFE_RIGHT - 1, 0, SAFE_RIGHT - 1, RENDER_HEIGHT - 1, PALETTE_DISTANT_GRASS)
-        pyxel.text(SAFE_LEFT + 8, 150, f"yaw {self.camera.yaw:.2f}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 162, f"pitch {self.camera.pitch:.2f}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 174, f"distance {self.camera.distance:.1f}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 186, f"grass {len(self.grass_field)}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 198, f"segments {GRASS_SEGMENTS}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 210, f"visible {self.visible_blade_count}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 222, f"lit seg {self.lit_segment_count}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 162, f"yaw {self.camera.yaw:.2f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 174, f"pitch {self.camera.pitch:.2f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 186, f"distance {self.camera.distance:.1f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 198, f"grass {len(self.grass_field)}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 210, f"segments {GRASS_SEGMENTS}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 222, f"visible {self.visible_blade_count}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 234, f"lit seg {self.lit_segment_count}", PALETTE_DEBUG_TEXT)
         pyxel.text(
             SAFE_LEFT + 8,
-            234,
+            246,
             f"line calls {self.approx_line_draw_calls}",
             PALETTE_DEBUG_TEXT,
         )
         pyxel.text(
             SAFE_LEFT + 8,
-            246,
+            258,
             f"particles {self.visible_particle_count}",
             PALETTE_DEBUG_TEXT,
         )
-        pyxel.text(SAFE_LEFT + 8, 258, f"wind {self.wind_field.base_speed:.2f}", PALETTE_DEBUG_TEXT)
         pyxel.text(
             SAFE_LEFT + 8,
             270,
+            f"rain seg {self.visible_rain_count}",
+            PALETTE_DEBUG_TEXT,
+        )
+        pyxel.text(SAFE_LEFT + 8, 282, f"wind {self.wind_field.base_speed:.2f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(
+            SAFE_LEFT + 8,
+            294,
             f"gust {self.wind_field.current_gust_strength:.2f}",
             PALETTE_DEBUG_TEXT,
         )
         pyxel.text(
             SAFE_LEFT + 8,
-            282,
+            306,
             f"cloud {self.light_field.intensity_multiplier:.2f}",
             PALETTE_DEBUG_TEXT,
         )
         pyxel.text(
-            SAFE_LEFT + 8, 294, f"time {self.wind_field.elapsed_time:.1f}", PALETTE_DEBUG_TEXT
+            SAFE_LEFT + 8, 318, f"time {self.wind_field.elapsed_time:.1f}", PALETTE_DEBUG_TEXT
         )
 
     def _draw_light_debug(self, pyxel) -> None:
@@ -642,4 +695,10 @@ def select_particle_color(intensity: float) -> int:
         return PALETTE_BRIGHT_PARTICLE
     if intensity > 0.48:
         return PALETTE_LIT_GRASS
+    return PALETTE_DIM_PARTICLE
+
+
+def select_rain_color(intensity: float) -> int:
+    if intensity > RAIN_BRIGHT_VISIBILITY_THRESHOLD:
+        return PALETTE_BRIGHT_PARTICLE
     return PALETTE_DIM_PARTICLE

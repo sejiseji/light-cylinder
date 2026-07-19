@@ -91,6 +91,20 @@ def test_camera_config_invariants() -> None:
         <= config.LIGHT_FLOOR_THRESHOLD_MEDIUM
         <= config.LIGHT_FLOOR_THRESHOLD_HIGH
     )
+    assert config.RAIN_SEED == 9182
+    assert config.RAIN_DROP_COUNT == 64
+    assert 0.0 <= config.RAIN_DEFAULT_INTENSITY <= 1.0
+    assert 0.0 < config.RAIN_INTENSITY_STEP <= 1.0
+    assert config.RAIN_MIN_FALL_SPEED <= config.RAIN_MAX_FALL_SPEED
+    assert config.RAIN_MIN_LENGTH <= config.RAIN_MAX_LENGTH
+    assert config.RAIN_WIND_DRIFT_SCALE >= 0
+    assert config.RAIN_WIND_TILT_SCALE >= 0
+    assert (
+        0.0
+        <= config.RAIN_LIGHT_VISIBILITY_THRESHOLD
+        <= config.RAIN_BRIGHT_VISIBILITY_THRESHOLD
+        <= 1.0
+    )
     for name in dir(config):
         if name.startswith("PALETTE_"):
             value = getattr(config, name)
