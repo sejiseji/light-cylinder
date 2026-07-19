@@ -7,7 +7,7 @@ inside a tall cylindrical natural space.
 
 ## Current Wave
 
-LC003 procedural curved grass field.
+LC005 light media and tip lighting.
 
 ## Completed
 
@@ -30,11 +30,22 @@ LC003 procedural curved grass field.
 - Pyxel-independent `GrassBlade` and `GrassField`
 - Fixed-seed curved grass generation on the cylinder bottom
 - Depth-sorted static grass rendering with height, bend, width, and color variety
+- Pyxel-independent `WindField`
+- Layered wind with base direction, slow pulse, spatial phase, blade phase, and
+  smooth gust envelope
+- Stiffness and height-aware grass wind response
+- Wind toggle with `W`
+- Pyxel-independent `LightBeam` and `LightField`
+- 48 deterministic light particles inside the beam volume
+- Grass lighting from root/middle/tip samples, weighted toward blade tips
+- Bottom-grid light color changes and sparse floor spark points
+- Light media toggle with `L`
+- Debug-only light axis and radius guide rings
 
 ## Not Completed
 
-Wind animation, light, rain, touch controls, audio, web packaging, and iOS
-packaging are intentionally not implemented yet.
+Rain, touch controls, audio, web packaging, and iOS packaging are intentionally
+not implemented yet.
 
 ## Run
 
@@ -59,10 +70,14 @@ python scripts/check_all.py
 
 - Left and Right: yaw
 - Up and Down: pitch
+- Mouse drag: yaw and pitch
 - A and S: zoom
+- Mouse wheel: zoom
 - X: toggle auto rotate
 - B: toggle cylinder boundary
-- D: toggle debug
+- W: toggle wind
+- L: toggle light media
+- D: toggle debug HUD, reference axes, and light guides
 - ESC: quit
 
 ## Camera
@@ -76,14 +91,43 @@ radius 96, height 240, 32 radial segments, and 8 vertical guides.
 
 ## Grass
 
-- Count: 280
+- Count: 420
 - Segments per blade: 5
 - Seed: 1729
 - Height range: 18 to 46
 - Bend range: 2 to 15
 - Stiffness range: 0.45 to 1.0
 - Density: slightly sparse at center and rim, densest around the middle band
-- Animation: none in LC003
+- Animation: layered wind in LC004
+
+## Wind
+
+- Base direction angle: 0.35 radians
+- Base speed: 0.55
+- Response scale: 13.0
+- Slow pulse: sinusoidal
+- Spatial phase: X/Z position
+- Blade phase: `GrassBlade.phase`
+- Gust: deterministic sin-squared envelope
+- Wind max bend: 42 percent of blade height
+
+## Light
+
+- Beam origin: `(-34, 246, -22)`
+- Beam direction: `(0.22, -1.0, 0.18)` normalized
+- Beam length: 285
+- Beam radius: 42
+- Core radius: 13
+- Particles: 48
+- Floor sparks: 28
+- Normal rendering: no direct beam drawing
+- Debug rendering: axis line and three radius rings
+
+## Visual Acceptance
+
+From LC005 onward, review `docs/visual_acceptance.md` after implementation.
+LC005 should make the light column readable through particles, grass tips, and
+floor lighting while keeping grass as the main subject.
 
 ## Public Safety
 
@@ -93,12 +137,13 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000, LC001, and LC002 were committed and pushed with approval. LC003 changes
-are not committed or pushed yet. Future commits and pushes require user approval.
+LC000 through LC003 were committed and pushed with approval. LC004/LC005 changes are
+not committed or pushed yet. Future commits and pushes require user approval.
 
 ## Next Wave
 
-LC004 should add layered wind using each blade's stored stiffness and phase.
+LC006 should tune time, palette, HUD-off beauty, camera auto speed, wind rhythm,
+particle speed, and cylinder presence.
 
 ## Design Decisions
 

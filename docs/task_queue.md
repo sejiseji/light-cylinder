@@ -6,15 +6,15 @@
 - LC001: 3D math and camera
 - LC002: cylindrical observation volume
 - LC003: procedural curved grass
+- LC004: layered wind
+- LC005: light media and tip lighting
 
 ## NEXT
 
-- LC004: layered wind
+- LC006: temporal and visual tuning
 
 ## LATER
 
-- LC005: sliced light
-- LC006: visual integration
 - LC007: rain
 - LC008: rain, grass, and ground reactions
 - LC009: weather transitions

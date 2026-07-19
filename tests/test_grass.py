@@ -12,8 +12,15 @@ from light_cylinder.config import (
     GRASS_MIN_HEIGHT,
     GRASS_MIN_STIFFNESS,
     GRASS_SEGMENTS,
+    WIND_MAX_BEND_RATIO,
 )
-from light_cylinder.grass import GrassBlade, GrassField, density_weight, sample_blade_points
+from light_cylinder.grass import (
+    GrassBlade,
+    GrassField,
+    compute_wind_bend,
+    density_weight,
+    sample_blade_points,
+)
 from light_cylinder.math3d import Vec3
 from light_cylinder.world import CylinderWorld
 
@@ -120,3 +127,44 @@ def test_sample_blade_points_are_finite_and_deterministic() -> None:
 
     assert first == second
     assert all(isfinite(point.x) and isfinite(point.y) and isfinite(point.z) for point in first)
+
+
+def test_wind_bend_none_matches_static_curve() -> None:
+    blade = GrassBlade(Vec3(0.0, 0.0, 0.0), 8.0, Vec3(2.0, 0.0, 1.0), 1.0, 0.0, 0, 0)
+
+    assert sample_blade_points(blade, 4) == sample_blade_points(blade, 4, None)
+
+
+def test_wind_bend_moves_tip_but_not_root() -> None:
+    blade = GrassBlade(Vec3(0.0, 0.0, 0.0), 20.0, Vec3(2.0, 0.0, 0.0), 0.8, 0.0, 0, 0)
+    static = sample_blade_points(blade, 5)
+    windy = sample_blade_points(blade, 5, Vec3(5.0, 0.0, 0.0))
+
+    assert windy[0] == static[0]
+    assert windy[-1].x > static[-1].x
+    assert all(first.y <= second.y for first, second in pairwise(windy))
+
+
+def test_stiffer_grass_reacts_less_to_wind() -> None:
+    soft = GrassBlade(Vec3(0.0, 0.0, 0.0), 24.0, Vec3(0.0, 0.0, 0.0), 0.5, 0.0, 0, 0)
+    stiff = GrassBlade(Vec3(0.0, 0.0, 0.0), 24.0, Vec3(0.0, 0.0, 0.0), 1.0, 0.0, 0, 0)
+    wind = Vec3(0.5, 0.0, 0.0)
+
+    assert compute_wind_bend(soft, wind).length() > compute_wind_bend(stiff, wind).length()
+
+
+def test_taller_grass_reacts_more_to_wind() -> None:
+    short = GrassBlade(Vec3(0.0, 0.0, 0.0), 18.0, Vec3(0.0, 0.0, 0.0), 1.0, 0.0, 0, 0)
+    tall = GrassBlade(Vec3(0.0, 0.0, 0.0), 46.0, Vec3(0.0, 0.0, 0.0), 1.0, 0.0, 0, 0)
+    wind = Vec3(0.5, 0.0, 0.0)
+
+    assert compute_wind_bend(tall, wind).length() > compute_wind_bend(short, wind).length()
+
+
+def test_wind_bend_is_limited_and_horizontal() -> None:
+    blade = GrassBlade(Vec3(0.0, 0.0, 0.0), 20.0, Vec3(0.0, 0.0, 0.0), 0.45, 0.0, 0, 0)
+
+    bend = compute_wind_bend(blade, Vec3(999.0, 10.0, 0.0))
+
+    assert bend.y == 0.0
+    assert bend.length() <= blade.height * WIND_MAX_BEND_RATIO

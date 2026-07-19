@@ -10,10 +10,10 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC003 adds a procedural curved grass field. It provides Pyxel-independent
-`GrassBlade` and `GrassField` data, fixed-seed generation on the cylinder bottom,
-curved blade sampling, and depth-sorted grass drawing. Wind, light, rain, audio,
-touch input, and web packaging are intentionally left for later waves.
+LC005 establishes the first light column without drawing the beam itself. A
+Pyxel-independent `LightBeam` exposes `intensity_at(point)`, and particles,
+grass tips, and the bottom grid reveal where light exists. Rain, audio, touch
+input, and web packaging are intentionally left for later waves.
 
 ## Display Model
 
@@ -45,19 +45,23 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC003 screen shows the cylinder, bottom grid, center axis, and a deterministic
-curved grass field with varied height, bend, and color. Debug mode shows camera
-state, grass count, segment count, seed, visible blades, visible lines, and the
-centered composition safe area.
+The LC005 screen shows the cylinder, bottom grid, wind-animated grass, sparse
+light particles, tip lighting on grass, and a lit bottom grid. Debug mode adds
+camera state, counts, wind state, the centered composition safe area, and light
+axis/radius guides.
 
 ## Controls
 
 - Left and Right: yaw around the target
 - Up and Down: pitch around the target
+- Mouse drag: yaw and pitch around the target
 - A and S: zoom in and out
+- Mouse wheel: zoom in and out
 - X: toggle auto rotate
 - B: toggle cylinder boundary
-- D: toggle debug frame
+- W: toggle wind application
+- L: toggle light media
+- D: toggle debug HUD, reference axes, and light guides
 - ESC: quit
 
 ## Validate

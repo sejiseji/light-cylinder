@@ -108,6 +108,56 @@ deterministic density weight makes the center and outer rim slightly sparser
 than the middle band. Drawing sorts grass by the camera depth of each blade's
 middle point, then draws each sampled segment from root to tip.
 
+## Layered Wind
+
+LC004 adds `WindField` in `weather.py`. It is Pyxel-independent and keeps
+elapsed time internally. `app.py` advances it with `1 / TARGET_FPS` each frame.
+The time value wraps at a long fixed interval to keep trigonometric inputs
+bounded.
+
+`WindField.sample(position, phase)` combines:
+
+- a constant base direction
+- slow sinusoidal wind-speed pulsing
+- spatial phase from X/Z position
+- each blade's stored phase
+- a deterministic smooth gust envelope
+- a small local direction sway
+
+Wind vectors are horizontal: Y is always zero. The grass response computes a
+wind bend from the sampled wind, blade height, and blade stiffness, then clamps
+the result to a maximum ratio of blade height. `sample_blade_points` still keeps
+the root fixed and applies bend progressively toward the tip.
+
+The grass field itself is not regenerated per frame, and no per-frame random
+sampling is used. LC004 recomputes curve points each frame so LC005 can add light
+without depending on a heavy animation framework.
+
+## Light Media
+
+LC005 adds `LightBeam`, `LightParticle`, `LightGroundSpark`, and `LightField` in
+`light.py`. These classes do not import Pyxel. `LightBeam` is a non-rendered
+domain object: normal drawing code must not draw the beam surface or volume
+directly. It only answers:
+
+```text
+intensity = LightBeam.intensity_at(point)
+```
+
+The beam intensity is based on axial range, radial distance from the beam axis,
+a core radius, and end fading. `LightField` owns 48 deterministic particles and
+28 deterministic floor spark points. The app advances light time once per frame
+and draws only media that has sampled non-zero beam intensity:
+
+- sparse particles inside the light volume
+- grass root, middle, and tip samples, weighted tip > middle > root
+- bottom grid midpoint color changes
+- a small number of floor spark pixels
+
+`L` toggles light media application for visual comparison. `D` toggles debug
+mode; only debug mode draws the light axis and three radius guide rings. This is
+the deliberate exception to the "do not draw the beam" rule.
+
 ## Resource Resolution
 
 Runtime resources should be resolved relative to source files with pathlib or

@@ -24,7 +24,9 @@ particles should reveal depth without overwhelming the quiet mood.
 LC003 introduces static curved grass. Each blade uses a base point on the
 cylinder bottom, a height, a natural XZ bend, and a quadratic curve so the bend
 is weak near the root and strongest at the tip. Blade height, bend, color, and
-width class vary by fixed-seed generation.
+width class vary by fixed-seed generation. Rendering keeps roots slightly
+thicker and tapers toward the tip, so blades read as thin flat grass rather than
+uniform wires.
 
 The grass density is biased toward the middle band of the cylinder floor, with
 the center and outer edge slightly less dense. This keeps the floor direction and
@@ -42,6 +44,25 @@ debug readability and are not the final palette.
 LC003 adds temporary green variants and depth shading for grass. Boundary lines
 remain available with `B`, but grass remains the main visual subject when the
 boundary is hidden.
+
+LC004 animates the grass with layered wind. A shared base direction gives the
+field coherence, while slow pulsing, spatial phase, and each blade's stored
+phase prevent the grass from moving as one sheet. Height and stiffness affect
+response: taller and softer blades move more, and roots remain visually stable
+while tips carry most of the motion.
+
+Gusts use a smooth envelope so the field gradually strengthens and relaxes. They
+should read as a slow breath through the grass rather than a sudden snap.
+
+LC005 makes light visible through media rather than drawing the light column
+itself. Particles are sparse so they read as air, not snow. Grass lighting is
+biased toward blade tips: each blade samples only root, middle, and tip, with
+tip response strongest. This should make leaves appear to cross into light while
+wind moves them. The bottom grid carries the first ground light impression, with
+only a few extra bright floor points.
+
+When debug is off, light-axis lines and radius circles must disappear. The viewer
+should infer the beam from particles, grass tips, and the floor.
 
 ## Vertical Composition
 

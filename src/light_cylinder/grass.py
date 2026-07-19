@@ -13,8 +13,10 @@ from light_cylinder.config import (
     GRASS_MIN_HEIGHT,
     GRASS_MIN_STIFFNESS,
     GRASS_SEED,
+    WIND_MAX_BEND_RATIO,
+    WIND_RESPONSE_SCALE,
 )
-from light_cylinder.math3d import Vec3
+from light_cylinder.math3d import Vec3, clamp
 from light_cylinder.world import CylinderWorld
 
 
@@ -99,6 +101,15 @@ def sample_blade_points(
     return points
 
 
+def compute_wind_bend(blade: GrassBlade, wind_vector: Vec3) -> Vec3:
+    height_factor = clamp(blade.height / GRASS_MAX_HEIGHT, 0.0, 1.0)
+    stiffness_factor = 1.0 / max(blade.stiffness, GRASS_MIN_STIFFNESS)
+    raw = Vec3(wind_vector.x, 0.0, wind_vector.z) * (
+        height_factor * stiffness_factor * WIND_RESPONSE_SCALE
+    )
+    return _limit_length(raw, blade.height * WIND_MAX_BEND_RATIO)
+
+
 def _natural_bend(rng: Random) -> Vec3:
     bend_angle = rng.random() * tau
     bend_amount = rng.uniform(GRASS_MIN_BEND, GRASS_MAX_BEND)
@@ -107,3 +118,10 @@ def _natural_bend(rng: Random) -> Vec3:
 
 def _is_finite_vec3(point: Vec3) -> bool:
     return isfinite(point.x) and isfinite(point.y) and isfinite(point.z)
+
+
+def _limit_length(vector: Vec3, max_length: float) -> Vec3:
+    length = vector.length()
+    if length <= max_length or length == 0:
+        return vector
+    return vector.normalized() * max_length

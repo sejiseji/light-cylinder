@@ -1,4 +1,6 @@
-from light_cylinder.input import ControlIntent, read_control_intent
+import pytest
+
+from light_cylinder.input import ControlIntent, MouseInputState, read_control_intent
 
 
 class FakePyxel:
@@ -11,13 +13,27 @@ class FakePyxel:
     KEY_X = "x"
     KEY_D = "d"
     KEY_B = "b"
+    KEY_W = "w"
+    KEY_L = "l"
     KEY_ESCAPE = "escape"
+    MOUSE_BUTTON_LEFT = "mouse-left"
+    MOUSE_POS_X = "mouse-x"
+    MOUSE_POS_Y = "mouse-y"
+    MOUSE_WHEEL_Y = "mouse-wheel-y"
 
-    def __init__(self, held: set[str] | None = None, pressed: set[str] | None = None) -> None:
+    def __init__(
+        self,
+        held: set[str] | None = None,
+        pressed: set[str] | None = None,
+        values: dict[str, float] | None = None,
+    ) -> None:
         self.held = held or set()
         self.pressed = pressed or set()
+        self.values = values or {}
 
-    def btn(self, key: str) -> bool:
+    def btn(self, key: str) -> bool | float:
+        if key in self.values:
+            return self.values[key]
         return key in self.held
 
     def btnp(self, key: str) -> bool:
@@ -43,6 +59,8 @@ def test_control_intent_holds_values() -> None:
         toggle_auto_rotate=True,
         toggle_debug=True,
         toggle_boundary=True,
+        toggle_wind=True,
+        toggle_light=True,
         quit_requested=True,
     )
 
@@ -52,13 +70,22 @@ def test_control_intent_holds_values() -> None:
     assert intent.toggle_auto_rotate
     assert intent.toggle_debug
     assert intent.toggle_boundary
+    assert intent.toggle_wind
+    assert intent.toggle_light
     assert intent.quit_requested
 
 
 def test_read_control_intent_from_key_state() -> None:
     pyxel = FakePyxel(
         held={FakePyxel.KEY_RIGHT, FakePyxel.KEY_UP, FakePyxel.KEY_A},
-        pressed={FakePyxel.KEY_X, FakePyxel.KEY_D, FakePyxel.KEY_B, FakePyxel.KEY_ESCAPE},
+        pressed={
+            FakePyxel.KEY_X,
+            FakePyxel.KEY_D,
+            FakePyxel.KEY_B,
+            FakePyxel.KEY_W,
+            FakePyxel.KEY_L,
+            FakePyxel.KEY_ESCAPE,
+        },
     )
 
     intent = read_control_intent(pyxel, yaw_speed=0.1, pitch_speed=0.2, zoom_speed=3.0)
@@ -69,6 +96,8 @@ def test_read_control_intent_from_key_state() -> None:
     assert intent.toggle_auto_rotate
     assert intent.toggle_debug
     assert intent.toggle_boundary
+    assert intent.toggle_wind
+    assert intent.toggle_light
     assert intent.quit_requested
 
 
@@ -89,3 +118,57 @@ def test_opposing_keys_cancel() -> None:
     assert intent.yaw_delta == 0.0
     assert intent.pitch_delta == 0.0
     assert intent.zoom_delta == 0.0
+
+
+def test_mouse_drag_updates_yaw_pitch() -> None:
+    state = MouseInputState(previous_x=100.0, previous_y=100.0, dragging=True)
+    pyxel = FakePyxel(
+        held={FakePyxel.MOUSE_BUTTON_LEFT},
+        values={
+            FakePyxel.MOUSE_POS_X: 112.0,
+            FakePyxel.MOUSE_POS_Y: 90.0,
+            FakePyxel.MOUSE_WHEEL_Y: 0.0,
+        },
+    )
+
+    intent = read_control_intent(
+        pyxel,
+        yaw_speed=0.1,
+        pitch_speed=0.2,
+        zoom_speed=3.0,
+        mouse_state=state,
+        mouse_yaw_speed=0.01,
+        mouse_pitch_speed=0.02,
+        mouse_wheel_zoom_speed=4.0,
+    )
+
+    assert intent.yaw_delta == pytest.approx(0.12)
+    assert intent.pitch_delta == pytest.approx(0.2)
+    assert state.previous_x == 112.0
+    assert state.previous_y == 90.0
+    assert state.dragging
+
+
+def test_mouse_wheel_updates_zoom() -> None:
+    state = MouseInputState()
+    pyxel = FakePyxel(
+        values={
+            FakePyxel.MOUSE_POS_X: 0.0,
+            FakePyxel.MOUSE_POS_Y: 0.0,
+            FakePyxel.MOUSE_WHEEL_Y: 2.0,
+        }
+    )
+
+    intent = read_control_intent(
+        pyxel,
+        yaw_speed=0.1,
+        pitch_speed=0.2,
+        zoom_speed=3.0,
+        mouse_state=state,
+        mouse_yaw_speed=0.01,
+        mouse_pitch_speed=0.02,
+        mouse_wheel_zoom_speed=4.0,
+    )
+
+    assert intent.zoom_delta == -8.0
+    assert not state.dragging

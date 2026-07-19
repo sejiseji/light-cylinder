@@ -32,6 +32,9 @@ def test_camera_config_invariants() -> None:
     assert config.CAMERA_YAW_SPEED > 0
     assert config.CAMERA_PITCH_SPEED > 0
     assert config.CAMERA_ZOOM_SPEED > 0
+    assert config.MOUSE_YAW_SPEED > 0
+    assert config.MOUSE_PITCH_SPEED > 0
+    assert config.MOUSE_WHEEL_ZOOM_SPEED > 0
     assert config.AUTO_ROTATE_SPEED > 0
     assert config.CYLINDER_RADIUS == 96.0
     assert config.CYLINDER_HEIGHT == 240.0
@@ -39,9 +42,27 @@ def test_camera_config_invariants() -> None:
     assert config.CYLINDER_VERTICAL_GUIDES == 8
     assert 0.0 <= config.CYLINDER_TARGET_HEIGHT_FACTOR <= 1.0
     assert config.GRASS_SEED == 1729
-    assert config.GRASS_COUNT == 280
+    assert config.GRASS_COUNT == 420
     assert config.GRASS_SEGMENTS == 5
     assert config.GRASS_MIN_HEIGHT > 0
     assert config.GRASS_MIN_HEIGHT <= config.GRASS_MAX_HEIGHT
     assert config.GRASS_MIN_BEND <= config.GRASS_MAX_BEND
     assert config.GRASS_MIN_STIFFNESS <= config.GRASS_MAX_STIFFNESS
+    assert config.WIND_SEED == 2718
+    assert config.WIND_BASE_SPEED >= 0
+    assert config.WIND_RESPONSE_SCALE >= 0
+    assert 0.0 <= config.WIND_SLOW_PULSE_AMOUNT <= 1.0
+    assert config.WIND_MAX_BEND_RATIO > 0
+    assert config.WIND_TIME_WRAP_SECONDS > 0
+    assert config.GUST_INTERVAL > 0
+    assert config.GUST_DURATION > 0
+    assert config.GUST_STRENGTH >= 0
+    assert config.LIGHT_SEED == 4055
+    assert config.LIGHT_PARTICLE_COUNT == 48
+    assert 20 <= config.LIGHT_GROUND_SPARK_COUNT <= 40
+    assert len(config.LIGHT_BEAM_ORIGIN) == 3
+    assert len(config.LIGHT_BEAM_DIRECTION) == 3
+    assert config.LIGHT_BEAM_LENGTH > 0
+    assert config.LIGHT_BEAM_RADIUS > 0
+    assert 0 <= config.LIGHT_BEAM_CORE_RADIUS < config.LIGHT_BEAM_RADIUS
+    assert config.LIGHT_BEAM_END_FADE > 0

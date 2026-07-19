@@ -12,8 +12,21 @@ Visual quality and measured performance should be reviewed separately. A scene
 can look calm while still wasting frame time, and a fast scene can still fail the
 intended atmosphere.
 
-LC003 uses 280 grass blades with 5 segments each, for about 1,400 nominal grass
+LC003 used 280 grass blades with 5 segments each, for about 1,400 nominal grass
 line segments before near-clip rejection. Grass parameters and static curve
 points are generated once at app startup. The draw loop does not regenerate grass
 or call random each frame. LC004 should re-check this budget when wind begins to
 modify blade curves over time.
+
+LC004 raises the field to 420 blades with 5 segments each, about 2,100 nominal
+grass segments before near-clip rejection. It recomputes curve points every frame
+from deterministic wind math, sorts blades by representative depth, and does not
+regenerate the grass field or call random each frame. LC005 should re-check the
+budget when sliced light adds more draw work.
+
+LC005 adds 48 light particles and 28 bottom-floor spark points. Grass lighting
+evaluates only three points per blade: root, middle, and tip. Tip response is
+weighted strongest, middle response is weaker, and root response is intentionally
+rare. The bottom grid changes color from line midpoints instead of introducing a
+large separate light-spot field. The light beam itself is not drawn in normal
+view.
