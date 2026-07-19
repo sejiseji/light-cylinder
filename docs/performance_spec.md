@@ -49,3 +49,10 @@ about 29 drops are active before light gating. Rain draws line segments only
 after midpoint light checks pass, and it reuses one sampled wind vector per
 frame. There is no collision grid, splash simulation, wet-ground surface, or
 per-frame random sampling in LC007.
+
+LC008 keeps the 64 rain-candidate budget. Reaction work is driven by ground
+impact events rather than every visible rain line. Each impact can create two
+short-lived splash particles and can affect at most one nearby grass blade. Grass
+reaction state is one small record per blade and decays each frame. Ground
+wetness is a single scalar, not a surface simulation. There is still no puddle
+grid, ripple solver, audio engine, or per-frame random sampling.

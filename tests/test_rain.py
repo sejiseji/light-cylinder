@@ -2,7 +2,7 @@ import pytest
 
 from light_cylinder.config import RAIN_DROP_COUNT
 from light_cylinder.math3d import Vec3
-from light_cylinder.rain import RainField
+from light_cylinder.rain import RainDrop, RainField
 from light_cylinder.world import CylinderWorld
 
 
@@ -58,3 +58,46 @@ def test_rain_segments_drift_with_wind() -> None:
     windy_end = windy_segments[0][2]
     assert windy_start.x != pytest.approx(calm_start.x)
     assert windy_end.x < windy_start.x
+
+
+def test_rain_drop_reports_ground_impact_when_cycle_wraps() -> None:
+    world = CylinderWorld()
+    drop = RainDrop(
+        base_position=world.top_center,
+        phase=0.99,
+        fall_speed=120.0,
+        length=10.0,
+        wind_sensitivity=1.0,
+        brightness=0.8,
+    )
+
+    impact = drop.ground_impact_between(
+        world,
+        previous_time=0.0,
+        current_time=1.0 / 30.0,
+        wind=Vec3(0.0, 0.0, 0.0),
+    )
+
+    assert impact is not None
+    assert impact.position.y == world.bottom_y
+    assert impact.strength == 0.8
+
+
+def test_rain_field_reports_active_ground_impacts_since_previous_time() -> None:
+    world = CylinderWorld()
+    drop = RainDrop(
+        base_position=world.top_center,
+        phase=0.99,
+        fall_speed=120.0,
+        length=10.0,
+        wind_sensitivity=1.0,
+        brightness=1.0,
+    )
+    field = RainField(drops=(drop,), intensity=1.0)
+
+    previous = field.elapsed_time
+    field.update(1.0 / 30.0)
+
+    impacts = field.ground_impacts_since(world, previous, Vec3(0.0, 0.0, 0.0))
+
+    assert len(impacts) == 1

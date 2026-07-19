@@ -59,6 +59,21 @@ LC007-specific completion checks:
 - Grass remains the main subject when rain is on.
 - No meaningful FPS drop is visible.
 
+LC008-specific completion checks:
+
+- Rain impacts create small splashes on ground arrival.
+- Splashes disappear within a few frames.
+- Grass press reactions are local and shorter than wind motion.
+- Grass reaction strength stays smaller than wind and does not become a second
+  wave animation.
+- Ground wetness increases while rain is on.
+- Wetness dries slowly after rain is turned off.
+- Wet ground darkens without becoming a filled surface.
+- Only wet floor areas in light gain a weak reflection cue.
+- Puddles, ripples, water drops, thunder, and rain audio remain absent.
+- The clear initial scene remains unchanged.
+- Grass count 420 and 30 FPS feel are preserved.
+
 ## Artistic Review
 
 Each wave after LC006 should end with an artistic review in addition to technical

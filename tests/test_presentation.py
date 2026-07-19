@@ -5,6 +5,7 @@ from light_cylinder.app import (
     select_grass_light_color,
     select_particle_color,
     select_rain_color,
+    select_splash_color,
 )
 from light_cylinder.config import (
     PALETTE_BRIGHT_PARTICLE,
@@ -35,6 +36,7 @@ def test_floor_light_mapping_has_three_levels() -> None:
     assert select_floor_color(PALETTE_GROUND_SHADOW, 0.0) == PALETTE_GROUND_SHADOW
     assert select_floor_color(PALETTE_GROUND_SHADOW, 0.5) != PALETTE_GROUND_SHADOW
     assert select_floor_color(PALETTE_GROUND_SHADOW, 0.9) != PALETTE_GROUND_SHADOW
+    assert select_floor_color(PALETTE_GROUND_SHADOW, 0.0, 0.8) != PALETTE_GROUND_SHADOW
 
 
 def test_particle_color_mapping_uses_dim_and_bright_levels() -> None:
@@ -45,6 +47,11 @@ def test_particle_color_mapping_uses_dim_and_bright_levels() -> None:
 def test_rain_color_mapping_stays_quiet_until_strong_light() -> None:
     assert select_rain_color(0.3) == PALETTE_DIM_PARTICLE
     assert select_rain_color(0.8) == PALETTE_BRIGHT_PARTICLE
+
+
+def test_splash_color_mapping_fades_quickly() -> None:
+    assert select_splash_color(0.8, 0.1) == PALETTE_BRIGHT_PARTICLE
+    assert select_splash_color(0.8, 0.9) == PALETTE_DIM_PARTICLE
 
 
 def test_camera_motion_has_short_inertia() -> None:

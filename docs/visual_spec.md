@@ -99,6 +99,13 @@ rather than a full weather layer. Wind gives the streaks a diagonal fall, but
 grass remains the focal subject. Floor arrival is silent disappearance only;
 splashes, wet ground, and grass contact are reserved for a later wave.
 
+LC008 gives rain a restrained consequence. Ground impacts create tiny splash
+pixels that vanish quickly, nearby grass can be pressed down for a moment, and
+the floor grid can darken as wetness accumulates. When wet ground is also in
+light, it may catch a weak reflection color. These reactions should feel like
+touch, not spectacle: no puddles, ripples, retained droplets, thunder, or rain
+audio are added.
+
 ## Vertical Composition
 
 The composition is tall and mobile-first. The internal render size is 448 x 852,

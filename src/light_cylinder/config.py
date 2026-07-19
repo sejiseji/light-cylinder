@@ -109,6 +109,15 @@ RAIN_WIND_DRIFT_SCALE = 34.0
 RAIN_WIND_TILT_SCALE = 10.0
 RAIN_LIGHT_VISIBILITY_THRESHOLD = 0.16
 RAIN_BRIGHT_VISIBILITY_THRESHOLD = 0.52
+RAIN_SPLASH_LIFETIME = 0.22
+RAIN_SPLASH_GRAVITY = 92.0
+RAIN_SPLASH_SPEED = 16.0
+RAIN_SPLASHES_PER_IMPACT = 2
+RAIN_GROUND_WETNESS_GAIN = 0.004
+RAIN_GROUND_DRY_RATE = 0.035
+RAIN_GRASS_IMPACT_RADIUS = 12.0
+RAIN_GRASS_IMPACT_DECAY_RATE = 4.2
+RAIN_GRASS_REACTION_BEND_SCALE = 4.8
 
 PALETTE_PRESET = "morning"
 PALETTE_PRESETS = {
@@ -320,6 +329,18 @@ def validate_display_config() -> None:
         raise ValueError("rain wind scales must be non-negative")
     if not (0.0 <= RAIN_LIGHT_VISIBILITY_THRESHOLD <= RAIN_BRIGHT_VISIBILITY_THRESHOLD <= 1.0):
         raise ValueError("rain light thresholds must be ordered")
+    if RAIN_SPLASH_LIFETIME <= 0 or RAIN_SPLASH_GRAVITY < 0 or RAIN_SPLASH_SPEED < 0:
+        raise ValueError("rain splash timing and motion must be positive")
+    if RAIN_SPLASHES_PER_IMPACT < 0:
+        raise ValueError("rain splash count must be non-negative")
+    if not 0.0 <= RAIN_GROUND_WETNESS_GAIN <= 1.0:
+        raise ValueError("rain wetness gain must be normalized")
+    if RAIN_GROUND_DRY_RATE < 0:
+        raise ValueError("rain dry rate must be non-negative")
+    if RAIN_GRASS_IMPACT_RADIUS <= 0:
+        raise ValueError("rain grass impact radius must be positive")
+    if RAIN_GRASS_IMPACT_DECAY_RATE < 0 or RAIN_GRASS_REACTION_BEND_SCALE < 0:
+        raise ValueError("rain grass reaction values must be non-negative")
     if not 0.0 <= CAMERA_INERTIA_DECAY < 1.0:
         raise ValueError("camera inertia decay must be normalized below one")
     if PALETTE_PRESET not in PALETTE_PRESETS:

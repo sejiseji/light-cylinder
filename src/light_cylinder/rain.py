@@ -23,6 +23,14 @@ from light_cylinder.world import CylinderWorld
 
 
 @dataclass(frozen=True, slots=True)
+class RainImpact:
+    position: Vec3
+    direction: Vec3
+    strength: float
+    phase: float
+
+
+@dataclass(frozen=True, slots=True)
 class RainDrop:
     base_position: Vec3
     phase: float
@@ -60,6 +68,50 @@ class RainDrop:
         if not world.contains_horizontal(head) and not world.contains_horizontal(tail):
             return None
         return head, tail
+
+    def ground_impact_between(
+        self,
+        world: CylinderWorld,
+        previous_time: float,
+        current_time: float,
+        wind: Vec3,
+    ) -> RainImpact | None:
+        if not isfinite(previous_time) or not isfinite(current_time):
+            raise ValueError("impact times must be finite")
+
+        if current_time < previous_time:
+            current_time += 3600.0
+
+        previous_travel = self._travel_at(world, previous_time)
+        current_travel = self._travel_at(world, current_time)
+        if current_travel < previous_travel:
+            impact_position = self._position_at_travel(world, 1.0, wind)
+            if not world.contains_horizontal(impact_position):
+                return None
+            return RainImpact(
+                position=impact_position,
+                direction=self._impact_direction(wind),
+                strength=self.brightness,
+                phase=self.phase,
+            )
+        return None
+
+    def _travel_at(self, world: CylinderWorld, elapsed_time: float) -> float:
+        return (self.phase + elapsed_time * self.fall_speed / world.height) % 1.0
+
+    def _position_at_travel(self, world: CylinderWorld, travel: float, wind: Vec3) -> Vec3:
+        horizontal_drift = wind * (travel * RAIN_WIND_DRIFT_SCALE * self.wind_sensitivity)
+        return Vec3(
+            self.base_position.x + horizontal_drift.x,
+            world.bottom_y,
+            self.base_position.z + horizontal_drift.z,
+        )
+
+    def _impact_direction(self, wind: Vec3) -> Vec3:
+        direction = Vec3(wind.x, -0.65, wind.z)
+        if direction.length() == 0:
+            return Vec3(0.0, -1.0, 0.0)
+        return direction.normalized()
 
 
 @dataclass(slots=True)
@@ -102,6 +154,19 @@ class RainField:
             start, end = segment
             segments.append((drop, start, end))
         return tuple(segments)
+
+    def ground_impacts_since(
+        self,
+        world: CylinderWorld,
+        previous_time: float,
+        wind: Vec3,
+    ) -> tuple[RainImpact, ...]:
+        impacts: list[RainImpact] = []
+        for drop in self.active_drops():
+            impact = drop.ground_impact_between(world, previous_time, self.elapsed_time, wind)
+            if impact is not None:
+                impacts.append(impact)
+        return tuple(impacts)
 
 
 def _generate_drops(

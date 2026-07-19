@@ -11,7 +11,7 @@ Each wave should remain small enough to review and commit on its own.
 - LC006: temporal and visual tuning - done
 - LC006.5: observation polish - done
 - LC007: Rain Through the Light - done
-- LC008: rain, grass, and ground reactions
+- LC008: rain, grass, and ground reactions - done
 - LC009: weather transitions
 - LC010: title and UI
 - LC011: touch controls

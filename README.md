@@ -11,11 +11,11 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC007 adds `Rain Through the Light` as an optional environment state. The scene
-still starts clear; pressing `N` introduces sparse wind-slanted rain that is only
-drawn where it crosses the light field. Rain amount can be adjusted with `Q` and
-`E`. Grass collisions, splashes, wet ground, audio, touch input, and web
-packaging remain later waves.
+LC008 adds restrained rain reactions. The scene still starts clear; pressing `N`
+introduces sparse wind-slanted rain, small ground splashes, local grass presses,
+ground wetness, and weak wet-floor light reflection. Rain amount can be adjusted
+with `Q` and `E`. Puddles, ripples, thunder, rain audio, retained water drops,
+touch input, and web packaging remain later waves.
 
 ## Display Model
 
@@ -47,11 +47,12 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC007 screen starts in a clear viewing state: light on, wind on, rain off,
+The LC008 screen starts in a clear viewing state: light on, wind on, rain off,
 boundary off, debug off, auto rotate off. It shows wind-animated grass, sparse
 particles, tip lighting, and subtle floor light without drawing the beam itself.
 Debug mode adds camera state, draw counters, the centered composition safe area,
-rain counters, and light axis/radius guides.
+rain counters, splash count, wetness, grass reaction count, and light axis/radius
+guides.
 
 ## Controls
 

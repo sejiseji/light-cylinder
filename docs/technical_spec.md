@@ -238,8 +238,42 @@ LC007 draw order is:
 7. floor spark pixels
 8. debug-only axes, reference points, safe area, counters, and light guides
 
-Grass contact, splash points, wet ground, rain sound, and after-rain state are
-left for later waves.
+## Rain Reactions
+
+LC008 adds `RainImpact` events in `rain.py` and reaction state in
+`reactions.py`. These classes do not import Pyxel. `RainDrop` reports a ground
+impact only when its normalized fall cycle wraps between the previous and current
+frame. The app uses active rain drops only, so the clear default scene does not
+accumulate hidden reaction state.
+
+`GroundReactionField` owns:
+
+- short-lived `SplashParticle` instances generated from impact events
+- a single wetness value that increases from impacts
+- slow drying after rain stops
+
+`GrassReactionField` owns per-blade reaction state separate from immutable
+`GrassBlade` data. Each impact checks for the nearest blade within a small
+horizontal radius and applies a short downward-biased bend. The reaction decays
+quickly and is added to, not substituted for, wind bend. It should read as a
+local press rather than a second wind system.
+
+LC008 draw order is:
+
+1. fixed dark background with sparse vertical bands
+2. floor grid with light-aware and wetness-aware midpoint color
+3. optional cylinder boundary
+4. light particles
+5. light-gated rain segments
+6. splash pixels
+7. wind/reaction-sampled, depth-sorted grass
+8. floor spark pixels
+9. debug-only axes, reference points, safe area, counters, and light guides
+
+Wet floor shading is intentionally coarse: it darkens the existing floor grid and
+allows a weak reflection color only where light is already present. LC008 does
+not add puddles, ripple simulation, grass-tip water retention, thunder, rain
+audio, or after-rain transitions.
 
 ## Resource Resolution
 

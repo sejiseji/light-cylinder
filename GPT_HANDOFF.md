@@ -8,7 +8,7 @@ cylindrical natural space.
 
 ## Current Wave
 
-LC007 Rain Through the Light.
+LC008 Rain Reactions.
 
 ## Completed
 
@@ -60,11 +60,18 @@ LC007 Rain Through the Light.
 - Rain rendering gated by light intensity so only the light-crossing drops show
 - Rain candidates biased toward the light corridor so visible rain stays sparse
   but legible
+- Pyxel-independent `GroundReactionField` and `GrassReactionField`
+- Ground impact events from active rain drops
+- Short-lived splash pixels at ground arrival
+- Global ground wetness with slow drying after rain stops
+- Local grass press reactions stored separately from static `GrassBlade` data
+- Wet floor darkening and weak light reflection
 
 ## Not Completed
 
-Grass collision, splash points, wet ground, after-rain state, touch controls,
-audio, web packaging, and iOS packaging are intentionally not implemented yet.
+Puddles, ripple simulation, retained grass-tip droplets, thunder, rain audio,
+after-rain weather transition, touch controls, web packaging, and iOS packaging
+are intentionally not implemented yet.
 
 ## Run
 
@@ -184,6 +191,20 @@ Initial camera:
 - Generation: fixed-seed top-disk candidates, mostly biased to the light corridor
 - Rendering: line segments only, no direct rain volume or splash effect
 
+## Rain Reactions
+
+- Splash lifetime: 0.22 seconds
+- Splashes per impact: 2
+- Splash speed: 16
+- Splash gravity: 92
+- Ground wetness gain per impact: 0.004
+- Ground dry rate: 0.035 per second
+- Grass impact radius: 12
+- Grass impact decay rate: 4.2 per second
+- Grass reaction bend scale: 4.8
+- Grass reaction state is separate from immutable `GrassBlade` data
+- Initial state: wetness zero, no splashes, no active grass reactions
+
 ## Palette
 
 - active preset: morning
@@ -236,6 +257,8 @@ LC006.5 added Artistic Review notes to every wave result from now on.
 - Typical visible particles in debug review: about 29 to 36
 - Rain candidates: 64, with about 29 active at the default 0.45 amount before
   light gating
+- LC008 reaction work is impact-event based; no puddle grid, ripple simulation,
+  audio, or per-frame random sampling is added
 - Approximate line draw calls are reported in debug HUD
 - GUI review kept a stable 30 FPS feel with light, wind, particles, boundary
   on/off, zoom, and slow auto rotate.
@@ -248,16 +271,16 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000 through LC006.5 were committed and pushed with approval, and
-`prototype-v0.1.0` marks the first observation prototype. LC007 is in the working
+LC000 through LC007 were committed and pushed with approval, and
+`prototype-v0.1.0` marks the first observation prototype. LC008 is in the working
 tree until explicitly approved for commit. Future commits, pushes, and tags
 require user approval.
 
 ## Next Wave
 
-LC008 should add rain interaction details only after LC007 is accepted: grass
-contact, sparse splash points, wet-ground cues, and rain-afterglow should remain
-separate from the initial rain-through-light layer.
+Next work should review whether LC008 needs visual balancing before moving into
+weather transitions. Puddles, ripples, retained droplets, and after-rain states
+remain intentionally separate.
 
 ## Design Decisions
 

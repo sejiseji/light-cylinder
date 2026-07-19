@@ -105,6 +105,15 @@ def test_camera_config_invariants() -> None:
         <= config.RAIN_BRIGHT_VISIBILITY_THRESHOLD
         <= 1.0
     )
+    assert config.RAIN_SPLASH_LIFETIME > 0
+    assert config.RAIN_SPLASH_GRAVITY >= 0
+    assert config.RAIN_SPLASH_SPEED >= 0
+    assert config.RAIN_SPLASHES_PER_IMPACT >= 0
+    assert 0.0 <= config.RAIN_GROUND_WETNESS_GAIN <= 1.0
+    assert config.RAIN_GROUND_DRY_RATE >= 0
+    assert config.RAIN_GRASS_IMPACT_RADIUS > 0
+    assert config.RAIN_GRASS_IMPACT_DECAY_RATE >= 0
+    assert config.RAIN_GRASS_REACTION_BEND_SCALE >= 0
     for name in dir(config):
         if name.startswith("PALETTE_"):
             value = getattr(config, name)
