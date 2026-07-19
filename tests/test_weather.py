@@ -7,6 +7,7 @@ from light_cylinder.config import (
     GUST_STRENGTH,
     MICRO_WIND_AMOUNT,
     WIND_BASE_SPEED,
+    WIND_SLOW_PULSE_AMOUNT,
     WIND_TIME_WRAP_SECONDS,
 )
 from light_cylinder.math3d import Vec3
@@ -80,6 +81,31 @@ def test_sample_is_finite_and_horizontal() -> None:
     assert sample.y == 0.0
 
 
+def test_amplified_sample_keeps_steady_anchor_and_expands_motion() -> None:
+    wind = WindField.create_default()
+    wind.update(2.0)
+    position = Vec3(30.0, 0.0, -15.0)
+    steady = wind.steady_sample()
+    stage_one_motion = wind.sample(position, phase=2.0) - steady
+    stage_three_motion = wind.amplified_sample(position, phase=2.0, motion_multiplier=2.7) - steady
+
+    assert wind.amplified_sample(position, phase=2.0, motion_multiplier=1.0) == wind.sample(
+        position,
+        phase=2.0,
+    )
+    assert stage_three_motion.length() == pytest.approx(stage_one_motion.length() * 2.7)
+
+
+def test_sample_at_can_use_a_faster_motion_time() -> None:
+    wind = WindField.create_default()
+    position = Vec3(30.0, 0.0, -15.0)
+
+    early = wind.sample_at(1.0, position, phase=2.0)
+    faster = wind.sample_at(2.0, position, phase=2.0)
+
+    assert early != faster
+
+
 def test_gust_strength_range_and_continuity() -> None:
     wind = WindField.create_default()
     values = []
@@ -109,4 +135,6 @@ def test_wind_magnitude_has_reasonable_bound() -> None:
         wind.update(0.25)
         max_seen = max(max_seen, wind.sample(Vec3(96.0, 0.0, -96.0), phase=3.0).length())
 
-    assert max_seen <= WIND_BASE_SPEED * (1.4 + MICRO_WIND_AMOUNT) + GUST_STRENGTH
+    assert max_seen <= WIND_BASE_SPEED * (1.0 + WIND_SLOW_PULSE_AMOUNT + MICRO_WIND_AMOUNT) + (
+        GUST_STRENGTH
+    )

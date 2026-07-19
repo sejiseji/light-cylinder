@@ -4,7 +4,8 @@
 
 Light Cylinder is the development name for `Specimen of Light` / `光の標本`, an
 observational Pyxel work about a tall cylindrical space where natural phenomena
-are visible only where light cuts through them.
+become legible through sliced light, even when some weather layers occupy the
+full cylinder.
 
 ## Central Motif
 
@@ -22,7 +23,7 @@ distance, and debug visibility without turning the work into an action game.
 The MVP should establish a stable mobile-first vertical composition, a
 cylindrical observation volume, procedural grass, layered wind, sliced light,
 optional rain-through-light, restrained rain reactions, after-rain recovery, and
-simple touch controls.
+an optional observation cycle. Simple touch controls remain a later mobile wave.
 
 ## Out Of Scope For MVP
 

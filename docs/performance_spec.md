@@ -18,26 +18,30 @@ points are generated once at app startup. The draw loop does not regenerate gras
 or call random each frame. LC004 should re-check this budget when wind begins to
 modify blade curves over time.
 
-LC004 raises the field to 420 blades with 5 segments each, about 2,100 nominal
+LC004 raises the field to 360 blades with 5 segments each, about 1,800 nominal
 grass segments before near-clip rejection. It recomputes curve points every frame
 from deterministic wind math, sorts blades by representative depth, and does not
 regenerate the grass field or call random each frame. LC005 should re-check the
 budget when sliced light adds more draw work.
 
-LC005 adds 48 light particles and 28 bottom-floor spark points. Grass lighting
+LC005 first added light particles and 28 bottom-floor spark points. Current
+tuning uses a 360-particle baseline with visible size variation from pixel
+points to rare radius-3 circles. Grass lighting
 evaluates only three points per blade: root, middle, and tip. Tip response is
 weighted strongest, middle response is weaker, and root response is intentionally
 rare. The bottom grid changes color from line midpoints instead of introducing a
 large separate light-spot field. The light beam itself is not drawn in normal
 view.
 
-LC006 keeps 420 grass blades, 5 nominal segments per blade, 48 particles, and 28
-floor spark points. Tapering means the visible grass segment count is not the
-same as line draw calls; the debug HUD reports visible blades, nominal segments,
-approximate line draw calls, lit segments, and visible particles. In GUI review,
-HUD off, boundary on/off, light on/off, wind on/off, zoom, and slow auto rotate
-held a stable 30 FPS feel. Web packaging should re-profile background bands,
-taper line calls, and particle drawing after browser scaling is introduced.
+LC006 originally kept 360 grass blades, 5 nominal segments per blade, 48
+particles, and 28 floor spark points. Current observation controls lower the
+grass draw budget to 300 / 375 / 450 to avoid stage-3 spikes. Tapering means the
+visible grass segment count is not the same as line draw calls; the debug HUD
+reports visible blades, nominal segments, approximate line draw calls, lit
+segments, and visible particles. In GUI review, HUD off, boundary on/off, light
+on/off, wind on/off, zoom, and slow auto rotate held a stable 30 FPS feel. Web
+packaging should re-profile background bands, taper line calls, and particle
+drawing after browser scaling is introduced.
 
 LC006.5 does not increase grass, particle, or spark counts. Camera inertia is
 constant-time app state. Micro wind, cloud shadow, and particle random walk add a
@@ -45,10 +49,10 @@ few trigonometric calls per existing sample, keeping the performance profile in
 the same shape as LC006.
 
 LC007 adds 64 deterministic rain candidates. The default amount is 0.45, so
-about 29 drops are active before light gating. Rain draws line segments only
-after midpoint light checks pass, and it reuses one sampled wind vector per
-frame. There is no collision grid, splash simulation, wet-ground surface, or
-per-frame random sampling in LC007.
+about 29 short drops are active when rain is enabled. Rain now draws vertical
+segments across the cylinder without midpoint light gating, plus sparse
+deterministic static rain streak flashes. There is no collision grid, splash
+simulation, wet-ground surface, or per-frame random sampling in LC007.
 
 LC008 keeps the 64 rain-candidate budget. Reaction work is driven by ground
 impact events rather than every visible rain line. Each impact can create two
@@ -63,6 +67,14 @@ simple hold/fall arithmetic. There is no all-blade water state, no puddle grid,
 no ripple solver, no audio engine, and no per-frame random sampling.
 
 The observation MENU pre-generates the stage-3 budgets, then draws active
-prefixes. Stage 1 remains the baseline 48 light particles and 420 grass blades;
-stage 3 raises those draw budgets to 80 particles and 620 grass blades. The rain
-stage changes intensity only and does not increase the fixed drop pool size.
+prefixes. Stage 1 now uses 360 light particles and 300 grass blades; stage 3
+raises those draw budgets to 1080 particles and 450 grass blades. Grass line
+width is a drawing multiplier, not additional blade geometry. The rain stage
+changes intensity only and does not increase the fixed drop pool size.
+Light bands are five projected quadrilaterals with mixed width factors; they add
+a fixed small draw cost and no new particle simulation.
+
+LC010 adds one constant-time observation cycle object. It emits a phase, rain
+multiplier, and light multiplier each frame. It does not allocate per-frame
+weather objects, does not change the fixed rain drop pool, and does not
+regenerate grass or particles.

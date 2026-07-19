@@ -13,13 +13,14 @@
 - LC007: Rain Through the Light
 - LC008: rain, grass, and ground reactions
 - LC009: After Rain
+- LC010: Observation Cycle
 
 ## NEXT
 
-- LC010: title and UI
+- LC011: title and UI
 
 ## LATER
 
-- LC011: touch controls
-- LC012: ambience and audio
-- LC013: web and iOS packaging
+- LC012: touch controls
+- LC013: ambience and audio
+- LC014: web and iOS packaging

@@ -1,23 +1,25 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import cos, isfinite, sin, tau
+from math import isfinite, sin, tau
 from random import Random
 
 from light_cylinder.config import (
-    LIGHT_BEAM_RADIUS,
     RAIN_DEFAULT_INTENSITY,
     RAIN_DROP_COUNT,
     RAIN_INTENSITY_STEP,
     RAIN_MAX_FALL_SPEED,
-    RAIN_MAX_LENGTH,
     RAIN_MIN_FALL_SPEED,
-    RAIN_MIN_LENGTH,
     RAIN_SEED,
-    RAIN_WIND_DRIFT_SCALE,
-    RAIN_WIND_TILT_SCALE,
+    RAIN_SHORT_LENGTHS,
+    RAIN_STATIC_STREAK_COUNT,
+    RAIN_STATIC_STREAK_FLASH_RATE,
+    RAIN_STATIC_STREAK_FLASH_THRESHOLD,
+    RAIN_STATIC_STREAK_MAX_HEIGHT_FACTOR,
+    RAIN_STATIC_STREAK_MAX_LENGTH,
+    RAIN_STATIC_STREAK_MIN_HEIGHT_FACTOR,
+    RAIN_STATIC_STREAK_MIN_LENGTH,
 )
-from light_cylinder.light import LightBeam
 from light_cylinder.math3d import Vec3, clamp
 from light_cylinder.world import CylinderWorld
 
@@ -53,17 +55,15 @@ class RainDrop:
         if y <= world.bottom_y:
             return None
 
-        horizontal_drift = wind * (travel * RAIN_WIND_DRIFT_SCALE * self.wind_sensitivity)
-        tilted_tail = wind * (RAIN_WIND_TILT_SCALE * self.wind_sensitivity)
         head = Vec3(
-            self.base_position.x + horizontal_drift.x,
+            self.base_position.x,
             y,
-            self.base_position.z + horizontal_drift.z,
+            self.base_position.z,
         )
         tail = Vec3(
-            head.x - tilted_tail.x,
+            head.x,
             max(world.bottom_y, y - self.length),
-            head.z - tilted_tail.z,
+            head.z,
         )
         if not world.contains_horizontal(head) and not world.contains_horizontal(tail):
             return None
@@ -100,30 +100,57 @@ class RainDrop:
         return (self.phase + elapsed_time * self.fall_speed / world.height) % 1.0
 
     def _position_at_travel(self, world: CylinderWorld, travel: float, wind: Vec3) -> Vec3:
-        horizontal_drift = wind * (travel * RAIN_WIND_DRIFT_SCALE * self.wind_sensitivity)
         return Vec3(
-            self.base_position.x + horizontal_drift.x,
+            self.base_position.x,
             world.bottom_y,
-            self.base_position.z + horizontal_drift.z,
+            self.base_position.z,
         )
 
     def _impact_direction(self, wind: Vec3) -> Vec3:
-        direction = Vec3(wind.x, -0.65, wind.z)
-        if direction.length() == 0:
-            return Vec3(0.0, -1.0, 0.0)
-        return direction.normalized()
+        return Vec3(0.0, -1.0, 0.0)
+
+
+@dataclass(frozen=True, slots=True)
+class StaticRainStreak:
+    head_position: Vec3
+    length: float
+    phase: float
+    brightness: float
+
+    def segment_at(self, world: CylinderWorld, elapsed_time: float) -> tuple[Vec3, Vec3] | None:
+        if not isfinite(elapsed_time):
+            raise ValueError("elapsed time must be finite")
+
+        pulse = (sin(elapsed_time * RAIN_STATIC_STREAK_FLASH_RATE + self.phase) + 1.0) * 0.5
+        if pulse < RAIN_STATIC_STREAK_FLASH_THRESHOLD:
+            return None
+
+        tail = Vec3(
+            self.head_position.x,
+            max(world.bottom_y, self.head_position.y - self.length),
+            self.head_position.z,
+        )
+        if not world.contains_horizontal(self.head_position) and not world.contains_horizontal(
+            tail
+        ):
+            return None
+        return self.head_position, tail
 
 
 @dataclass(slots=True)
 class RainField:
     drops: tuple[RainDrop, ...]
+    static_streaks: tuple[StaticRainStreak, ...] = ()
     elapsed_time: float = 0.0
     intensity: float = RAIN_DEFAULT_INTENSITY
 
     @classmethod
-    def create_default(cls, world: CylinderWorld, beam: LightBeam | None = None) -> RainField:
+    def create_default(cls, world: CylinderWorld, _beam: object | None = None) -> RainField:
         rng = Random(RAIN_SEED)
-        return cls(drops=_generate_drops(world, rng, beam))
+        return cls(
+            drops=_generate_drops(world, rng),
+            static_streaks=_generate_static_streaks(world, rng),
+        )
 
     def update(self, dt: float) -> None:
         if not isfinite(dt) or dt < 0:
@@ -155,6 +182,20 @@ class RainField:
             segments.append((drop, start, end))
         return tuple(segments)
 
+    def static_segments(
+        self,
+        world: CylinderWorld,
+    ) -> tuple[tuple[StaticRainStreak, Vec3, Vec3], ...]:
+        segments: list[tuple[StaticRainStreak, Vec3, Vec3]] = []
+        active_count = round(len(self.static_streaks) * self.intensity)
+        for streak in self.static_streaks[:active_count]:
+            segment = streak.segment_at(world, self.elapsed_time)
+            if segment is None:
+                continue
+            start, end = segment
+            segments.append((streak, start, end))
+        return tuple(segments)
+
     def ground_impacts_since(
         self,
         world: CylinderWorld,
@@ -172,26 +213,20 @@ class RainField:
 def _generate_drops(
     world: CylinderWorld,
     rng: Random,
-    beam: LightBeam | None,
 ) -> tuple[RainDrop, ...]:
     drops: list[RainDrop] = []
     for _index in range(RAIN_DROP_COUNT):
-        if beam is not None and rng.random() < 0.78:
-            base = _sample_light_corridor_point(world, beam, rng)
-        else:
-            base = world.sample_bottom_point(rng.random() ** 0.55, rng.random())
-        angle = rng.random() * tau
-        radius_jitter = rng.uniform(0.0, world.radius * 0.08)
+        base = world.sample_bottom_point(rng.random() ** 0.45, rng.random())
         drops.append(
             RainDrop(
                 base_position=Vec3(
-                    base.x + cos(angle) * radius_jitter,
+                    base.x,
                     world.top_y,
-                    base.z + sin(angle) * radius_jitter,
+                    base.z,
                 ),
                 phase=rng.random(),
                 fall_speed=rng.uniform(RAIN_MIN_FALL_SPEED, RAIN_MAX_FALL_SPEED),
-                length=rng.uniform(RAIN_MIN_LENGTH, RAIN_MAX_LENGTH),
+                length=RAIN_SHORT_LENGTHS[rng.randrange(len(RAIN_SHORT_LENGTHS))],
                 wind_sensitivity=rng.uniform(0.72, 1.18),
                 brightness=rng.uniform(0.72, 1.0),
             )
@@ -199,23 +234,28 @@ def _generate_drops(
     return tuple(drops)
 
 
-def _sample_light_corridor_point(
+def _generate_static_streaks(
     world: CylinderWorld,
-    beam: LightBeam,
     rng: Random,
-) -> Vec3:
-    basis_u, basis_v = beam.basis()
-    for _attempt in range(16):
-        target_y = world.bottom_y + rng.random() * world.height
-        if beam.direction.y == 0.0:
-            axial_position = rng.random() * beam.length
-        else:
-            axial_position = (target_y - beam.origin.y) / beam.direction.y
-        axis_point = beam.axis_point(clamp(axial_position, 0.0, beam.length))
-        radius = LIGHT_BEAM_RADIUS * 0.82 * (rng.random() ** 0.7)
-        angle = rng.random() * tau
-        offset = basis_u * (cos(angle) * radius) + basis_v * (sin(angle) * radius)
-        point = Vec3(axis_point.x + offset.x, world.top_y, axis_point.z + offset.z)
-        if world.contains_horizontal(point):
-            return point
-    return world.sample_bottom_point(rng.random() ** 0.55, rng.random())
+) -> tuple[StaticRainStreak, ...]:
+    streaks: list[StaticRainStreak] = []
+    for _index in range(RAIN_STATIC_STREAK_COUNT):
+        base = world.sample_bottom_point(rng.random() ** 0.45, rng.random())
+        streaks.append(
+            StaticRainStreak(
+                head_position=Vec3(
+                    base.x,
+                    world.bottom_y
+                    + world.height
+                    * rng.uniform(
+                        RAIN_STATIC_STREAK_MIN_HEIGHT_FACTOR,
+                        RAIN_STATIC_STREAK_MAX_HEIGHT_FACTOR,
+                    ),
+                    base.z,
+                ),
+                length=rng.uniform(RAIN_STATIC_STREAK_MIN_LENGTH, RAIN_STATIC_STREAK_MAX_LENGTH),
+                phase=rng.random() * tau,
+                brightness=rng.uniform(0.78, 1.0),
+            )
+        )
+    return tuple(streaks)

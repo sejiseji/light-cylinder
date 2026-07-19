@@ -8,6 +8,7 @@ def test_display_constants() -> None:
     assert config.RENDER_HEIGHT == 852
     assert config.COMPOSITION_SAFE_WIDTH == 393
     assert config.TARGET_FPS == 30
+    assert config.UI_TEXT_SCALE == 3
 
 
 def test_safe_area_invariants() -> None:
@@ -38,33 +39,40 @@ def test_camera_config_invariants() -> None:
     assert 0.0 <= config.CAMERA_INERTIA_DECAY < 1.0
     assert config.AUTO_ROTATE_SPEED > 0
     assert 6.283185307179586 / (config.AUTO_ROTATE_SPEED * config.TARGET_FPS) >= 30
+    assert config.AUTO_ROTATE_PITCH_SWAY_AMOUNT > 0
+    assert config.AUTO_ROTATE_PITCH_SWAY_RATE > 0
+    assert 0.0 < config.AUTO_ROTATE_PITCH_FOLLOW <= 1.0
     assert config.CYLINDER_RADIUS == 96.0
-    assert config.CYLINDER_HEIGHT == 240.0
+    assert config.CYLINDER_HEIGHT == 300.0
     assert config.CYLINDER_RADIAL_SEGMENTS == 32
     assert config.CYLINDER_VERTICAL_GUIDES == 8
     assert 0.0 <= config.CYLINDER_TARGET_HEIGHT_FACTOR <= 1.0
     assert config.GRASS_SEED == 1729
-    assert config.GRASS_COUNT == 420
+    assert config.GRASS_COUNT == 300
     assert config.GRASS_SEGMENTS == 5
     assert config.GRASS_MIN_HEIGHT > 0
     assert config.GRASS_MIN_HEIGHT <= config.GRASS_MAX_HEIGHT
     assert config.GRASS_MIN_BEND <= config.GRASS_MAX_BEND
     assert config.GRASS_MIN_STIFFNESS <= config.GRASS_MAX_STIFFNESS
+    assert config.GRASS_WIDTH_MULTIPLIER == 2
     assert config.WIND_SEED == 2718
-    assert config.WIND_BASE_SPEED >= 0
-    assert config.WIND_RESPONSE_SCALE >= 0
+    assert config.WIND_BASE_SPEED >= 0.65
+    assert config.WIND_RESPONSE_SCALE >= 17.0
     assert 0.0 <= config.WIND_SLOW_PULSE_AMOUNT <= 1.0
+    assert config.WIND_DIRECTION_SWAY_AMOUNT >= 0.25
+    assert config.MICRO_WIND_AMOUNT >= 0.16
     assert config.WIND_MAX_BEND_RATIO > 0
     assert config.WIND_TIME_WRAP_SECONDS > 0
     assert config.GUST_INTERVAL > 0
     assert config.GUST_DURATION > 0
     assert config.GUST_STRENGTH >= 0
     assert config.LIGHT_SEED == 4055
-    assert config.LIGHT_PARTICLE_COUNT == 48
+    assert config.LIGHT_PARTICLE_COUNT == 360
     assert 20 <= config.LIGHT_GROUND_SPARK_COUNT <= 40
     assert len(config.LIGHT_BEAM_ORIGIN) == 3
+    assert config.LIGHT_BEAM_ORIGIN[1] > config.CYLINDER_HEIGHT
     assert len(config.LIGHT_BEAM_DIRECTION) == 3
-    assert config.LIGHT_BEAM_LENGTH > 0
+    assert config.LIGHT_BEAM_LENGTH > config.CYLINDER_HEIGHT
     assert config.LIGHT_BEAM_RADIUS > 0
     assert 0 <= config.LIGHT_BEAM_CORE_RADIUS < config.LIGHT_BEAM_RADIUS
     assert config.LIGHT_BEAM_END_FADE > 0
@@ -79,8 +87,16 @@ def test_camera_config_invariants() -> None:
     assert config.LIGHT_PARTICLE_WALK_RATE >= 0
     assert config.LIGHT_PARTICLE_WALK_AMOUNT >= 0
     assert config.LIGHT_PARTICLE_DRIFT_MIN <= config.LIGHT_PARTICLE_DRIFT_MAX
+    assert 0 < config.LIGHT_PARTICLE_SIZE_MIN <= config.LIGHT_PARTICLE_SIZE_MAX
     assert config.LIGHT_PARTICLE_VISIBILITY_THRESHOLD >= 0
     assert config.LIGHT_GROUND_SPARK_THRESHOLD >= 0
+    assert 1 <= config.LIGHT_BAND_COUNT <= 5
+    assert 0 < config.LIGHT_BAND_WIDTH_MIN <= config.LIGHT_BAND_WIDTH_MAX
+    assert len(config.LIGHT_BAND_WIDTH_FACTORS) == config.LIGHT_BAND_COUNT
+    assert min(config.LIGHT_BAND_WIDTH_FACTORS) < max(config.LIGHT_BAND_WIDTH_FACTORS)
+    assert min(config.LIGHT_BAND_WIDTH_FACTORS) < 0.5
+    assert config.LIGHT_BAND_WIDTH_RATE >= 0
+    assert config.LIGHT_BAND_ALPHA_PATTERN >= 0
     assert (
         config.LIGHT_GRASS_THRESHOLD_LOW
         <= config.LIGHT_GRASS_THRESHOLD_MEDIUM
@@ -97,14 +113,24 @@ def test_camera_config_invariants() -> None:
     assert 0.0 < config.RAIN_INTENSITY_STEP <= 1.0
     assert config.RAIN_MIN_FALL_SPEED <= config.RAIN_MAX_FALL_SPEED
     assert config.RAIN_MIN_LENGTH <= config.RAIN_MAX_LENGTH
-    assert config.RAIN_WIND_DRIFT_SCALE >= 0
-    assert config.RAIN_WIND_TILT_SCALE >= 0
+    assert len(config.RAIN_SHORT_LENGTHS) == 3
+    assert tuple(sorted(config.RAIN_SHORT_LENGTHS)) == config.RAIN_SHORT_LENGTHS
+    assert config.RAIN_SHORT_LENGTHS[0] == config.RAIN_MIN_LENGTH
+    assert config.RAIN_SHORT_LENGTHS[-1] == config.RAIN_MAX_LENGTH
+    assert config.RAIN_STATIC_STREAK_COUNT >= 48
+    assert config.RAIN_STATIC_STREAK_MIN_LENGTH >= config.RAIN_MAX_LENGTH * 3
+    assert config.RAIN_STATIC_STREAK_MIN_LENGTH <= config.RAIN_STATIC_STREAK_MAX_LENGTH
     assert (
         0.0
-        <= config.RAIN_LIGHT_VISIBILITY_THRESHOLD
-        <= config.RAIN_BRIGHT_VISIBILITY_THRESHOLD
+        <= config.RAIN_STATIC_STREAK_MIN_HEIGHT_FACTOR
+        < config.RAIN_STATIC_STREAK_MAX_HEIGHT_FACTOR
         <= 1.0
     )
+    assert config.RAIN_STATIC_STREAK_FLASH_RATE > 0.0
+    assert 0.998 <= config.RAIN_STATIC_STREAK_FLASH_THRESHOLD <= 1.0
+    assert config.RAIN_WIND_DRIFT_SCALE >= 0
+    assert config.RAIN_WIND_TILT_SCALE >= 0
+    assert 0.0 <= config.RAIN_BRIGHT_VISIBILITY_THRESHOLD <= 1.0
     assert config.RAIN_SPLASH_LIFETIME > 0
     assert config.RAIN_SPLASH_GRAVITY >= 0
     assert config.RAIN_SPLASH_SPEED >= 0
@@ -125,13 +151,28 @@ def test_camera_config_invariants() -> None:
     assert config.TIP_DROPLET_HOLD_MIN <= config.TIP_DROPLET_HOLD_MAX
     assert config.TIP_DROPLET_FALL_SPEED >= 0
     assert config.LIGHT_PARTICLE_MAX_COUNT >= config.LIGHT_PARTICLE_COUNT
+    assert config.LIGHT_ACCENT_BAND_COUNT == 3
+    assert len(config.LIGHT_ACCENT_BAND_WIDTHS) == config.LIGHT_ACCENT_BAND_COUNT
+    assert min(config.LIGHT_ACCENT_BAND_WIDTHS) < 1.0
     assert config.MENU_STAGE_MIN == 1
     assert config.MENU_STAGE_MAX == 3
     assert config.MENU_PHOTON_COUNTS[0] == config.LIGHT_PARTICLE_COUNT
+    assert config.MENU_PHOTON_COUNTS == (config.LIGHT_PARTICLE_COUNT, 720, 1080)
     assert config.MENU_GRASS_COUNTS[0] == config.GRASS_COUNT
+    assert config.MENU_GRASS_COUNTS == (config.GRASS_COUNT, 375, 450)
     assert config.MENU_RAIN_INTENSITIES[0] == config.RAIN_DEFAULT_INTENSITY
     assert len(config.MENU_WIND_MULTIPLIERS) == config.MENU_STAGE_MAX
+    assert config.MENU_WIND_MULTIPLIERS == (1.0, 1.85, 2.7)
+    assert len(config.MENU_WIND_SPEED_MULTIPLIERS) == config.MENU_STAGE_MAX
+    assert config.MENU_WIND_SPEED_MULTIPLIERS == (1.0, 1.45, 2.0)
     assert len(config.MENU_AUTO_ROTATE_MULTIPLIERS) == config.MENU_STAGE_MAX
+    assert config.OBSERVATION_CYCLE_CLEAR_DURATION > 0
+    assert config.OBSERVATION_CYCLE_SHADOW_DURATION > 0
+    assert config.OBSERVATION_CYCLE_LIGHT_RAIN_DURATION > 0
+    assert config.OBSERVATION_CYCLE_RAIN_DURATION > 0
+    assert config.OBSERVATION_CYCLE_AFTER_RAIN_DURATION > 0
+    assert 0.0 <= config.OBSERVATION_CYCLE_CLOUD_SHADOW_AMOUNT <= 1.0
+    assert 0.0 <= config.OBSERVATION_CYCLE_LIGHT_RAIN_MULTIPLIER <= 1.0
     for name in dir(config):
         if name.startswith("PALETTE_"):
             value = getattr(config, name)
@@ -139,3 +180,6 @@ def test_camera_config_invariants() -> None:
                 assert 0 <= value <= 15
     assert set(config.PALETTE_PRESETS) == {"morning", "noon", "evening"}
     assert config.PALETTE_PRESET in config.PALETTE_PRESETS
+    grass_keys = ("foreground_grass", "lit_grass", "strongly_lit_grass")
+    for preset in config.PALETTE_PRESETS.values():
+        assert all(preset[key] != 10 for key in grass_keys)

@@ -10,6 +10,7 @@ SAFE_LEFT = (RENDER_WIDTH - COMPOSITION_SAFE_WIDTH) // 2
 SAFE_RIGHT = SAFE_LEFT + COMPOSITION_SAFE_WIDTH
 
 TARGET_FPS = 30
+UI_TEXT_SCALE = 3
 
 DISPLAY_TITLE_JA = "光の標本"
 DISPLAY_TITLE_EN = "Specimen of Light"
@@ -17,7 +18,7 @@ PROJECT_TITLE = DISPLAY_TITLE_EN
 
 CAMERA_INITIAL_YAW = -0.22
 CAMERA_INITIAL_PITCH = 0.34
-CAMERA_INITIAL_DISTANCE = 430.0
+CAMERA_INITIAL_DISTANCE = 455.0
 CAMERA_MIN_DISTANCE = 180.0
 CAMERA_MAX_DISTANCE = 900.0
 CAMERA_MIN_PITCH = -1.3962634015954636
@@ -31,15 +32,18 @@ MOUSE_PITCH_SPEED = 0.005
 MOUSE_WHEEL_ZOOM_SPEED = 24.0
 CAMERA_INERTIA_DECAY = 0.68
 AUTO_ROTATE_SPEED = 0.0035
+AUTO_ROTATE_PITCH_SWAY_AMOUNT = 0.07
+AUTO_ROTATE_PITCH_SWAY_RATE = 0.48
+AUTO_ROTATE_PITCH_FOLLOW = 0.08
 
 CYLINDER_RADIUS = 96.0
-CYLINDER_HEIGHT = 240.0
+CYLINDER_HEIGHT = 300.0
 CYLINDER_RADIAL_SEGMENTS = 32
 CYLINDER_VERTICAL_GUIDES = 8
 CYLINDER_TARGET_HEIGHT_FACTOR = 0.43
 
 GRASS_SEED = 1729
-GRASS_COUNT = 420
+GRASS_COUNT = 300
 GRASS_SEGMENTS = 5
 GRASS_MIN_HEIGHT = 18.0
 GRASS_MAX_HEIGHT = 46.0
@@ -47,38 +51,39 @@ GRASS_MIN_BEND = 2.0
 GRASS_MAX_BEND = 15.0
 GRASS_MIN_STIFFNESS = 0.45
 GRASS_MAX_STIFFNESS = 1.0
+GRASS_WIDTH_MULTIPLIER = 2
 
 WIND_SEED = 2718
 WIND_BASE_DIRECTION_ANGLE = 0.35
-WIND_BASE_SPEED = 0.55
-WIND_RESPONSE_SCALE = 13.0
+WIND_BASE_SPEED = 0.65
+WIND_RESPONSE_SCALE = 17.0
 WIND_SLOW_PULSE_RATE = 0.42
-WIND_SLOW_PULSE_AMOUNT = 0.22
+WIND_SLOW_PULSE_AMOUNT = 0.38
 WIND_SPATIAL_FREQUENCY_X = 0.018
 WIND_SPATIAL_FREQUENCY_Z = 0.026
 WIND_BLADE_PHASE_SCALE = 0.65
-WIND_DIRECTION_SWAY_AMOUNT = 0.16
+WIND_DIRECTION_SWAY_AMOUNT = 0.28
 WIND_DIRECTION_SWAY_RATE = 0.37
 MICRO_WIND_RATE = 0.19
-MICRO_WIND_AMOUNT = 0.1
+MICRO_WIND_AMOUNT = 0.16
 MICRO_WIND_PHASE_SCALE = 1.7
-WIND_MAX_BEND_RATIO = 0.42
+WIND_MAX_BEND_RATIO = 0.68
 WIND_TIME_WRAP_SECONDS = 3600.0
 
 GUST_INTERVAL = 12.0
 GUST_DURATION = 5.5
-GUST_STRENGTH = 0.36
+GUST_STRENGTH = 0.5
 
 LIGHT_SEED = 4055
-LIGHT_PARTICLE_COUNT = 48
-LIGHT_PARTICLE_MAX_COUNT = 80
+LIGHT_PARTICLE_COUNT = 360
+LIGHT_PARTICLE_MAX_COUNT = 1080
 LIGHT_GROUND_SPARK_COUNT = 28
-LIGHT_BEAM_ORIGIN = (-34.0, 246.0, -22.0)
+LIGHT_BEAM_ORIGIN = (-34.0, 312.0, -22.0)
 LIGHT_BEAM_DIRECTION = (0.22, -1.0, 0.18)
-LIGHT_BEAM_LENGTH = 285.0
+LIGHT_BEAM_LENGTH = 360.0
 LIGHT_BEAM_RADIUS = 44.0
 LIGHT_BEAM_CORE_RADIUS = 14.0
-LIGHT_BEAM_END_FADE = 32.0
+LIGHT_BEAM_END_FADE = 40.0
 LIGHT_CLOUD_SHADOW_RATE = 0.075
 LIGHT_CLOUD_SHADOW_AMOUNT = 0.16
 LIGHT_CLOUD_SHADOW_FLOOR = 0.78
@@ -89,7 +94,18 @@ LIGHT_PARTICLE_WALK_RATE = 0.31
 LIGHT_PARTICLE_WALK_AMOUNT = 2.8
 LIGHT_PARTICLE_DRIFT_MIN = -2.6
 LIGHT_PARTICLE_DRIFT_MAX = 4.8
+LIGHT_PARTICLE_SIZE_MIN = 0.18
+LIGHT_PARTICLE_SIZE_MAX = 1.0
 LIGHT_PARTICLE_VISIBILITY_THRESHOLD = 0.28
+LIGHT_BAND_COUNT = 5
+LIGHT_BAND_WIDTH_MIN = 3.0
+LIGHT_BAND_WIDTH_MAX = 12.0
+LIGHT_BAND_WIDTH_FACTORS = (0.35, 0.52, 0.7, 0.92, 1.18)
+LIGHT_BAND_WIDTH_RATE = 0.33
+LIGHT_BAND_ALPHA_PATTERN = 1
+LIGHT_ACCENT_BAND_COUNT = 3
+LIGHT_ACCENT_BAND_WIDTHS = (0.55, 1.8, 0.8)
+LIGHT_ACCENT_BAND_RATE = 0.58
 LIGHT_GROUND_SPARK_THRESHOLD = 0.38
 LIGHT_GRASS_THRESHOLD_LOW = 0.14
 LIGHT_GRASS_THRESHOLD_MEDIUM = 0.34
@@ -104,12 +120,19 @@ RAIN_DEFAULT_INTENSITY = 0.45
 RAIN_INTENSITY_STEP = 0.15
 RAIN_MIN_FALL_SPEED = 96.0
 RAIN_MAX_FALL_SPEED = 142.0
-RAIN_MIN_LENGTH = 8.0
-RAIN_MAX_LENGTH = 15.0
-RAIN_WIND_DRIFT_SCALE = 34.0
-RAIN_WIND_TILT_SCALE = 10.0
-RAIN_LIGHT_VISIBILITY_THRESHOLD = 0.16
-RAIN_BRIGHT_VISIBILITY_THRESHOLD = 0.52
+RAIN_SHORT_LENGTHS = (7.0, 10.0, 13.0)
+RAIN_MIN_LENGTH = RAIN_SHORT_LENGTHS[0]
+RAIN_MAX_LENGTH = RAIN_SHORT_LENGTHS[-1]
+RAIN_STATIC_STREAK_COUNT = 48
+RAIN_STATIC_STREAK_MIN_LENGTH = 126.0
+RAIN_STATIC_STREAK_MAX_LENGTH = 258.0
+RAIN_STATIC_STREAK_MIN_HEIGHT_FACTOR = 0.24
+RAIN_STATIC_STREAK_MAX_HEIGHT_FACTOR = 0.99
+RAIN_STATIC_STREAK_FLASH_RATE = 1.15
+RAIN_STATIC_STREAK_FLASH_THRESHOLD = 0.998
+RAIN_WIND_DRIFT_SCALE = 0.0
+RAIN_WIND_TILT_SCALE = 0.0
+RAIN_BRIGHT_VISIBILITY_THRESHOLD = 0.94
 RAIN_SPLASH_LIFETIME = 0.22
 RAIN_SPLASH_GRAVITY = 92.0
 RAIN_SPLASH_SPEED = 16.0
@@ -122,11 +145,20 @@ RAIN_GRASS_REACTION_BEND_SCALE = 4.8
 
 MENU_STAGE_MIN = 1
 MENU_STAGE_MAX = 3
-MENU_PHOTON_COUNTS = (LIGHT_PARTICLE_COUNT, 64, LIGHT_PARTICLE_MAX_COUNT)
-MENU_GRASS_COUNTS = (GRASS_COUNT, 520, 620)
-MENU_WIND_MULTIPLIERS = (1.0, 1.35, 1.7)
+MENU_PHOTON_COUNTS = (LIGHT_PARTICLE_COUNT, 720, LIGHT_PARTICLE_MAX_COUNT)
+MENU_GRASS_COUNTS = (GRASS_COUNT, 375, 450)
+MENU_WIND_MULTIPLIERS = (1.0, 1.85, 2.7)
+MENU_WIND_SPEED_MULTIPLIERS = (1.0, 1.45, 2.0)
 MENU_RAIN_INTENSITIES = (RAIN_DEFAULT_INTENSITY, 0.65, 0.85)
 MENU_AUTO_ROTATE_MULTIPLIERS = (1.0, 1.45, 1.9)
+
+OBSERVATION_CYCLE_CLEAR_DURATION = 8.0
+OBSERVATION_CYCLE_SHADOW_DURATION = 10.0
+OBSERVATION_CYCLE_LIGHT_RAIN_DURATION = 12.0
+OBSERVATION_CYCLE_RAIN_DURATION = 18.0
+OBSERVATION_CYCLE_AFTER_RAIN_DURATION = 24.0
+OBSERVATION_CYCLE_CLOUD_SHADOW_AMOUNT = 0.18
+OBSERVATION_CYCLE_LIGHT_RAIN_MULTIPLIER = 0.45
 
 AFTER_RAIN_MIN_WETNESS = 0.05
 AFTER_RAIN_CLEAR_WETNESS = 0.035
@@ -150,9 +182,9 @@ PALETTE_PRESETS = {
         "background_band": 2,
         "distant_grass": 3,
         "normal_grass": 11,
-        "foreground_grass": 10,
-        "lit_grass": 10,
-        "strongly_lit_grass": 7,
+        "foreground_grass": 3,
+        "lit_grass": 3,
+        "strongly_lit_grass": 11,
         "ground_shadow": 5,
         "ground_light": 13,
         "ground_strong_light": 10,
@@ -174,9 +206,9 @@ PALETTE_PRESETS = {
         "background_band": 5,
         "distant_grass": 3,
         "normal_grass": 11,
-        "foreground_grass": 10,
-        "lit_grass": 7,
-        "strongly_lit_grass": 7,
+        "foreground_grass": 3,
+        "lit_grass": 3,
+        "strongly_lit_grass": 11,
         "ground_shadow": 5,
         "ground_light": 10,
         "ground_strong_light": 7,
@@ -198,9 +230,9 @@ PALETTE_PRESETS = {
         "background_band": 2,
         "distant_grass": 3,
         "normal_grass": 3,
-        "foreground_grass": 11,
-        "lit_grass": 10,
-        "strongly_lit_grass": 9,
+        "foreground_grass": 3,
+        "lit_grass": 3,
+        "strongly_lit_grass": 11,
         "ground_shadow": 5,
         "ground_light": 4,
         "ground_strong_light": 10,
@@ -257,6 +289,8 @@ def validate_display_config() -> None:
         raise ValueError("render height must match the reference height")
     if TARGET_FPS <= 0:
         raise ValueError("target FPS must be positive")
+    if UI_TEXT_SCALE < 1:
+        raise ValueError("UI text scale must be positive")
     if CAMERA_MIN_DISTANCE <= 0:
         raise ValueError("minimum camera distance must be positive")
     if CAMERA_INITIAL_DISTANCE < CAMERA_MIN_DISTANCE:
@@ -285,6 +319,8 @@ def validate_display_config() -> None:
         raise ValueError("grass bend range must be non-negative and ordered")
     if GRASS_MIN_STIFFNESS <= 0 or GRASS_MAX_STIFFNESS < GRASS_MIN_STIFFNESS:
         raise ValueError("grass stiffness range must be positive and ordered")
+    if GRASS_WIDTH_MULTIPLIER < 1:
+        raise ValueError("grass width multiplier must be positive")
     if WIND_BASE_SPEED < 0:
         raise ValueError("wind base speed must be non-negative")
     if WIND_RESPONSE_SCALE < 0:
@@ -319,6 +355,8 @@ def validate_display_config() -> None:
         raise ValueError("light particle sway must be non-negative")
     if LIGHT_PARTICLE_DRIFT_MIN > LIGHT_PARTICLE_DRIFT_MAX:
         raise ValueError("light particle drift range must be ordered")
+    if LIGHT_PARTICLE_SIZE_MIN <= 0 or LIGHT_PARTICLE_SIZE_MAX < LIGHT_PARTICLE_SIZE_MIN:
+        raise ValueError("light particle size range must be positive and ordered")
     if LIGHT_PARTICLE_AXIS_ATTRACTION < 0:
         raise ValueError("light particle axis attraction must be non-negative")
     if LIGHT_PARTICLE_WALK_RATE < 0 or LIGHT_PARTICLE_WALK_AMOUNT < 0:
@@ -327,6 +365,26 @@ def validate_display_config() -> None:
         raise ValueError("light visibility thresholds must be non-negative")
     if LIGHT_PARTICLE_COUNT <= 0 or LIGHT_PARTICLE_MAX_COUNT < LIGHT_PARTICLE_COUNT:
         raise ValueError("light particle counts must be positive and ordered")
+    if not 1 <= LIGHT_BAND_COUNT <= 5:
+        raise ValueError("light band count must be between one and five")
+    if LIGHT_BAND_WIDTH_MIN <= 0 or LIGHT_BAND_WIDTH_MAX < LIGHT_BAND_WIDTH_MIN:
+        raise ValueError("light band width range must be positive and ordered")
+    if len(LIGHT_BAND_WIDTH_FACTORS) != LIGHT_BAND_COUNT:
+        raise ValueError("light band width factors must match the band count")
+    if any(factor <= 0 for factor in LIGHT_BAND_WIDTH_FACTORS):
+        raise ValueError("light band width factors must be positive")
+    if LIGHT_BAND_WIDTH_RATE < 0:
+        raise ValueError("light band width rate must be non-negative")
+    if LIGHT_BAND_ALPHA_PATTERN < 0:
+        raise ValueError("light band alpha pattern must be non-negative")
+    if len(LIGHT_ACCENT_BAND_WIDTHS) != LIGHT_ACCENT_BAND_COUNT:
+        raise ValueError("light accent band widths must match the accent count")
+    if LIGHT_ACCENT_BAND_COUNT <= 0:
+        raise ValueError("light accent band count must be positive")
+    if any(width <= 0.0 for width in LIGHT_ACCENT_BAND_WIDTHS):
+        raise ValueError("light accent band widths must be positive")
+    if LIGHT_ACCENT_BAND_RATE < 0:
+        raise ValueError("light accent band rate must be non-negative")
     if not (
         0.0
         <= LIGHT_GRASS_THRESHOLD_LOW
@@ -349,12 +407,33 @@ def validate_display_config() -> None:
         raise ValueError("rain intensity step must be normalized")
     if RAIN_MIN_FALL_SPEED <= 0 or RAIN_MAX_FALL_SPEED < RAIN_MIN_FALL_SPEED:
         raise ValueError("rain fall speed range must be positive and ordered")
+    if len(RAIN_SHORT_LENGTHS) != 3:
+        raise ValueError("rain short lengths must define three fixed sizes")
+    if tuple(sorted(RAIN_SHORT_LENGTHS)) != RAIN_SHORT_LENGTHS:
+        raise ValueError("rain short lengths must be ordered")
     if RAIN_MIN_LENGTH <= 0 or RAIN_MAX_LENGTH < RAIN_MIN_LENGTH:
         raise ValueError("rain length range must be positive and ordered")
+    if RAIN_SHORT_LENGTHS[0] != RAIN_MIN_LENGTH or RAIN_SHORT_LENGTHS[-1] != RAIN_MAX_LENGTH:
+        raise ValueError("rain min and max lengths must match the fixed short lengths")
+    if RAIN_STATIC_STREAK_COUNT < 0:
+        raise ValueError("rain static streak count must be non-negative")
+    if (
+        RAIN_STATIC_STREAK_MIN_LENGTH <= RAIN_MAX_LENGTH
+        or RAIN_STATIC_STREAK_MAX_LENGTH < RAIN_STATIC_STREAK_MIN_LENGTH
+    ):
+        raise ValueError("rain static streak lengths must be ordered above short rain")
+    if not (
+        0.0 <= RAIN_STATIC_STREAK_MIN_HEIGHT_FACTOR < RAIN_STATIC_STREAK_MAX_HEIGHT_FACTOR <= 1.0
+    ):
+        raise ValueError("rain static streak height factors must be normalized and ordered")
+    if RAIN_STATIC_STREAK_FLASH_RATE < 0:
+        raise ValueError("rain static streak flash rate must be non-negative")
+    if not 0.0 <= RAIN_STATIC_STREAK_FLASH_THRESHOLD <= 1.0:
+        raise ValueError("rain static streak flash threshold must be normalized")
     if RAIN_WIND_DRIFT_SCALE < 0 or RAIN_WIND_TILT_SCALE < 0:
         raise ValueError("rain wind scales must be non-negative")
-    if not (0.0 <= RAIN_LIGHT_VISIBILITY_THRESHOLD <= RAIN_BRIGHT_VISIBILITY_THRESHOLD <= 1.0):
-        raise ValueError("rain light thresholds must be ordered")
+    if not 0.0 <= RAIN_BRIGHT_VISIBILITY_THRESHOLD <= 1.0:
+        raise ValueError("rain brightness threshold must be normalized")
     if RAIN_SPLASH_LIFETIME <= 0 or RAIN_SPLASH_GRAVITY < 0 or RAIN_SPLASH_SPEED < 0:
         raise ValueError("rain splash timing and motion must be positive")
     if RAIN_SPLASHES_PER_IMPACT < 0:
@@ -388,6 +467,12 @@ def validate_display_config() -> None:
         raise ValueError("tip droplet fall speed must be non-negative")
     if not 0.0 <= CAMERA_INERTIA_DECAY < 1.0:
         raise ValueError("camera inertia decay must be normalized below one")
+    if AUTO_ROTATE_PITCH_SWAY_AMOUNT < 0:
+        raise ValueError("auto rotate pitch sway amount must be non-negative")
+    if AUTO_ROTATE_PITCH_SWAY_RATE < 0:
+        raise ValueError("auto rotate pitch sway rate must be non-negative")
+    if not 0.0 < AUTO_ROTATE_PITCH_FOLLOW <= 1.0:
+        raise ValueError("auto rotate pitch follow must be normalized")
     if PALETTE_PRESET not in PALETTE_PRESETS:
         raise ValueError("active palette preset must exist")
     if set(PALETTE_PRESETS) != {"morning", "noon", "evening"}:
@@ -405,6 +490,7 @@ def _validate_menu_stages() -> None:
         MENU_PHOTON_COUNTS,
         MENU_GRASS_COUNTS,
         MENU_WIND_MULTIPLIERS,
+        MENU_WIND_SPEED_MULTIPLIERS,
         MENU_RAIN_INTENSITIES,
         MENU_AUTO_ROTATE_MULTIPLIERS,
     )
@@ -418,10 +504,32 @@ def _validate_menu_stages() -> None:
         raise ValueError("menu rain stage 1 must match the current rain intensity")
     if any(value <= 0 for value in MENU_PHOTON_COUNTS + MENU_GRASS_COUNTS):
         raise ValueError("menu density stage values must be positive")
-    if any(value <= 0.0 for value in MENU_WIND_MULTIPLIERS + MENU_AUTO_ROTATE_MULTIPLIERS):
+    if any(
+        value <= 0.0
+        for value in (
+            MENU_WIND_MULTIPLIERS + MENU_WIND_SPEED_MULTIPLIERS + MENU_AUTO_ROTATE_MULTIPLIERS
+        )
+    ):
         raise ValueError("menu motion multipliers must be positive")
     if any(not 0.0 <= value <= 1.0 for value in MENU_RAIN_INTENSITIES):
         raise ValueError("menu rain intensities must be normalized")
     for values in stage_sets:
         if tuple(sorted(values)) != values:
             raise ValueError("menu stage values must be ordered")
+    _validate_observation_cycle()
+
+
+def _validate_observation_cycle() -> None:
+    durations = (
+        OBSERVATION_CYCLE_CLEAR_DURATION,
+        OBSERVATION_CYCLE_SHADOW_DURATION,
+        OBSERVATION_CYCLE_LIGHT_RAIN_DURATION,
+        OBSERVATION_CYCLE_RAIN_DURATION,
+        OBSERVATION_CYCLE_AFTER_RAIN_DURATION,
+    )
+    if any(duration <= 0.0 for duration in durations):
+        raise ValueError("observation cycle durations must be positive")
+    if not 0.0 <= OBSERVATION_CYCLE_CLOUD_SHADOW_AMOUNT <= 1.0:
+        raise ValueError("observation cycle cloud shadow amount must be normalized")
+    if not 0.0 <= OBSERVATION_CYCLE_LIGHT_RAIN_MULTIPLIER <= 1.0:
+        raise ValueError("observation cycle light rain multiplier must be normalized")

@@ -18,7 +18,8 @@ LC005-specific completion checks:
 - The light beam is not directly drawn in normal view.
 - Grass tips catch more light than blade middles and roots.
 - Particles appear only in the light volume.
-- The bottom grid suggests light falling onto the floor.
+- Normal viewing hides the bottom floor rings and radial lines.
+- Mixed-width light bands include some thin cuts and do not read as a single slab.
 - Wind moves grass in and out of the light.
 - `L` toggles the light comparison on and off.
 - No meaningful FPS drop is visible.
@@ -72,7 +73,7 @@ LC008-specific completion checks:
 - Only wet floor areas in light gain a weak reflection cue.
 - Puddles, ripples, water drops, thunder, and rain audio remain absent.
 - The clear initial scene remains unchanged.
-- Grass count 420 and 30 FPS feel are preserved.
+- Grass count 300 baseline / 450 stage-3 and 30 FPS feel are preserved.
 
 LC009-specific completion checks:
 
@@ -84,11 +85,23 @@ LC009-specific completion checks:
 - Only a small subset of grass tips can hold droplets.
 - Droplets are visible only in light.
 - Droplets fall and disappear without becoming rain or sparkle noise.
-- The MENU button remains small in the top right and does not become the focal
-  point.
+- The MENU button remains in the top right, readable, and does not become the
+  focal point.
 - All MENU stages start at 1 so the initial viewing state remains the baseline.
 - Puddles, ripples, thunder, rain audio, and all-grass droplets remain absent.
 - The clear initial scene remains unchanged.
+
+LC010-specific completion checks:
+
+- `M` starts and stops the observation cycle.
+- The cycle reads as clear, shadow, light rain, rain, after-rain, and clear
+  recovery without adding new weather effects.
+- MENU stages remain user settings and are not overwritten by the cycle.
+- Rain stage is used as the base amount for the cycle's rain multiplier.
+- Manual `N`, `Q`, or `E` rain input exits the cycle cleanly.
+- CloudShadow deepens and lifts softly rather than snapping.
+- The cycle remains quiet enough that grass and light stay the subject.
+- The scene still starts in manual clear state.
 
 ## Artistic Review
 

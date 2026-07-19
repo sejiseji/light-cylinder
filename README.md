@@ -11,12 +11,12 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC009 adds an `AFTER_RAIN` observation state. The scene still starts clear;
-pressing `N` introduces rain, and pressing `N` again lets the cylinder slowly
-return toward clear air: CloudShadow lifts, wet ground dries, weak reflections
-linger, and a small set of grass-tip droplets remain visible only in light before
-falling away. Puddles, ripples, thunder, rain audio, all-grass droplets, touch
-input, and web packaging remain later waves.
+LC010 adds an optional observation cycle. The scene still starts clear and
+manual, but pressing `M` lets the cylinder move through clear air, deepening
+CloudShadow, light rain, normal rain, rain stop, after-rain, and clear recovery.
+The cycle uses existing light, rain, wetness, and droplet systems rather than
+adding a broader weather simulator. Puddles, ripples, thunder, rain audio,
+all-grass droplets, touch input, and web packaging remain later waves.
 
 ## Display Model
 
@@ -48,18 +48,32 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC009 screen starts in a clear viewing state: light on, wind on, rain off,
-boundary off, debug off, auto rotate off. It shows wind-animated grass, sparse
-particles, tip lighting, and subtle floor light without drawing the beam itself.
+The LC010 screen starts in a clear viewing state: light on, wind on, rain off,
+boundary off, debug off, auto rotate off. It shows wind-animated grass, denser
+mixed-size light particles, tip lighting, subtle floor light, and five quiet mixed-width
+tapered light bands. Bottom floor rings and radial lines stay hidden until the
+cylinder boundary is shown.
 Debug mode adds camera state, draw counters, the centered composition safe area,
 environment phase, rain counters, splash count, wetness, grass reaction count,
-tip droplet count, and light axis/radius guides.
+tip droplet count, observation cycle phase, and light axis/radius guides. Bottom
+coordinate axes stay hidden.
 
-The top-right `MENU` button opens a small observation panel. Photon density,
+The top-right `MENU` button opens a readable observation panel. Photon density,
 grass density, wind strength, rain amount, and auto-rotate speed are adjustable
-from stage 1 to 3. Stage 1 is the current baseline look. These settings are
-session-only and reset to stage 1 after restart. `RAIN` changes only the rain
-amount preset; rain still starts and stops through `N`.
+from stage 1 to 3, and auto-rotate plus rain can also be toggled ON/OFF there.
+WIND strengthens the stage 1 sway around the same steady bend instead of moving
+to a different resting bend, and higher stages also advance the wind motion time
+faster. Stage 1 is the current baseline look. These settings are session-only
+and reset to stage 1 after restart. `AMOUNT` changes only the rain amount
+preset; rain starts and stops through either `N` or the MENU `RAIN` toggle.
+
+`M` toggles the observation cycle. While enabled, the cycle applies temporary
+rain and light multipliers on top of the current MENU stages. Pressing `N`,
+`Q`, or `E` exits the cycle and returns to manual rain control.
+
+Auto rotate slowly orbits left/right and adds a small vertical sway. Manual
+pitch steering through arrow keys or drag updates the sway center, so the viewing
+angle follows the observer's chosen baseline.
 
 ## Controls
 
@@ -73,9 +87,10 @@ amount preset; rain still starts and stops through `N`.
 - W: toggle wind application
 - L: toggle light media
 - N: toggle rain
+- M: toggle observation cycle
 - Q and E: decrease and increase rain amount
 - R: reset camera
-- D: toggle debug HUD, reference axes, and light guides
+- D: toggle debug HUD and light guides
 - MENU button: open the observation tuning panel
 - ESC: quit
 

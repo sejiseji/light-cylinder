@@ -19,6 +19,8 @@ from light_cylinder.config import (
     LIGHT_PARTICLE_COUNT,
     LIGHT_PARTICLE_DRIFT_MAX,
     LIGHT_PARTICLE_DRIFT_MIN,
+    LIGHT_PARTICLE_SIZE_MAX,
+    LIGHT_PARTICLE_SIZE_MIN,
     LIGHT_PARTICLE_SWAY_AMOUNT,
     LIGHT_PARTICLE_SWAY_RATE,
     LIGHT_PARTICLE_WALK_AMOUNT,
@@ -107,6 +109,7 @@ class LightParticle:
     phase: float
     drift_speed: float
     brightness: float
+    size: float
 
     def position_at(self, beam: LightBeam, elapsed_time: float) -> Vec3:
         axial_position = (self.axial_position + self.drift_speed * elapsed_time) % beam.length
@@ -189,9 +192,19 @@ def _generate_particles(
                 phase=rng.random() * tau,
                 drift_speed=rng.uniform(LIGHT_PARTICLE_DRIFT_MIN, LIGHT_PARTICLE_DRIFT_MAX),
                 brightness=rng.uniform(0.58, 1.0),
+                size=_particle_size(rng),
             )
         )
     return tuple(particles)
+
+
+def _particle_size(rng: Random) -> float:
+    roll = rng.random()
+    if roll < 0.52:
+        return rng.uniform(LIGHT_PARTICLE_SIZE_MIN, 0.36)
+    if roll < 0.88:
+        return rng.uniform(0.48, 0.74)
+    return rng.uniform(0.86, LIGHT_PARTICLE_SIZE_MAX)
 
 
 def _generate_ground_sparks(

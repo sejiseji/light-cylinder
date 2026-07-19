@@ -1,6 +1,6 @@
 import pytest
 
-from light_cylinder.config import LIGHT_GROUND_SPARK_COUNT, LIGHT_PARTICLE_COUNT
+from light_cylinder.config import CYLINDER_HEIGHT, LIGHT_GROUND_SPARK_COUNT, LIGHT_PARTICLE_COUNT
 from light_cylinder.light import LightBeam, LightField
 from light_cylinder.world import CylinderWorld
 
@@ -29,6 +29,18 @@ def test_light_beam_intensity_rejects_outside_length() -> None:
     assert beam.intensity_at(after_end) == 0.0
 
 
+def test_light_beam_enters_from_above_taller_cylinder_and_reaches_floor() -> None:
+    beam = LightBeam.create_default()
+    world = CylinderWorld()
+    floor_axial_position = (world.bottom_y - beam.origin.y) / beam.direction.y
+    floor_axis_point = beam.axis_point(floor_axial_position)
+
+    assert beam.origin.y > CYLINDER_HEIGHT
+    assert beam.intensity_at(world.top_center) > 0.0
+    assert world.contains_horizontal(floor_axis_point)
+    assert beam.intensity_at(floor_axis_point) > 0.0
+
+
 def test_light_beam_basis_is_perpendicular_to_direction() -> None:
     beam = LightBeam.create_default()
     basis_u, basis_v = beam.basis()
@@ -44,6 +56,9 @@ def test_light_field_generates_sparse_particles_and_ground_sparks() -> None:
 
     assert len(field.particles) == LIGHT_PARTICLE_COUNT
     assert len(field.ground_sparks) == LIGHT_GROUND_SPARK_COUNT
+    sizes = [particle.size for particle in field.particles]
+    assert min(sizes) < 0.35
+    assert max(sizes) > 0.9
     assert all(spark.position.y == 0.0 for spark in field.ground_sparks)
     assert all(field.beam.intensity_at(spark.position) > 0.0 for spark in field.ground_sparks)
 

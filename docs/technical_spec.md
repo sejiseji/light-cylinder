@@ -38,8 +38,8 @@ LC001 keeps `math3d.py`, `camera.py`, and `ControlIntent` Pyxel-independent.
 
 LC002 adds `CylinderWorld` as the Pyxel-independent geometry model for the
 observation volume. The default cylinder is centered on the Y axis with radius
-96 and height 240. Its bottom center is the origin and its top center is
-`Vec3(0, 240, 0)`.
+96 and height 300. Its bottom center is the origin and its top center is
+`Vec3(0, 300, 0)`.
 
 Cylinder containment uses:
 
@@ -145,14 +145,15 @@ intensity = LightBeam.intensity_at(point)
 ```
 
 The beam intensity is based on axial range, radial distance from the beam axis,
-a core radius, and end fading. `LightField` owns 48 deterministic particles and
+a core radius, and end fading. `LightField` owns 360 deterministic particles and
 28 deterministic floor spark points. The app advances light time once per frame
 and draws only media that has sampled non-zero beam intensity:
 
-- sparse particles inside the light volume
+- mixed-size particles inside the light volume
 - grass root, middle, and tip samples, weighted tip > middle > root
-- bottom grid midpoint color changes
+- optional bottom grid midpoint color changes when boundary display is enabled
 - a small number of floor spark pixels
+- five mixed-width tapered light bands with dynamic angle and width
 
 `L` toggles light media application for visual comparison. `D` toggles debug
 mode; only debug mode draws the light axis and three radius guide rings. This is
@@ -178,22 +179,22 @@ composition; it does not regenerate grass, wind, particles, or light data.
 LC006 draw order is:
 
 1. fixed dark background with sparse vertical bands
-2. floor grid with light-aware midpoint color
-3. optional cylinder boundary
-4. light particles
-5. wind-sampled, depth-sorted grass
-6. floor spark pixels
-7. debug-only axes, reference points, safe area, and light guides
+2. optional floor grid and cylinder boundary
+3. light particles
+4. depth-sorted grass and mixed-width tapered light bands
+5. floor spark pixels
+6. debug-only safe area, counters, light axis, and light guide rings
 
 The initial camera values are yaw -0.22, pitch 0.34, distance 430, and target Y
 at `CYLINDER_HEIGHT * 0.43`. Auto rotate uses a slow 0.0035 radians per frame,
-roughly a one-minute orbit at 30 FPS. No automatic pitch oscillation is added in
-LC006.
+roughly a one-minute orbit at 30 FPS. Auto rotate also adds a subtle pitch sway
+around a mutable pitch center.
 
 LC006.5 adds observation polish without adding a new natural phenomenon. Manual
 camera input uses short inertia through app-level yaw, pitch, and zoom velocity
-state with `CAMERA_INERTIA_DECAY = 0.68`. `R` resets both the camera and these
-velocities.
+state with `CAMERA_INERTIA_DECAY = 0.68`. Manual pitch input updates the auto
+pitch sway center so automatic viewing continues from the observer's chosen
+vertical angle. `R` resets the camera, pitch sway center, and these velocities.
 
 Light pulse is reframed as cloud shadow. `LightField.intensity_multiplier`
 slowly darkens and returns between 0.84 and 1.0 using
@@ -215,28 +216,30 @@ The clear observation state remains the default; `N` toggles rain, and `Q` / `E`
 decrease or increase the rain amount. Rain amount clamps to the normalized range
 0..1 and selects a prefix of the deterministic 64-drop candidate field.
 
-Rain samples the cylinder top disk with a fixed seed. Most candidates are biased
-toward the light corridor so the rain can reveal the beam without requiring a
-full-screen downpour. Drops fall downward over time and disappear when they
-reach the floor by wrapping back to the top on the next cycle. Wind affects the
-horizontal drift and tail tilt, so the rain moves as diagonal streaks rather than
-vertical bars.
+Rain samples the cylinder top disk with a fixed seed. Candidates cover the full
+cylinder rather than being biased toward the light corridor. Drops fall downward
+over time and disappear when they reach the floor by wrapping back to the top on
+the next cycle. Wind no longer affects rain drift or tail tilt; rain is rendered
+as 1px-wide vertical streaks across the cylinder. Falling drops use three fixed
+short lengths. Longer rain legs are separate static streak candidates: they do
+not fall, move, or stretch, and they flash for only an instant at fixed
+positions among the falling short drops. Their candidate count is intentionally
+higher than before, with varied head heights so the long flashes can appear low,
+mid, or high in the cylinder.
 
-Normal rendering still does not draw the light beam. Rain is drawn only when a
-segment midpoint samples enough light from `LightBeam.intensity_at(point)` after
-the cloud-shadow multiplier is applied. This keeps rain as another medium for
-seeing the light, not a separate weather spectacle.
+Normal rendering still does not draw the light beam directly. Rain is visible
+throughout the cylinder when enabled; light is carried by particles, grass tips,
+floor response, and the mixed light bands.
 
 LC007 draw order is:
 
 1. fixed dark background with sparse vertical bands
-2. floor grid with light-aware midpoint color
-3. optional cylinder boundary
-4. light particles
-5. light-gated rain segments
-6. wind-sampled, depth-sorted grass
-7. floor spark pixels
-8. debug-only axes, reference points, safe area, counters, and light guides
+2. optional floor grid and cylinder boundary
+3. light particles
+4. full-cylinder vertical rain segments
+5. depth-sorted grass, mixed-width tapered light bands, and yellow accents
+6. floor spark pixels
+7. debug-only safe area, counters, light axis, and light guide rings
 
 ## Rain Reactions
 
@@ -261,18 +264,17 @@ local press rather than a second wind system.
 LC008 draw order is:
 
 1. fixed dark background with sparse vertical bands
-2. floor grid with light-aware and wetness-aware midpoint color
-3. optional cylinder boundary
-4. light particles
-5. light-gated rain segments
-6. splash pixels
-7. wind/reaction-sampled, depth-sorted grass
-8. floor spark pixels
-9. debug-only axes, reference points, safe area, counters, and light guides
+2. optional floor grid and cylinder boundary with light/wetness-aware midpoint color
+3. light particles
+4. full-cylinder vertical rain segments
+5. splash pixels
+6. depth-sorted grass/reactions, mixed-width tapered light bands, and yellow accents
+7. floor spark pixels
+8. debug-only safe area, counters, light axis, and light guide rings
 
-Wet floor shading is intentionally coarse: it darkens the existing floor grid and
-allows a weak reflection color only where light is already present. LC008 does
-not add puddles, ripple simulation, grass-tip water retention, thunder, rain
+Wet floor shading is intentionally coarse: it can darken the optional floor grid
+and allows a weak reflection color only where light is already present. LC008
+does not add puddles, ripple simulation, grass-tip water retention, thunder, rain
 audio, or after-rain transitions.
 
 ## After Rain
@@ -302,41 +304,75 @@ small candidate set of grass blades can receive droplets, and droplets are seede
 only when transitioning from `RAIN` to `AFTER_RAIN`. They are rendered only if
 their sampled point is inside enough light. Each droplet holds for a short
 deterministic time, then falls vertically and disappears. LC009 intentionally
-does not attach water to all 420 blades.
+does not attach water to all baseline blades.
 
 LC009 draw order keeps droplets quiet:
 
 1. fixed dark background with sparse vertical bands
-2. floor grid with light/wetness/reflection-aware midpoint color
-3. optional cylinder boundary
-4. light particles
-5. light-gated rain segments
-6. splash pixels
-7. wind/reaction-sampled, depth-sorted grass
-8. light-gated tip droplet pixels
-9. floor spark pixels
-10. debug-only axes, reference points, safe area, counters, and light guides
+2. optional floor grid and cylinder boundary with light/wetness/reflection-aware midpoint color
+3. light particles
+4. full-cylinder vertical rain segments
+5. splash pixels
+6. depth-sorted grass/reactions, mixed-width tapered light bands, and yellow accents
+7. light-gated tip droplet pixels
+8. floor spark pixels
+9. debug-only safe area, counters, light axis, and light guide rings
 
 Puddles, ripple simulation, thunder, rain audio, and all-grass droplet retention
 remain out of scope.
 
 ## Observation Menu
 
-The top-right MENU button opens an overlay panel with five 1-3 stage controls.
+The top-right MENU button opens an overlay panel with five 1-3 stage controls
+and an auto-rotate ON/OFF toggle.
 All controls start at stage 1, which is the LC009 baseline:
 
-- photon density: draws the first 48, 64, or 80 generated light particles
-- grass density: draws the first 420, 520, or 620 generated grass blades
-- wind strength: multiplies sampled wind by 1.0, 1.35, or 1.7
+- photon density: draws the first 360, 720, or 1080 generated light particles
+- grass density: draws the first 300, 375, or 450 generated grass blades
+- wind strength: keeps the steady wind anchor, amplifies motion by 1.0, 1.85, or
+  2.7, and advances wind motion time by 1.0, 1.45, or 2.0
 - rain amount: sets rain intensity to 0.45, 0.65, or 0.85
 - auto rotate speed: multiplies auto-rotate by 1.0, 1.45, or 1.9
+- AUTO toggle: changes the same auto-rotate state as the `X` key
 
 The app pre-generates the maximum particle and grass budgets, then draws the
 active prefix for the selected stage. This keeps stage changes deterministic and
 avoids regenerating scene data while the observation is running.
 The grass control changes draw density, not the deterministic generated field.
+Light bands are inserted into the same depth-sorted draw list as grass blades so
+rotation can affect the apparent front/back relationship between blades and
+bands.
 The rain control changes only the amount preset and does not toggle rain on or
 off. Settings are not persisted; every launch starts from stage 1.
+
+## Observation Cycle
+
+LC010 adds `ObservationCycle` in `observation_cycle.py`. It is Pyxel-independent
+and emits temporary playback values:
+
+```text
+CLEAR
+SHADOW
+LIGHT_RAIN
+RAIN
+AFTER_RAIN
+```
+
+The app owns the bridge between cycle samples and existing systems. While the
+cycle is enabled, rain intensity is:
+
+```text
+MENU rain stage intensity * cycle rain multiplier
+```
+
+The stored MENU stage is not changed. `LIGHT_RAIN` ramps up to a partial
+multiplier; `RAIN` uses the full selected stage amount; `AFTER_RAIN` turns rain
+off and lets the existing `EnvironmentState`, wetness, reflection, and droplet
+logic resolve naturally. The cycle also applies a temporary light multiplier for
+deepening and lifting CloudShadow without altering `LightField` internals.
+
+Manual `N`, `Q`, or `E` rain input disables the cycle before applying the manual
+operation, so returning to direct control does not inherit hidden cycle state.
 
 ## Resource Resolution
 

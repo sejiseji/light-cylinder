@@ -49,30 +49,54 @@ class WindField:
         self.elapsed_time = (self.elapsed_time + dt) % WIND_TIME_WRAP_SECONDS
 
     def sample(self, position: Vec3, phase: float = 0.0) -> Vec3:
+        return self.sample_at(self.elapsed_time, position, phase)
+
+    def sample_at(self, elapsed_time: float, position: Vec3, phase: float = 0.0) -> Vec3:
         spatial_phase = self.spatial_phase(position)
         pulse = 1.0 + WIND_SLOW_PULSE_AMOUNT * sin(
-            self.elapsed_time * WIND_SLOW_PULSE_RATE
-            + spatial_phase
-            + phase * WIND_BLADE_PHASE_SCALE
+            elapsed_time * WIND_SLOW_PULSE_RATE + spatial_phase + phase * WIND_BLADE_PHASE_SCALE
         )
         micro_breath = MICRO_WIND_AMOUNT * sin(
-            self.elapsed_time * MICRO_WIND_RATE
-            + spatial_phase * 0.5
-            + phase * MICRO_WIND_PHASE_SCALE
+            elapsed_time * MICRO_WIND_RATE + spatial_phase * 0.5 + phase * MICRO_WIND_PHASE_SCALE
         )
         local_angle = WIND_BASE_DIRECTION_ANGLE + WIND_DIRECTION_SWAY_AMOUNT * sin(
-            spatial_phase + self.elapsed_time * WIND_DIRECTION_SWAY_RATE
+            spatial_phase + elapsed_time * WIND_DIRECTION_SWAY_RATE
         )
-        strength = max(0.0, self.base_speed * (pulse + micro_breath) + self.current_gust_strength)
+        strength = max(
+            0.0,
+            self.base_speed * (pulse + micro_breath) + self.gust_strength_at(elapsed_time),
+        )
         return Vec3(cos(local_angle) * strength, 0.0, sin(local_angle) * strength)
+
+    def steady_sample(self) -> Vec3:
+        return self.base_direction * self.base_speed
+
+    def amplified_sample(
+        self,
+        position: Vec3,
+        phase: float = 0.0,
+        motion_multiplier: float = 1.0,
+        elapsed_time: float | None = None,
+    ) -> Vec3:
+        steady = self.steady_sample()
+        sample = (
+            self.sample(position, phase)
+            if elapsed_time is None
+            else self.sample_at(elapsed_time, position, phase)
+        )
+        motion = sample - steady
+        return steady + motion * motion_multiplier
 
     def spatial_phase(self, position: Vec3) -> float:
         return position.x * WIND_SPATIAL_FREQUENCY_X + position.z * WIND_SPATIAL_FREQUENCY_Z
 
     @property
     def current_gust_strength(self) -> float:
+        return self.gust_strength_at(self.elapsed_time)
+
+    def gust_strength_at(self, elapsed_time: float) -> float:
         cycle_duration = GUST_INTERVAL + GUST_DURATION
-        cycle_time = (self.elapsed_time + self._seed_time_offset()) % cycle_duration
+        cycle_time = (elapsed_time + self._seed_time_offset()) % cycle_duration
         if cycle_time < GUST_INTERVAL:
             return 0.0
         normalized = (cycle_time - GUST_INTERVAL) / GUST_DURATION

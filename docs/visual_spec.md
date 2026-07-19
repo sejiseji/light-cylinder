@@ -19,12 +19,13 @@ surfaces that would hide line relationships in Pyxel.
 
 Grass should eventually curve and react to wind. Light should arrive as sliced
 bands or shafts. Wind should layer motion across height and depth. Rain and
-particles should reveal depth without overwhelming the quiet mood.
+particles should reveal depth with clear small/large variation without
+overwhelming the quiet mood.
 
 LC003 introduces static curved grass. Each blade uses a base point on the
 cylinder bottom, a height, a natural XZ bend, and a quadratic curve so the bend
 is weak near the root and strongest at the tip. Blade height, bend, color, and
-width class vary by fixed-seed generation. Rendering keeps roots slightly
+width class vary by fixed-seed generation. Rendering keeps roots clearly
 thicker and tapers toward the tip, so blades read as thin flat grass rather than
 uniform wires.
 
@@ -54,12 +55,16 @@ while tips carry most of the motion.
 Gusts use a smooth envelope so the field gradually strengthens and relaxes. They
 should read as a slow breath through the grass rather than a sudden snap.
 
-LC005 makes light visible through media rather than drawing the light column
-itself. Particles are sparse so they read as air, not snow. Grass lighting is
-biased toward blade tips: each blade samples only root, middle, and tip, with
-tip response strongest. This should make leaves appear to cross into light while
-wind moves them. The bottom grid carries the first ground light impression, with
-only a few extra bright floor points.
+LC005 makes light visible through media first. Particles stay air-like rather
+than snow-like, and quiet tapered bands can hint at the shaft without becoming
+the focal subject. The bands vary in angle and width, including a few thin
+cuts of light rather than one uniform slab. Grass lighting is biased toward
+blade tips: each blade samples only root, middle, and tip, with tip response
+strongest. This should make leaves appear to cross into light while wind moves
+them. The bottom grid can support boundary inspection, but normal viewing keeps
+floor rings and radial lines hidden.
+Light bands and grass are depth-sorted together so camera rotation can change
+which grass appears in front of each band.
 
 When debug is off, light-axis lines and radius circles must disappear. The viewer
 should infer the beam from particles, grass tips, and the floor.
@@ -74,16 +79,17 @@ observation volume rather than a cage.
 The palette is centralized by use: dark background and bands, distant/normal/
 foreground grass, lit/strongly lit grass, ground shadow/light, dim/bright
 particles, cylinder far/near edges, and debug accents. The colors stay within
-Pyxel's standard palette and favor a quiet green/yellow light relationship over
-large bright surfaces.
+Pyxel's standard palette and keep grass in green tones rather than yellow
+blades.
 
 The initial camera uses yaw -0.22, pitch 0.34, distance 430, and a target at 43
 percent of cylinder height. This keeps grass centered in the safe composition,
 leaves upper air for particles, and lets the light direction read without debug
 guides.
 
-HUD off must remove reference axes, light debug rings, center/safe guide lines,
-and labels. Debug mode is strictly an inspection layer.
+HUD off must remove light debug rings, center/safe guide lines, and labels.
+Bottom coordinate axes stay hidden by default. Debug mode is strictly an
+inspection layer.
 
 LC006.5 names the work `光の標本` / `Specimen of Light` while keeping Light
 Cylinder as the development name. Observation polish adds short camera inertia,
@@ -92,12 +98,14 @@ make the field feel held in air rather than mechanically animated. The active
 palette remains `morning`, with `noon` and `evening` presets available as
 configuration options for later curation.
 
-LC007 introduces rain as a light-revealing medium. The clear scene remains the
-default. When rain is toggled on, only drops that pass through enough sampled
-light are drawn, so rain should read as thin illuminated streaks inside the beam
-rather than a full weather layer. Wind gives the streaks a diagonal fall, but
-grass remains the focal subject. Floor arrival is silent disappearance only;
-splashes, wet ground, and grass contact are reserved for a later wave.
+LC007 introduces rain as a quiet environmental layer. The clear scene remains
+the default. When rain is toggled on, drops are drawn across the full cylinder as
+thin 1px-wide vertical streaks rather than only inside sampled light. Most drops
+remain one of three fixed short lengths. Occasional longer vertical rain legs
+flash for an instant at fixed positions and varied heights as a separate layer,
+so they read as rainfall texture rather than stretched drops. Grass remains the
+focal subject. Floor arrival is silent disappearance only; splashes, wet ground,
+and grass contact are reserved for a later wave.
 
 LC008 gives rain a restrained consequence. Ground impacts create tiny splash
 pixels that vanish quickly, nearby grass can be pressed down for a moment, and
@@ -111,6 +119,12 @@ slowly, wet floor cues should linger briefly, and only a few grass tips may hold
 water. Droplets should appear as rare light catches, not jewelry or sparkle
 noise, and should fall away naturally. The state should make time feel preserved
 inside the cylinder without changing the work into a rain scene.
+
+LC010 adds an optional observation cycle. The cycle should feel like the existing
+piece breathing through one chapter: clear air, gathering shade, light rain,
+fuller rain, stopping, after-rain, and return. It should not feel like a broad
+weather simulator. MENU density and motion stages remain the viewer's chosen
+baseline, while the cycle quietly moves temporary rain and light multipliers.
 
 ## Vertical Composition
 

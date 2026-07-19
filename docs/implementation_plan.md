@@ -13,7 +13,8 @@ Each wave should remain small enough to review and commit on its own.
 - LC007: Rain Through the Light - done
 - LC008: rain, grass, and ground reactions - done
 - LC009: After Rain - done
-- LC010: title and UI
-- LC011: touch controls
-- LC012: ambience and audio
-- LC013: web and iOS packaging
+- LC010: Observation Cycle - done
+- LC011: title and UI
+- LC012: touch controls
+- LC013: ambience and audio
+- LC014: web and iOS packaging

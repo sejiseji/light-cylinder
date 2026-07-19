@@ -8,7 +8,7 @@ cylindrical natural space.
 
 ## Current Wave
 
-LC009 After Rain.
+LC010 Observation Cycle.
 
 ## Completed
 
@@ -37,7 +37,7 @@ LC009 After Rain.
 - Stiffness and height-aware grass wind response
 - Wind toggle with `W`
 - Pyxel-independent `LightBeam` and `LightField`
-- 48 deterministic light particles inside the beam volume
+- 360 deterministic light particles inside the beam volume at baseline
 - Grass lighting from root/middle/tip samples, weighted toward blade tips
 - Bottom-grid light color changes and sparse floor spark points
 - Light media toggle with `L`
@@ -50,16 +50,18 @@ LC009 After Rain.
   and visible particles
 - Work title set to `Specimen of Light` / `光の標本`
 - Short camera inertia for yaw, pitch, and zoom
+- Auto rotate includes subtle pitch sway around the latest manual pitch baseline
 - Micro wind term layered into `WindField.sample`
 - Cloud-shadow light multiplier replacing direct pulse wording
 - Particle axis attraction and small random-walk motion
 - Setting-only palette presets for morning, noon, and evening
 - Pyxel-independent `RainDrop` and `RainField`
 - Optional rain with `N`, using `Q` and `E` for amount changes
-- Wind-slanted rain segments that disappear at the cylinder floor
-- Rain rendering gated by light intensity so only the light-crossing drops show
-- Rain candidates biased toward the light corridor so visible rain stays sparse
-  but legible
+- Vertical 1px-wide rain lines across the full cylinder, independent from light
+  visibility; falling short drops use three fixed lengths, while separate static
+  long rain streaks flash for an instant at varied heights without moving or
+  stretching
+- Rain candidates sample the cylinder disk instead of the light corridor
 - Pyxel-independent `GroundReactionField` and `GrassReactionField`
 - Ground impact events from active rain drops
 - Short-lived splash pixels at ground arrival
@@ -75,6 +77,20 @@ LC009 After Rain.
 - Tip droplets naturally fall and disappear
 - Top-right MENU panel for 1-3 stage observation tuning
 - Stage 1 keeps the baseline look for photons, grass, wind, rain, and auto rotate
+- MENU `AUTO` toggle changes the same auto-rotate state as the `X` key
+- MENU `RAIN` toggle changes the same rain ON/OFF state as the `N` key
+- Pyxel-independent `ObservationCycle`
+- `M` toggle for clear, shadow, light-rain, rain, after-rain, clear playback
+- Observation cycle uses MENU rain stage as a base amount without mutating stages
+- Manual `N`, `Q`, or `E` input exits the observation cycle before applying rain
+  control
+- Readable 3x pixel HUD and MENU text
+- 2x grass root width multiplier with tapered tips
+- 360-particle baseline light field and 1080-particle stage-3 budget
+- Photon draw sizes vary clearly from pixel points to radius-3 circles
+- Five dynamic mixed-width tapered light bands from upper beam to floor
+- Bottom coordinate axes hidden in normal and debug viewing
+- Bottom floor rings and radial lines hidden unless boundary display is enabled
 
 ## Not Completed
 
@@ -114,7 +130,7 @@ python scripts/check_all.py
 - N: toggle rain
 - Q and E: decrease and increase rain amount
 - R: reset camera
-- D: toggle debug HUD, reference axes, and light guides
+- D: toggle debug HUD and light guides
 - ESC: quit
 
 ## Camera
@@ -124,7 +140,7 @@ positive Z toward the target. Camera-space depth is positive in front of the
 camera. Points at or behind the near clip are skipped rather than clipped.
 
 The LC006 camera target is `Vec3(0, CYLINDER_HEIGHT * 0.43, 0)`, with default
-radius 96, height 240, 32 radial segments, and 8 vertical guides.
+radius 96, height 300, 32 radial segments, and 8 vertical guides.
 
 Initial camera:
 
@@ -133,11 +149,11 @@ Initial camera:
 - distance: 430
 - auto rotate speed: 0.0035 radians per frame
 - camera inertia decay: 0.68
-- auto pitch: not added
+- auto pitch: subtle sway around the latest manual pitch baseline
 
 ## Grass
 
-- Count: 420
+- Count: 300 baseline, 450 stage-3 draw budget
 - Segments per blade: 5
 - Seed: 1729
 - Height range: 18 to 46
@@ -180,8 +196,9 @@ Initial camera:
 - Particle axis attraction: 0.07
 - Particle walk rate: 0.31
 - Particle walk amount: 2.8
-- Normal rendering: no direct beam drawing
-- Debug rendering: axis line and three radius rings
+- Normal rendering: particles, grass tips, floor light, restrained mixed-width
+  tapered light bands, and three thin yellow accent streaks
+- Debug rendering: light axis line and three radius rings
 
 ## Rain
 
@@ -237,8 +254,8 @@ Initial camera:
 - background band: 2
 - distant grass: 3
 - normal grass: 11
-- foreground/lit grass: 10
-- strongly lit grass: 7
+- foreground/lit grass: 3
+- strongly lit grass: 11
 - ground shadow: 5
 - ground light: 13
 - ground strong light: 10
@@ -275,16 +292,19 @@ LC006.5 added Artistic Review notes to every wave result from now on.
 
 ## Performance
 
-- Grass count: 420 baseline, 620 stage-3 draw budget
-- Nominal segments: 2,100 baseline, 3,100 stage-3 draw budget
-- Typical visible particles in debug review: about 29 to 36
-- Light particles: 48 baseline, 80 stage-3 draw budget
+- Grass count: 300 baseline, 450 stage-3 draw budget
+- Nominal segments: 1,800 baseline, 2,700 stage-3 draw budget
+- Typical visible particles in debug review: expected to rise with the 360
+  particle baseline
+- Light particles: 360 baseline, 1080 stage-3 draw budget
 - Rain candidates: 64, with about 29 active at the default 0.45 amount before
   light gating
 - LC008 reaction work is impact-event based; no puddle grid, ripple simulation,
   audio, or per-frame random sampling is added
 - LC009 adds one small environment state object and at most 28 tip droplets;
   droplet candidates are fixed and no per-frame random sampling is added
+- LC010 adds one constant-time observation cycle object; it does not regenerate
+  grass, particles, or rain candidates
 - Approximate line draw calls are reported in debug HUD
 - GUI review kept a stable 30 FPS feel with light, wind, particles, boundary
   on/off, zoom, and slow auto rotate.
@@ -297,16 +317,16 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000 through LC008 were committed and pushed with approval, and
-`prototype-v0.1.0` marks the first observation prototype. LC009 is in the working
-tree until explicitly approved for commit. Future commits, pushes, and tags
-require user approval.
+LC000 through LC009 plus Observation Controls were committed and pushed with
+approval, and `prototype-v0.1.0` marks the first observation prototype. LC010 is
+in the working tree until explicitly approved for commit. Future commits, pushes,
+and tags require user approval.
 
 ## Next Wave
 
-Next work should review whether after-rain needs visual balancing before adding
-larger weather transitions. Puddles, ripples, thunder, and rain audio remain
-intentionally separate.
+Next work should review whether the automated observation cycle needs visual
+timing balance before adding title/UI. Puddles, ripples, thunder, and rain audio
+remain intentionally separate.
 
 ## Design Decisions
 

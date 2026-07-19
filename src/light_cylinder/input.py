@@ -14,6 +14,7 @@ class ControlIntent:
     toggle_wind: bool = False
     toggle_light: bool = False
     toggle_rain: bool = False
+    toggle_observation_cycle: bool = False
     rain_intensity_delta: float = 0.0
     reset_camera: bool = False
     quit_requested: bool = False
@@ -90,6 +91,7 @@ def read_control_intent(
         toggle_wind=pyxel_module.btnp(pyxel_module.KEY_W),
         toggle_light=pyxel_module.btnp(pyxel_module.KEY_L),
         toggle_rain=pyxel_module.btnp(pyxel_module.KEY_N),
+        toggle_observation_cycle=pyxel_module.btnp(pyxel_module.KEY_M),
         rain_intensity_delta=float(pyxel_module.btnp(pyxel_module.KEY_E))
         - float(pyxel_module.btnp(pyxel_module.KEY_Q)),
         reset_camera=pyxel_module.btnp(pyxel_module.KEY_R),

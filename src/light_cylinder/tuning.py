@@ -10,6 +10,7 @@ from light_cylinder.config import (
     MENU_STAGE_MAX,
     MENU_STAGE_MIN,
     MENU_WIND_MULTIPLIERS,
+    MENU_WIND_SPEED_MULTIPLIERS,
 )
 
 MENU_SETTING_KEYS = ("photons", "grass", "wind", "rain", "rotate")
@@ -53,6 +54,10 @@ class ObservationTuning:
     @property
     def wind_multiplier(self) -> float:
         return MENU_WIND_MULTIPLIERS[self.wind - MENU_STAGE_MIN]
+
+    @property
+    def wind_speed_multiplier(self) -> float:
+        return MENU_WIND_SPEED_MULTIPLIERS[self.wind - MENU_STAGE_MIN]
 
     @property
     def rain_intensity(self) -> float:
