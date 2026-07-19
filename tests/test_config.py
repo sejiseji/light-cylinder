@@ -35,6 +35,7 @@ def test_camera_config_invariants() -> None:
     assert config.MOUSE_YAW_SPEED > 0
     assert config.MOUSE_PITCH_SPEED > 0
     assert config.MOUSE_WHEEL_ZOOM_SPEED > 0
+    assert 0.0 <= config.CAMERA_INERTIA_DECAY < 1.0
     assert config.AUTO_ROTATE_SPEED > 0
     assert 6.283185307179586 / (config.AUTO_ROTATE_SPEED * config.TARGET_FPS) >= 30
     assert config.CYLINDER_RADIUS == 96.0
@@ -67,10 +68,16 @@ def test_camera_config_invariants() -> None:
     assert config.LIGHT_BEAM_RADIUS > 0
     assert 0 <= config.LIGHT_BEAM_CORE_RADIUS < config.LIGHT_BEAM_RADIUS
     assert config.LIGHT_BEAM_END_FADE > 0
-    assert 0.0 <= config.LIGHT_PULSE_AMOUNT <= 1.0
-    assert config.LIGHT_PULSE_RATE >= 0
+    assert config.PROJECT_TITLE == config.DISPLAY_TITLE_EN
+    assert config.DISPLAY_TITLE_JA == "光の標本"
+    assert 0.0 <= config.LIGHT_CLOUD_SHADOW_AMOUNT <= 1.0
+    assert 0.0 <= config.LIGHT_CLOUD_SHADOW_FLOOR <= 1.0
+    assert config.LIGHT_CLOUD_SHADOW_RATE >= 0
     assert config.LIGHT_PARTICLE_SWAY_RATE >= 0
     assert config.LIGHT_PARTICLE_SWAY_AMOUNT >= 0
+    assert config.LIGHT_PARTICLE_AXIS_ATTRACTION >= 0
+    assert config.LIGHT_PARTICLE_WALK_RATE >= 0
+    assert config.LIGHT_PARTICLE_WALK_AMOUNT >= 0
     assert config.LIGHT_PARTICLE_DRIFT_MIN <= config.LIGHT_PARTICLE_DRIFT_MAX
     assert config.LIGHT_PARTICLE_VISIBILITY_THRESHOLD >= 0
     assert config.LIGHT_GROUND_SPARK_THRESHOLD >= 0
@@ -86,4 +93,8 @@ def test_camera_config_invariants() -> None:
     )
     for name in dir(config):
         if name.startswith("PALETTE_"):
-            assert 0 <= getattr(config, name) <= 15
+            value = getattr(config, name)
+            if isinstance(value, int):
+                assert 0 <= value <= 15
+    assert set(config.PALETTE_PRESETS) == {"morning", "noon", "evening"}
+    assert config.PALETTE_PRESET in config.PALETTE_PRESETS

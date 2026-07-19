@@ -11,7 +11,9 @@ SAFE_RIGHT = SAFE_LEFT + COMPOSITION_SAFE_WIDTH
 
 TARGET_FPS = 30
 
-PROJECT_TITLE = "Light Cylinder"
+DISPLAY_TITLE_JA = "光の標本"
+DISPLAY_TITLE_EN = "Specimen of Light"
+PROJECT_TITLE = DISPLAY_TITLE_EN
 
 CAMERA_INITIAL_YAW = -0.22
 CAMERA_INITIAL_PITCH = 0.34
@@ -27,6 +29,7 @@ CAMERA_ZOOM_SPEED = 12.0
 MOUSE_YAW_SPEED = 0.006
 MOUSE_PITCH_SPEED = 0.005
 MOUSE_WHEEL_ZOOM_SPEED = 24.0
+CAMERA_INERTIA_DECAY = 0.68
 AUTO_ROTATE_SPEED = 0.0035
 
 CYLINDER_RADIUS = 96.0
@@ -56,6 +59,9 @@ WIND_SPATIAL_FREQUENCY_Z = 0.026
 WIND_BLADE_PHASE_SCALE = 0.65
 WIND_DIRECTION_SWAY_AMOUNT = 0.16
 WIND_DIRECTION_SWAY_RATE = 0.37
+MICRO_WIND_RATE = 0.19
+MICRO_WIND_AMOUNT = 0.1
+MICRO_WIND_PHASE_SCALE = 1.7
 WIND_MAX_BEND_RATIO = 0.42
 WIND_TIME_WRAP_SECONDS = 3600.0
 
@@ -72,10 +78,14 @@ LIGHT_BEAM_LENGTH = 285.0
 LIGHT_BEAM_RADIUS = 44.0
 LIGHT_BEAM_CORE_RADIUS = 14.0
 LIGHT_BEAM_END_FADE = 32.0
-LIGHT_PULSE_RATE = 0.11
-LIGHT_PULSE_AMOUNT = 0.13
+LIGHT_CLOUD_SHADOW_RATE = 0.075
+LIGHT_CLOUD_SHADOW_AMOUNT = 0.16
+LIGHT_CLOUD_SHADOW_FLOOR = 0.78
 LIGHT_PARTICLE_SWAY_RATE = 0.23
 LIGHT_PARTICLE_SWAY_AMOUNT = 0.12
+LIGHT_PARTICLE_AXIS_ATTRACTION = 0.07
+LIGHT_PARTICLE_WALK_RATE = 0.31
+LIGHT_PARTICLE_WALK_AMOUNT = 2.8
 LIGHT_PARTICLE_DRIFT_MIN = -2.6
 LIGHT_PARTICLE_DRIFT_MAX = 4.8
 LIGHT_PARTICLE_VISIBILITY_THRESHOLD = 0.28
@@ -87,28 +97,105 @@ LIGHT_FLOOR_THRESHOLD_LOW = 0.18
 LIGHT_FLOOR_THRESHOLD_MEDIUM = 0.4
 LIGHT_FLOOR_THRESHOLD_HIGH = 0.78
 
-PALETTE_BACKGROUND = 1
-PALETTE_BACKGROUND_BAND = 2
-PALETTE_DISTANT_GRASS = 3
-PALETTE_NORMAL_GRASS = 11
-PALETTE_FOREGROUND_GRASS = 10
-PALETTE_LIT_GRASS = 10
-PALETTE_STRONGLY_LIT_GRASS = 7
-PALETTE_GROUND_SHADOW = 5
-PALETTE_GROUND_LIGHT = 13
-PALETTE_GROUND_STRONG_LIGHT = 10
-PALETTE_DIM_PARTICLE = 6
-PALETTE_BRIGHT_PARTICLE = 7
-PALETTE_CYLINDER_FAR_EDGE = 5
-PALETTE_CYLINDER_NEAR_EDGE = 13
-PALETTE_CYLINDER_VERTICAL = 5
-PALETTE_DEBUG_ACCENT = 12
-PALETTE_DEBUG_TEXT = 6
-PALETTE_DEBUG_FRAME = 5
-PALETTE_SAFE_AREA = 11
-PALETTE_AXIS_X = 8
-PALETTE_AXIS_Y = 11
-PALETTE_AXIS_Z = 12
+PALETTE_PRESET = "morning"
+PALETTE_PRESETS = {
+    "morning": {
+        "background": 1,
+        "background_band": 2,
+        "distant_grass": 3,
+        "normal_grass": 11,
+        "foreground_grass": 10,
+        "lit_grass": 10,
+        "strongly_lit_grass": 7,
+        "ground_shadow": 5,
+        "ground_light": 13,
+        "ground_strong_light": 10,
+        "dim_particle": 6,
+        "bright_particle": 7,
+        "cylinder_far_edge": 5,
+        "cylinder_near_edge": 13,
+        "cylinder_vertical": 5,
+        "debug_accent": 12,
+        "debug_text": 6,
+        "debug_frame": 5,
+        "safe_area": 11,
+        "axis_x": 8,
+        "axis_y": 11,
+        "axis_z": 12,
+    },
+    "noon": {
+        "background": 1,
+        "background_band": 5,
+        "distant_grass": 3,
+        "normal_grass": 11,
+        "foreground_grass": 10,
+        "lit_grass": 7,
+        "strongly_lit_grass": 7,
+        "ground_shadow": 5,
+        "ground_light": 10,
+        "ground_strong_light": 7,
+        "dim_particle": 6,
+        "bright_particle": 7,
+        "cylinder_far_edge": 5,
+        "cylinder_near_edge": 6,
+        "cylinder_vertical": 5,
+        "debug_accent": 12,
+        "debug_text": 6,
+        "debug_frame": 5,
+        "safe_area": 11,
+        "axis_x": 8,
+        "axis_y": 11,
+        "axis_z": 12,
+    },
+    "evening": {
+        "background": 1,
+        "background_band": 2,
+        "distant_grass": 3,
+        "normal_grass": 3,
+        "foreground_grass": 11,
+        "lit_grass": 10,
+        "strongly_lit_grass": 9,
+        "ground_shadow": 5,
+        "ground_light": 4,
+        "ground_strong_light": 10,
+        "dim_particle": 13,
+        "bright_particle": 10,
+        "cylinder_far_edge": 5,
+        "cylinder_near_edge": 4,
+        "cylinder_vertical": 5,
+        "debug_accent": 12,
+        "debug_text": 6,
+        "debug_frame": 5,
+        "safe_area": 11,
+        "axis_x": 8,
+        "axis_y": 11,
+        "axis_z": 12,
+    },
+}
+ACTIVE_PALETTE = PALETTE_PRESETS[PALETTE_PRESET]
+
+PALETTE_BACKGROUND = ACTIVE_PALETTE["background"]
+PALETTE_BACKGROUND_BAND = ACTIVE_PALETTE["background_band"]
+PALETTE_DISTANT_GRASS = ACTIVE_PALETTE["distant_grass"]
+PALETTE_NORMAL_GRASS = ACTIVE_PALETTE["normal_grass"]
+PALETTE_FOREGROUND_GRASS = ACTIVE_PALETTE["foreground_grass"]
+PALETTE_LIT_GRASS = ACTIVE_PALETTE["lit_grass"]
+PALETTE_STRONGLY_LIT_GRASS = ACTIVE_PALETTE["strongly_lit_grass"]
+PALETTE_GROUND_SHADOW = ACTIVE_PALETTE["ground_shadow"]
+PALETTE_GROUND_LIGHT = ACTIVE_PALETTE["ground_light"]
+PALETTE_GROUND_STRONG_LIGHT = ACTIVE_PALETTE["ground_strong_light"]
+PALETTE_DIM_PARTICLE = ACTIVE_PALETTE["dim_particle"]
+PALETTE_BRIGHT_PARTICLE = ACTIVE_PALETTE["bright_particle"]
+PALETTE_CYLINDER_FAR_EDGE = ACTIVE_PALETTE["cylinder_far_edge"]
+PALETTE_CYLINDER_NEAR_EDGE = ACTIVE_PALETTE["cylinder_near_edge"]
+PALETTE_CYLINDER_VERTICAL = ACTIVE_PALETTE["cylinder_vertical"]
+PALETTE_DEBUG_ACCENT = ACTIVE_PALETTE["debug_accent"]
+PALETTE_DEBUG_TEXT = ACTIVE_PALETTE["debug_text"]
+PALETTE_DEBUG_FRAME = ACTIVE_PALETTE["debug_frame"]
+PALETTE_SAFE_AREA = ACTIVE_PALETTE["safe_area"]
+PALETTE_AXIS_X = ACTIVE_PALETTE["axis_x"]
+PALETTE_AXIS_Y = ACTIVE_PALETTE["axis_y"]
+PALETTE_AXIS_Z = ACTIVE_PALETTE["axis_z"]
 
 
 def validate_display_config() -> None:
@@ -176,14 +263,20 @@ def validate_display_config() -> None:
         raise ValueError("light beam core radius must be smaller than radius")
     if LIGHT_BEAM_END_FADE <= 0:
         raise ValueError("light beam end fade must be positive")
-    if not 0.0 <= LIGHT_PULSE_AMOUNT <= 1.0:
-        raise ValueError("light pulse amount must be normalized")
-    if LIGHT_PULSE_RATE < 0:
-        raise ValueError("light pulse rate must be non-negative")
+    if not 0.0 <= LIGHT_CLOUD_SHADOW_AMOUNT <= 1.0:
+        raise ValueError("light cloud shadow amount must be normalized")
+    if not 0.0 <= LIGHT_CLOUD_SHADOW_FLOOR <= 1.0:
+        raise ValueError("light cloud shadow floor must be normalized")
+    if LIGHT_CLOUD_SHADOW_RATE < 0:
+        raise ValueError("light cloud shadow rate must be non-negative")
     if LIGHT_PARTICLE_SWAY_RATE < 0 or LIGHT_PARTICLE_SWAY_AMOUNT < 0:
         raise ValueError("light particle sway must be non-negative")
     if LIGHT_PARTICLE_DRIFT_MIN > LIGHT_PARTICLE_DRIFT_MAX:
         raise ValueError("light particle drift range must be ordered")
+    if LIGHT_PARTICLE_AXIS_ATTRACTION < 0:
+        raise ValueError("light particle axis attraction must be non-negative")
+    if LIGHT_PARTICLE_WALK_RATE < 0 or LIGHT_PARTICLE_WALK_AMOUNT < 0:
+        raise ValueError("light particle random walk must be non-negative")
     if LIGHT_PARTICLE_VISIBILITY_THRESHOLD < 0 or LIGHT_GROUND_SPARK_THRESHOLD < 0:
         raise ValueError("light visibility thresholds must be non-negative")
     if not (
@@ -200,3 +293,13 @@ def validate_display_config() -> None:
         <= LIGHT_FLOOR_THRESHOLD_HIGH
     ):
         raise ValueError("light floor thresholds must be ordered")
+    if not 0.0 <= CAMERA_INERTIA_DECAY < 1.0:
+        raise ValueError("camera inertia decay must be normalized below one")
+    if PALETTE_PRESET not in PALETTE_PRESETS:
+        raise ValueError("active palette preset must exist")
+    if set(PALETTE_PRESETS) != {"morning", "noon", "evening"}:
+        raise ValueError("palette presets must include morning, noon, and evening")
+    for preset in PALETTE_PRESETS.values():
+        for color in preset.values():
+            if not 0 <= color <= 15:
+                raise ValueError("palette color values must use the Pyxel palette")

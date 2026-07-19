@@ -38,3 +38,43 @@ LC006-specific completion checks:
 - Auto rotate can be watched for at least one minute without feeling too fast.
 - HUD off can be watched for at least one minute.
 - The scene creates a small desire to keep looking.
+
+LC006.5-specific completion checks:
+
+- Camera motion has a short, pleasant afterglow without feeling slippery.
+- Micro wind makes the grass breathe without adding a new visible phenomenon.
+- Cloud shadow reads as a slow dimming and return, not a pulse effect.
+- Particles feel gently alive without becoming snow, insects, or noise.
+- Active palette preset remains coherent, and alternate presets are settings.
+- `Specimen of Light` / `光の標本` reads as the work title.
+
+## Artistic Review
+
+Each wave after LC006 should end with an artistic review in addition to technical
+validation:
+
+### First Impression
+
+- What is communicated in the first five seconds?
+
+### Focal Point
+
+- Where does the eye go first?
+- Does that match the intended design?
+
+### Atmosphere
+
+- Quietness
+- Immersion
+- Air
+- Rhythm
+
+### Visual Noise
+
+- Distracting elements
+- Causes of visual scatter
+
+### Time Worth Watching
+
+- How many minutes does HUD-off viewing feel sustainable?
+- Did this improve over the previous wave?

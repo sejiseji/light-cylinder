@@ -5,6 +5,7 @@ import pytest
 
 from light_cylinder.config import (
     GUST_STRENGTH,
+    MICRO_WIND_AMOUNT,
     WIND_BASE_SPEED,
     WIND_TIME_WRAP_SECONDS,
 )
@@ -108,4 +109,4 @@ def test_wind_magnitude_has_reasonable_bound() -> None:
         wind.update(0.25)
         max_seen = max(max_seen, wind.sample(Vec3(96.0, 0.0, -96.0), phase=3.0).length())
 
-    assert max_seen <= WIND_BASE_SPEED * 1.4 + GUST_STRENGTH
+    assert max_seen <= WIND_BASE_SPEED * (1.4 + MICRO_WIND_AMOUNT) + GUST_STRENGTH

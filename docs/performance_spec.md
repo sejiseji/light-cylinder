@@ -38,3 +38,8 @@ approximate line draw calls, lit segments, and visible particles. In GUI review,
 HUD off, boundary on/off, light on/off, wind on/off, zoom, and slow auto rotate
 held a stable 30 FPS feel. Web packaging should re-profile background bands,
 taper line calls, and particle drawing after browser scaling is introduced.
+
+LC006.5 does not increase grass, particle, or spark counts. Camera inertia is
+constant-time app state. Micro wind, cloud shadow, and particle random walk add a
+few trigonometric calls per existing sample, keeping the performance profile in
+the same shape as LC006.

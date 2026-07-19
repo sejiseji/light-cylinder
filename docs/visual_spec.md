@@ -85,6 +85,13 @@ guides.
 HUD off must remove reference axes, light debug rings, center/safe guide lines,
 and labels. Debug mode is strictly an inspection layer.
 
+LC006.5 names the work `光の標本` / `Specimen of Light` while keeping Light
+Cylinder as the development name. Observation polish adds short camera inertia,
+micro wind, cloud-shadow breathing, and particle walk. These adjustments should
+make the field feel held in air rather than mechanically animated. The active
+palette remains `morning`, with `noon` and `evening` presets available as
+configuration options for later curation.
+
 ## Vertical Composition
 
 The composition is tall and mobile-first. The internal render size is 448 x 852,

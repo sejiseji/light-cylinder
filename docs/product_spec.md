@@ -2,8 +2,9 @@
 
 ## Purpose
 
-Light Cylinder is an observational Pyxel work about a tall cylindrical space
-where natural phenomena are visible only where light cuts through them.
+Light Cylinder is the development name for `Specimen of Light` / `光の標本`, an
+observational Pyxel work about a tall cylindrical space where natural phenomena
+are visible only where light cuts through them.
 
 ## Central Motif
 

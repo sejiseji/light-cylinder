@@ -4,6 +4,7 @@ from math import cos, sin, tau
 from light_cylinder.camera import Camera
 from light_cylinder.config import (
     AUTO_ROTATE_SPEED,
+    CAMERA_INERTIA_DECAY,
     CAMERA_PITCH_SPEED,
     CAMERA_YAW_SPEED,
     CAMERA_ZOOM_SPEED,
@@ -12,6 +13,8 @@ from light_cylinder.config import (
     CYLINDER_RADIAL_SEGMENTS,
     CYLINDER_RADIUS,
     CYLINDER_VERTICAL_GUIDES,
+    DISPLAY_TITLE_EN,
+    DISPLAY_TITLE_JA,
     GRASS_COUNT,
     GRASS_SEED,
     GRASS_SEGMENTS,
@@ -85,6 +88,9 @@ class LightCylinderApp:
         self.grass_field = GrassField.generate(self.world, seed=GRASS_SEED, grass_count=GRASS_COUNT)
         self.wind_field = WindField.create_default()
         self.light_field = LightField.create_default(self.world)
+        self.camera_yaw_velocity = 0.0
+        self.camera_pitch_velocity = 0.0
+        self.camera_zoom_velocity = 0.0
         self.visible_blade_count = 0
         self.visible_segment_count = 0
         self.visible_particle_count = 0
@@ -126,16 +132,36 @@ class LightCylinderApp:
         if intent.toggle_light:
             self.light_enabled = not self.light_enabled
         if intent.reset_camera:
-            self.camera = Camera.create_default()
+            self._reset_camera()
 
         dt = 1.0 / TARGET_FPS
         self.wind_field.update(dt)
         self.light_field.update(dt)
-        yaw_delta = intent.yaw_delta
+        yaw_delta = self._camera_motion_delta("yaw", intent.yaw_delta)
+        pitch_delta = self._camera_motion_delta("pitch", intent.pitch_delta)
+        zoom_delta = self._camera_motion_delta("zoom", intent.zoom_delta)
         if self.auto_rotate:
             yaw_delta += AUTO_ROTATE_SPEED
-        self.camera.orbit(yaw_delta, intent.pitch_delta)
-        self.camera.zoom(intent.zoom_delta)
+        self.camera.orbit(yaw_delta, pitch_delta)
+        self.camera.zoom(zoom_delta)
+
+    def _reset_camera(self) -> None:
+        self.camera = Camera.create_default()
+        self.camera_yaw_velocity = 0.0
+        self.camera_pitch_velocity = 0.0
+        self.camera_zoom_velocity = 0.0
+
+    def _camera_motion_delta(self, axis: str, input_delta: float) -> float:
+        attr_name = f"camera_{axis}_velocity"
+        if input_delta != 0.0:
+            setattr(self, attr_name, input_delta)
+            return input_delta
+
+        velocity = getattr(self, attr_name) * CAMERA_INERTIA_DECAY
+        if abs(velocity) < 0.0005:
+            velocity = 0.0
+        setattr(self, attr_name, velocity)
+        return velocity
 
     def draw(self) -> None:
         import pyxel
@@ -398,27 +424,28 @@ class LightCylinderApp:
         if not self.debug_visible:
             return
 
-        pyxel.text(SAFE_LEFT + 8, 12, PROJECT_TITLE, PALETTE_BRIGHT_PARTICLE)
-        pyxel.text(SAFE_LEFT + 8, 24, "LC006 VISUAL INTEGRATION", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 36, "ARROWS/DRAG YAW-PITCH", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 48, "A/S/WHEEL ZOOM  R RESET", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 60, "X AUTO  B/W/L TOGGLES", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 72, "D HIDE DEBUG  ESC QUIT", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 12, DISPLAY_TITLE_EN, PALETTE_BRIGHT_PARTICLE)
+        pyxel.text(SAFE_LEFT + 8, 24, DISPLAY_TITLE_JA, PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 36, "LC006.5 OBSERVATION POLISH", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 48, "ARROWS/DRAG YAW-PITCH", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 60, "A/S/WHEEL ZOOM  R RESET", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 72, "X AUTO  B/W/L TOGGLES", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 84, "D HIDE DEBUG  ESC QUIT", PALETTE_DEBUG_TEXT)
         pyxel.text(
-            SAFE_LEFT + 8, 84, f"AUTO {'ON' if self.auto_rotate else 'OFF'}", PALETTE_LIT_GRASS
+            SAFE_LEFT + 8, 96, f"AUTO {'ON' if self.auto_rotate else 'OFF'}", PALETTE_LIT_GRASS
         )
         pyxel.text(
             SAFE_LEFT + 8,
-            96,
+            108,
             f"BOUNDARY {'ON' if self.boundary_visible else 'OFF'}",
             PALETTE_LIT_GRASS,
         )
         pyxel.text(
-            SAFE_LEFT + 8, 108, f"WIND {'ON' if self.wind_enabled else 'OFF'}", PALETTE_LIT_GRASS
+            SAFE_LEFT + 8, 120, f"WIND {'ON' if self.wind_enabled else 'OFF'}", PALETTE_LIT_GRASS
         )
         pyxel.text(
             SAFE_LEFT + 8,
-            120,
+            132,
             f"LIGHT {'ON' if self.light_enabled else 'OFF'}",
             PALETTE_LIT_GRASS,
         )
@@ -431,40 +458,40 @@ class LightCylinderApp:
         pyxel.rectb(SAFE_LEFT, 0, COMPOSITION_SAFE_WIDTH, RENDER_HEIGHT, PALETTE_SAFE_AREA)
         pyxel.line(SAFE_LEFT, 0, SAFE_LEFT, RENDER_HEIGHT - 1, PALETTE_DISTANT_GRASS)
         pyxel.line(SAFE_RIGHT - 1, 0, SAFE_RIGHT - 1, RENDER_HEIGHT - 1, PALETTE_DISTANT_GRASS)
-        pyxel.text(SAFE_LEFT + 8, 138, f"yaw {self.camera.yaw:.2f}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 150, f"pitch {self.camera.pitch:.2f}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 162, f"distance {self.camera.distance:.1f}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 174, f"grass {len(self.grass_field)}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 186, f"segments {GRASS_SEGMENTS}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 198, f"visible {self.visible_blade_count}", PALETTE_DEBUG_TEXT)
-        pyxel.text(SAFE_LEFT + 8, 210, f"lit seg {self.lit_segment_count}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 150, f"yaw {self.camera.yaw:.2f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 162, f"pitch {self.camera.pitch:.2f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 174, f"distance {self.camera.distance:.1f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 186, f"grass {len(self.grass_field)}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 198, f"segments {GRASS_SEGMENTS}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 210, f"visible {self.visible_blade_count}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 222, f"lit seg {self.lit_segment_count}", PALETTE_DEBUG_TEXT)
         pyxel.text(
             SAFE_LEFT + 8,
-            222,
+            234,
             f"line calls {self.approx_line_draw_calls}",
             PALETTE_DEBUG_TEXT,
         )
         pyxel.text(
             SAFE_LEFT + 8,
-            234,
+            246,
             f"particles {self.visible_particle_count}",
             PALETTE_DEBUG_TEXT,
         )
-        pyxel.text(SAFE_LEFT + 8, 246, f"wind {self.wind_field.base_speed:.2f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 258, f"wind {self.wind_field.base_speed:.2f}", PALETTE_DEBUG_TEXT)
         pyxel.text(
             SAFE_LEFT + 8,
-            258,
+            270,
             f"gust {self.wind_field.current_gust_strength:.2f}",
             PALETTE_DEBUG_TEXT,
         )
         pyxel.text(
             SAFE_LEFT + 8,
-            270,
-            f"light {self.light_field.intensity_multiplier:.2f}",
+            282,
+            f"cloud {self.light_field.intensity_multiplier:.2f}",
             PALETTE_DEBUG_TEXT,
         )
         pyxel.text(
-            SAFE_LEFT + 8, 282, f"time {self.wind_field.elapsed_time:.1f}", PALETTE_DEBUG_TEXT
+            SAFE_LEFT + 8, 294, f"time {self.wind_field.elapsed_time:.1f}", PALETTE_DEBUG_TEXT
         )
 
     def _draw_light_debug(self, pyxel) -> None:

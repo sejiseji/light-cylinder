@@ -2,12 +2,13 @@
 
 ## Project
 
-Light Cylinder is a mobile-first Pyxel observation work centered on sliced light
-inside a tall cylindrical natural space.
+Light Cylinder is the development name for `Specimen of Light` / `光の標本`, a
+mobile-first Pyxel observation work centered on sliced light inside a tall
+cylindrical natural space.
 
 ## Current Wave
 
-LC006 visual integration and presentation polish.
+LC006.5 observation polish.
 
 ## Completed
 
@@ -47,6 +48,12 @@ LC006 visual integration and presentation polish.
 - Slower auto rotate for presentation
 - Debug HUD counters for visible blades, lit segments, approximate line calls,
   and visible particles
+- Work title set to `Specimen of Light` / `光の標本`
+- Short camera inertia for yaw, pitch, and zoom
+- Micro wind term layered into `WindField.sample`
+- Cloud-shadow light multiplier replacing direct pulse wording
+- Particle axis attraction and small random-walk motion
+- Setting-only palette presets for morning, noon, and evening
 
 ## Not Completed
 
@@ -102,6 +109,7 @@ Initial camera:
 - pitch: 0.34
 - distance: 430
 - auto rotate speed: 0.0035 radians per frame
+- camera inertia decay: 0.68
 - auto pitch: not added
 
 ## Grass
@@ -130,6 +138,8 @@ Initial camera:
 - Direction sway rate: 0.37
 - Gust interval: 12.0
 - Gust duration: 5.5
+- Micro wind rate: 0.19
+- Micro wind amount: 0.10
 
 ## Light
 
@@ -140,14 +150,21 @@ Initial camera:
 - Core radius: 14
 - Particles: 48
 - Floor sparks: 28
-- Pulse rate: 0.11
-- Pulse amount: 0.13
+- Cloud shadow rate: 0.075
+- Cloud shadow amount: 0.16
+- Cloud shadow floor: 0.78
 - Particle drift range: -2.6 to 4.8
+- Particle axis attraction: 0.07
+- Particle walk rate: 0.31
+- Particle walk amount: 2.8
 - Normal rendering: no direct beam drawing
 - Debug rendering: axis line and three radius rings
 
 ## Palette
 
+- active preset: morning
+- available presets: morning, noon, evening
+- runtime palette toggle: not implemented
 - background: 1
 - background band: 2
 - distant grass: 3
@@ -184,6 +201,7 @@ LC006 GUI review found the HUD-off scene readable as a viewing screen: grass
 remains primary, light direction reads through sparse particles and tip lighting,
 particles do not read as snow, boundary ON is subdued, and HUD OFF can be
 watched for at least one minute without the auto rotate feeling too fast.
+LC006.5 should add Artistic Review notes to every wave result from now on.
 
 ## Performance
 
@@ -202,12 +220,13 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000 through LC005 were committed and pushed with approval. LC006 changes are
-not committed or pushed yet. Future commits and pushes require user approval.
+LC000 through LC006.5 were committed and pushed with approval. Future commits,
+pushes, and tags require user approval.
 
 ## Next Wave
 
-LC007 should add rain without disturbing the LC006 presentation balance.
+LC007 Rain Through the Light should add toggleable rain without disturbing the
+LC006.5 presentation balance.
 
 ## Design Decisions
 

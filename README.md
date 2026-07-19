@@ -1,19 +1,20 @@
 # Light Cylinder
 
-Light Cylinder is a quiet, mobile-first Pyxel work about observing a narrow
-cylindrical slice of nature. Its central motif is cutting out incoming light:
-grass, wind, rain, particles, shade, and bright bands will eventually gather
-inside a tall observation space.
+Light Cylinder is the development name for `Specimen of Light` / `光の標本`, a
+quiet, mobile-first Pyxel work about observing a narrow cylindrical slice of
+nature. Its central motif is cutting out incoming light: grass, wind, rain,
+particles, shade, and bright bands will eventually gather inside a tall
+observation space.
 
 This repository is currently in early development. Before publishing or pushing
 changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC006 integrates the cylinder, grass, wind, particles, light media, camera, HUD,
-and palette into a calmer presentation state. It keeps the light beam
-non-rendered, preserves 420 tapered grass blades, starts in an HUD-off viewing
-composition, and leaves rain, audio, touch input, and web packaging for later
+LC006.5 adds observation polish without adding a new natural phenomenon. It adds
+short camera inertia, micro wind, cloud-shadow light breathing, gentle particle
+random walk, and three setting-only palette presets while preserving the HUD-off
+viewing composition. Rain, audio, touch input, and web packaging remain later
 waves.
 
 ## Display Model
@@ -46,7 +47,7 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC006 screen starts in a viewing state: light on, wind on, boundary off,
+The LC006.5 screen starts in a viewing state: light on, wind on, boundary off,
 debug off, auto rotate off. It shows wind-animated grass, sparse particles, tip
 lighting, and subtle floor light without drawing the beam itself. Debug mode adds
 camera state, draw counters, the centered composition safe area, and light

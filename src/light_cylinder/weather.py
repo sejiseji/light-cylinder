@@ -7,6 +7,9 @@ from light_cylinder.config import (
     GUST_DURATION,
     GUST_INTERVAL,
     GUST_STRENGTH,
+    MICRO_WIND_AMOUNT,
+    MICRO_WIND_PHASE_SCALE,
+    MICRO_WIND_RATE,
     WIND_BASE_DIRECTION_ANGLE,
     WIND_BASE_SPEED,
     WIND_BLADE_PHASE_SCALE,
@@ -52,10 +55,15 @@ class WindField:
             + spatial_phase
             + phase * WIND_BLADE_PHASE_SCALE
         )
+        micro_breath = MICRO_WIND_AMOUNT * sin(
+            self.elapsed_time * MICRO_WIND_RATE
+            + spatial_phase * 0.5
+            + phase * MICRO_WIND_PHASE_SCALE
+        )
         local_angle = WIND_BASE_DIRECTION_ANGLE + WIND_DIRECTION_SWAY_AMOUNT * sin(
             spatial_phase + self.elapsed_time * WIND_DIRECTION_SWAY_RATE
         )
-        strength = max(0.0, self.base_speed * pulse + self.current_gust_strength)
+        strength = max(0.0, self.base_speed * (pulse + micro_breath) + self.current_gust_strength)
         return Vec3(cos(local_angle) * strength, 0.0, sin(local_angle) * strength)
 
     def spatial_phase(self, position: Vec3) -> float:

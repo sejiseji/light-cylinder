@@ -1,4 +1,5 @@
 from light_cylinder.app import (
+    LightCylinderApp,
     select_floor_color,
     select_grass_color,
     select_grass_light_color,
@@ -38,3 +39,23 @@ def test_floor_light_mapping_has_three_levels() -> None:
 def test_particle_color_mapping_uses_dim_and_bright_levels() -> None:
     assert select_particle_color(0.3) == PALETTE_DIM_PARTICLE
     assert select_particle_color(0.8) == PALETTE_BRIGHT_PARTICLE
+
+
+def test_camera_motion_has_short_inertia() -> None:
+    app = LightCylinderApp()
+
+    first = app._camera_motion_delta("yaw", 0.1)
+    second = app._camera_motion_delta("yaw", 0.0)
+    third = app._camera_motion_delta("yaw", 0.0)
+
+    assert first == 0.1
+    assert 0.0 < third < second < first
+
+
+def test_camera_reset_clears_inertia() -> None:
+    app = LightCylinderApp()
+    app._camera_motion_delta("pitch", 0.1)
+
+    app._reset_camera()
+
+    assert app.camera_pitch_velocity == 0.0

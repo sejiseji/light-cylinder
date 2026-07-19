@@ -11,14 +11,18 @@ from light_cylinder.config import (
     LIGHT_BEAM_LENGTH,
     LIGHT_BEAM_ORIGIN,
     LIGHT_BEAM_RADIUS,
+    LIGHT_CLOUD_SHADOW_AMOUNT,
+    LIGHT_CLOUD_SHADOW_FLOOR,
+    LIGHT_CLOUD_SHADOW_RATE,
     LIGHT_GROUND_SPARK_COUNT,
+    LIGHT_PARTICLE_AXIS_ATTRACTION,
     LIGHT_PARTICLE_COUNT,
     LIGHT_PARTICLE_DRIFT_MAX,
     LIGHT_PARTICLE_DRIFT_MIN,
     LIGHT_PARTICLE_SWAY_AMOUNT,
     LIGHT_PARTICLE_SWAY_RATE,
-    LIGHT_PULSE_AMOUNT,
-    LIGHT_PULSE_RATE,
+    LIGHT_PARTICLE_WALK_AMOUNT,
+    LIGHT_PARTICLE_WALK_RATE,
     LIGHT_SEED,
 )
 from light_cylinder.math3d import Vec3, clamp
@@ -109,9 +113,16 @@ class LightParticle:
         angle = self.angle + sin(elapsed_time * LIGHT_PARTICLE_SWAY_RATE + self.phase) * (
             LIGHT_PARTICLE_SWAY_AMOUNT
         )
+        walk = sin(elapsed_time * LIGHT_PARTICLE_WALK_RATE + self.phase * 1.37) * (
+            LIGHT_PARTICLE_WALK_AMOUNT
+        )
+        radial_distance = max(
+            0.0,
+            self.radial_distance * (1.0 - LIGHT_PARTICLE_AXIS_ATTRACTION) + walk,
+        )
         basis_u, basis_v = beam.basis()
-        offset = basis_u * (cos(angle) * self.radial_distance)
-        offset += basis_v * (sin(angle) * self.radial_distance)
+        offset = basis_u * (cos(angle) * radial_distance)
+        offset += basis_v * (sin(angle) * radial_distance)
         return beam.axis_point(axial_position) + offset
 
 
@@ -151,7 +162,9 @@ class LightField:
 
     @property
     def intensity_multiplier(self) -> float:
-        return 1.0 + LIGHT_PULSE_AMOUNT * sin(self.elapsed_time * LIGHT_PULSE_RATE)
+        cloud = (1.0 + sin(self.elapsed_time * LIGHT_CLOUD_SHADOW_RATE)) * 0.5
+        multiplier = 1.0 - LIGHT_CLOUD_SHADOW_AMOUNT * cloud
+        return max(LIGHT_CLOUD_SHADOW_FLOOR, multiplier)
 
 
 def _generate_particles(beam: LightBeam, rng: Random) -> tuple[LightParticle, ...]:

@@ -9,10 +9,11 @@
 - LC004: layered wind
 - LC005: light media and tip lighting
 - LC006: temporal and visual tuning
+- LC006.5: observation polish
 
 ## NEXT
 
-- LC007: rain
+- LC007: Rain Through the Light
 
 ## LATER
 

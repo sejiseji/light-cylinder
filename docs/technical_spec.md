@@ -190,10 +190,23 @@ at `CYLINDER_HEIGHT * 0.43`. Auto rotate uses a slow 0.0035 radians per frame,
 roughly a one-minute orbit at 30 FPS. No automatic pitch oscillation is added in
 LC006.
 
-Light pulse and wind timing are intentionally unsynchronized. Light uses a slow
-0.11 rate with 0.13 amount. Wind uses a 0.42 base pulse rate, 0.22 amount, and a
-12.0 second gust interval with a 5.5 second smooth duration. Particle drift is
-per-particle and ranges from -2.6 to 4.8 world units per second.
+LC006.5 adds observation polish without adding a new natural phenomenon. Manual
+camera input uses short inertia through app-level yaw, pitch, and zoom velocity
+state with `CAMERA_INERTIA_DECAY = 0.68`. `R` resets both the camera and these
+velocities.
+
+Light pulse is reframed as cloud shadow. `LightField.intensity_multiplier`
+slowly darkens and returns between 0.84 and 1.0 using
+`LIGHT_CLOUD_SHADOW_RATE = 0.075`, `LIGHT_CLOUD_SHADOW_AMOUNT = 0.16`, and
+`LIGHT_CLOUD_SHADOW_FLOOR = 0.78`. Wind adds a small micro-breath term on top of
+the LC006 base wind and gust model. Particle positions add a mild axis attraction
+and sinusoidal walk so particles drift toward and away from the light column
+without increasing count.
+
+Palette settings remain in `config.py`. Three preset dictionaries are available:
+`morning`, `noon`, and `evening`. The active preset is `morning`; changing the
+setting updates the named `PALETTE_*` constants at import time. LC006.5 does not
+add a runtime palette toggle.
 
 ## Resource Resolution
 
