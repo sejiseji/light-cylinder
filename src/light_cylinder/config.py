@@ -32,6 +32,16 @@ CYLINDER_RADIAL_SEGMENTS = 32
 CYLINDER_VERTICAL_GUIDES = 8
 CYLINDER_TARGET_HEIGHT_FACTOR = 0.45
 
+GRASS_SEED = 1729
+GRASS_COUNT = 280
+GRASS_SEGMENTS = 5
+GRASS_MIN_HEIGHT = 18.0
+GRASS_MAX_HEIGHT = 46.0
+GRASS_MIN_BEND = 2.0
+GRASS_MAX_BEND = 15.0
+GRASS_MIN_STIFFNESS = 0.45
+GRASS_MAX_STIFFNESS = 1.0
+
 
 def validate_display_config() -> None:
     if RENDER_WIDTH < COMPOSITION_SAFE_WIDTH:
@@ -64,3 +74,13 @@ def validate_display_config() -> None:
         raise ValueError("cylinder vertical guides must be positive")
     if not 0.0 <= CYLINDER_TARGET_HEIGHT_FACTOR <= 1.0:
         raise ValueError("cylinder target height factor must be normalized")
+    if GRASS_COUNT <= 0:
+        raise ValueError("grass count must be positive")
+    if GRASS_SEGMENTS < 1:
+        raise ValueError("grass segments must be positive")
+    if GRASS_MIN_HEIGHT <= 0 or GRASS_MAX_HEIGHT < GRASS_MIN_HEIGHT:
+        raise ValueError("grass height range must be positive and ordered")
+    if GRASS_MIN_BEND < 0 or GRASS_MAX_BEND < GRASS_MIN_BEND:
+        raise ValueError("grass bend range must be non-negative and ordered")
+    if GRASS_MIN_STIFFNESS <= 0 or GRASS_MAX_STIFFNESS < GRASS_MIN_STIFFNESS:
+        raise ValueError("grass stiffness range must be positive and ordered")

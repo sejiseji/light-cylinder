@@ -80,6 +80,34 @@ center, to keep future grass placement visually important. Cylinder debug lines
 are drawn as depth-sorted line segments by camera-space midpoint. No Z-buffer,
 general renderer framework, or near-plane line clipping is introduced yet.
 
+## Procedural Grass
+
+LC003 adds `GrassBlade` and `GrassField` in `grass.py`. They do not import Pyxel.
+Generation uses `random.Random(seed)` with `GRASS_SEED = 1729`, so identical
+world and config inputs produce the same grass field.
+
+Each blade stores:
+
+- base point on the cylinder bottom
+- height
+- natural XZ bend
+- stiffness
+- phase
+- width class
+- color variant
+
+The static centerline is sampled with:
+
+```text
+point = base + Vec3(0, height * t, 0) + natural_bend * (t * t)
+```
+
+`stiffness` and `phase` are stored for LC004 wind but are not animated in LC003.
+Grass is generated from `CylinderWorld.sample_bottom_point`, then a simple
+deterministic density weight makes the center and outer rim slightly sparser
+than the middle band. Drawing sorts grass by the camera depth of each blade's
+middle point, then draws each sampled segment from root to tip.
+
 ## Resource Resolution
 
 Runtime resources should be resolved relative to source files with pathlib or

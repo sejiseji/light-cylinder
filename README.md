@@ -10,11 +10,10 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC002 adds the cylindrical observation volume. It provides a Pyxel-independent
-`CylinderWorld`, ring and guide generation, area-uniform bottom sampling, and a
-debug view where the orbit camera can inspect the cylinder wireframe. Grass,
-light, wind, rain, audio, touch input, and web packaging are intentionally left
-for later waves.
+LC003 adds a procedural curved grass field. It provides Pyxel-independent
+`GrassBlade` and `GrassField` data, fixed-seed generation on the cylinder bottom,
+curved blade sampling, and depth-sorted grass drawing. Wind, light, rain, audio,
+touch input, and web packaging are intentionally left for later waves.
 
 ## Display Model
 
@@ -46,9 +45,10 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC002 screen shows the cylinder top and bottom rings, vertical guides, bottom
-grid, center axis, camera state, boundary state, auto-rotate state, debug state,
-and the centered composition safe area while debug is visible.
+The LC003 screen shows the cylinder, bottom grid, center axis, and a deterministic
+curved grass field with varied height, bend, and color. Debug mode shows camera
+state, grass count, segment count, seed, visible blades, visible lines, and the
+centered composition safe area.
 
 ## Controls
 

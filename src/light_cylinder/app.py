@@ -1,3 +1,5 @@
+from itertools import pairwise
+
 from light_cylinder.camera import Camera
 from light_cylinder.config import (
     AUTO_ROTATE_SPEED,
@@ -9,6 +11,9 @@ from light_cylinder.config import (
     CYLINDER_RADIAL_SEGMENTS,
     CYLINDER_RADIUS,
     CYLINDER_VERTICAL_GUIDES,
+    GRASS_COUNT,
+    GRASS_SEED,
+    GRASS_SEGMENTS,
     PROJECT_TITLE,
     RENDER_HEIGHT,
     RENDER_WIDTH,
@@ -17,11 +22,13 @@ from light_cylinder.config import (
     TARGET_FPS,
     validate_display_config,
 )
+from light_cylinder.grass import GrassBlade, GrassField, sample_blade_points
 from light_cylinder.input import read_control_intent
 from light_cylinder.math3d import Vec3
 from light_cylinder.world import CylinderWorld
 
 WorldLine = tuple[Vec3, Vec3, int]
+GrassPath = tuple[GrassBlade, tuple[Vec3, ...]]
 
 
 class LightCylinderApp:
@@ -35,6 +42,12 @@ class LightCylinderApp:
         self.cylinder_lines = self._build_cylinder_lines()
         self.floor_lines = self._build_floor_lines()
         self.axis_lines = self._build_axis_lines()
+        self.grass_field = GrassField.generate(self.world, seed=GRASS_SEED, grass_count=GRASS_COUNT)
+        self.grass_paths = tuple(
+            (blade, sample_blade_points(blade, GRASS_SEGMENTS)) for blade in self.grass_field.blades
+        )
+        self.visible_blade_count = 0
+        self.visible_segment_count = 0
 
     def run(self) -> None:
         import pyxel
@@ -74,8 +87,62 @@ class LightCylinderApp:
         self._draw_depth_sorted_lines(pyxel, self.floor_lines)
         if self.boundary_visible:
             self._draw_depth_sorted_lines(pyxel, self.cylinder_lines)
+        self._draw_grass(pyxel)
         self._draw_depth_sorted_lines(pyxel, self.axis_lines)
         self._draw_reference_points(pyxel)
+
+    def _draw_grass(self, pyxel) -> None:
+        self.visible_blade_count = 0
+        self.visible_segment_count = 0
+        sortable: list[tuple[float, GrassPath]] = []
+        for blade, points in self.grass_paths:
+            midpoint = points[len(points) // 2]
+            sortable.append((self.camera.world_to_camera(midpoint).z, (blade, points)))
+
+        for depth, (blade, points) in sorted(sortable, key=lambda item: item[0], reverse=True):
+            color = self._grass_color(blade, depth)
+            blade_visible = False
+            for start, end in pairwise(points):
+                if self._draw_grass_segment(pyxel, start, end, color, blade.width_class):
+                    blade_visible = True
+                    self.visible_segment_count += 1
+            if blade_visible:
+                self.visible_blade_count += 1
+
+            tip = self.camera.project(points[-1])
+            if blade_visible and tip is not None and blade.color_variant == 2:
+                pyxel.pset(self._screen_int(tip.x), self._screen_int(tip.y), 11)
+
+    def _draw_grass_segment(
+        self,
+        pyxel,
+        start: Vec3,
+        end: Vec3,
+        color: int,
+        width_class: int,
+    ) -> bool:
+        projected_start = self.camera.project(start)
+        projected_end = self.camera.project(end)
+        if projected_start is None or projected_end is None:
+            return False
+
+        x1 = self._screen_int(projected_start.x)
+        y1 = self._screen_int(projected_start.y)
+        x2 = self._screen_int(projected_end.x)
+        y2 = self._screen_int(projected_end.y)
+        pyxel.line(x1, y1, x2, y2, color)
+        if width_class == 2:
+            pyxel.line(x1 + 1, y1, x2 + 1, y2, color)
+        return True
+
+    def _grass_color(self, blade: GrassBlade, depth: float) -> int:
+        if depth > self.camera.distance + 80:
+            return 3
+        if blade.color_variant == 0:
+            return 11
+        if blade.color_variant == 1:
+            return 10
+        return 3
 
     def _draw_reference_points(self, pyxel) -> None:
         origin = self.world.bottom_center
@@ -97,7 +164,7 @@ class LightCylinderApp:
 
     def _draw_debug(self, pyxel) -> None:
         pyxel.text(SAFE_LEFT + 8, 12, PROJECT_TITLE, 7)
-        pyxel.text(SAFE_LEFT + 8, 24, "LC002 CYLINDER VOLUME", 6)
+        pyxel.text(SAFE_LEFT + 8, 24, "LC003 CURVED GRASS FIELD", 6)
         pyxel.text(SAFE_LEFT + 8, 36, "ARROWS YAW/PITCH  A/S ZOOM", 6)
         pyxel.text(SAFE_LEFT + 8, 48, "X AUTO  B BOUNDARY  D DEBUG", 6)
         pyxel.text(SAFE_LEFT + 8, 60, "ESC QUIT", 6)
@@ -122,6 +189,11 @@ class LightCylinderApp:
         pyxel.text(SAFE_LEFT + 8, 150, f"radius {self.world.radius:.1f}", 6)
         pyxel.text(SAFE_LEFT + 8, 162, f"height {self.world.height:.1f}", 6)
         pyxel.text(SAFE_LEFT + 8, 174, f"near {self.camera.near_clip:.1f}", 6)
+        pyxel.text(SAFE_LEFT + 8, 186, f"grass {len(self.grass_field)}", 6)
+        pyxel.text(SAFE_LEFT + 8, 198, f"segments {GRASS_SEGMENTS}", 6)
+        pyxel.text(SAFE_LEFT + 8, 210, f"seed {self.grass_field.seed}", 6)
+        pyxel.text(SAFE_LEFT + 8, 222, f"visible {self.visible_blade_count}", 6)
+        pyxel.text(SAFE_LEFT + 8, 234, f"lines {self.visible_segment_count}", 6)
 
     def _build_cylinder_lines(self) -> tuple[WorldLine, ...]:
         bottom = self.world.bottom_ring_points(CYLINDER_RADIAL_SEGMENTS)

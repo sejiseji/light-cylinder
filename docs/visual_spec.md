@@ -21,6 +21,15 @@ Grass should eventually curve and react to wind. Light should arrive as sliced
 bands or shafts. Wind should layer motion across height and depth. Rain and
 particles should reveal depth without overwhelming the quiet mood.
 
+LC003 introduces static curved grass. Each blade uses a base point on the
+cylinder bottom, a height, a natural XZ bend, and a quadratic curve so the bend
+is weak near the root and strongest at the tip. Blade height, bend, color, and
+width class vary by fixed-seed generation.
+
+The grass density is biased toward the middle band of the cylinder floor, with
+the center and outer edge slightly less dense. This keeps the floor direction and
+cylinder boundary readable while avoiding a perfectly even artificial carpet.
+
 ## Light And Dark
 
 Darkness is the baseline. Brightness should feel discovered, with clear contrast
@@ -29,6 +38,10 @@ between shaded regions and lit surfaces.
 LC002 uses temporary Pyxel palette colors to separate far rings, near rings,
 vertical guides, the center axis, and the bottom grid. These colors are for
 debug readability and are not the final palette.
+
+LC003 adds temporary green variants and depth shading for grass. Boundary lines
+remain available with `B`, but grass remains the main visual subject when the
+boundary is hidden.
 
 ## Vertical Composition
 

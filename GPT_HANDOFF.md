@@ -7,7 +7,7 @@ inside a tall cylindrical natural space.
 
 ## Current Wave
 
-LC002 cylindrical observation volume.
+LC003 procedural curved grass field.
 
 ## Completed
 
@@ -27,11 +27,14 @@ LC002 cylindrical observation volume.
 - Cylinder containment, ring generation, vertical guides, and bottom sampling
 - LC002 debug view with top and bottom rings, vertical guides, bottom grid, and
   boundary toggle
+- Pyxel-independent `GrassBlade` and `GrassField`
+- Fixed-seed curved grass generation on the cylinder bottom
+- Depth-sorted static grass rendering with height, bend, width, and color variety
 
 ## Not Completed
 
-Grass, light, wind, rain, touch controls, audio, web packaging, and iOS packaging
-are intentionally not implemented yet.
+Wind animation, light, rain, touch controls, audio, web packaging, and iOS
+packaging are intentionally not implemented yet.
 
 ## Run
 
@@ -71,6 +74,17 @@ camera. Points at or behind the near clip are skipped rather than clipped.
 The LC002 camera target is `Vec3(0, CYLINDER_HEIGHT * 0.45, 0)`, with default
 radius 96, height 240, 32 radial segments, and 8 vertical guides.
 
+## Grass
+
+- Count: 280
+- Segments per blade: 5
+- Seed: 1729
+- Height range: 18 to 46
+- Bend range: 2 to 15
+- Stiffness range: 0.45 to 1.0
+- Density: slightly sparse at center and rim, densest around the middle band
+- Animation: none in LC003
+
 ## Public Safety
 
 Run the public safety check before publishing or pushing. Do not store
@@ -79,13 +93,12 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000 and LC001 were committed and pushed with approval. LC002 changes are not
-committed or pushed yet. Future commits and pushes require user approval.
+LC000, LC001, and LC002 were committed and pushed with approval. LC003 changes
+are not committed or pushed yet. Future commits and pushes require user approval.
 
 ## Next Wave
 
-LC003 should introduce procedural curved grass using the LC002 bottom sampling
-and containment rules.
+LC004 should add layered wind using each blade's stored stiffness and phase.
 
 ## Design Decisions
 

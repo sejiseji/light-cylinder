@@ -38,3 +38,10 @@ def test_camera_config_invariants() -> None:
     assert config.CYLINDER_RADIAL_SEGMENTS == 32
     assert config.CYLINDER_VERTICAL_GUIDES == 8
     assert 0.0 <= config.CYLINDER_TARGET_HEIGHT_FACTOR <= 1.0
+    assert config.GRASS_SEED == 1729
+    assert config.GRASS_COUNT == 280
+    assert config.GRASS_SEGMENTS == 5
+    assert config.GRASS_MIN_HEIGHT > 0
+    assert config.GRASS_MIN_HEIGHT <= config.GRASS_MAX_HEIGHT
+    assert config.GRASS_MIN_BEND <= config.GRASS_MAX_BEND
+    assert config.GRASS_MIN_STIFFNESS <= config.GRASS_MAX_STIFFNESS
