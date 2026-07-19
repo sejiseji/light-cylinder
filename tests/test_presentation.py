@@ -1,6 +1,7 @@
 from light_cylinder.app import (
     MENU_BUTTON_RECT,
     LightCylinderApp,
+    firefly_draw_radius,
     particle_draw_radius,
     select_floor_color,
     select_grass_color,
@@ -61,10 +62,29 @@ def test_particle_draw_radius_has_clear_size_steps() -> None:
     assert particle_draw_radius(1.0, 0.9) == 3
 
 
+def test_firefly_draw_radius_increases_toward_camera() -> None:
+    far = firefly_draw_radius(depth=560.0, camera_distance=455.0, glow=0.8)
+    near = firefly_draw_radius(depth=300.0, camera_distance=455.0, glow=0.8)
+
+    assert far == 2
+    assert near > far
+
+
 def test_rain_color_mapping_stays_quiet_until_strong_light() -> None:
-    assert select_rain_color(0.3) == PALETTE_DIM_PARTICLE
-    assert select_rain_color(0.8) == PALETTE_DIM_PARTICLE
-    assert select_rain_color(0.98) == PALETTE_BRIGHT_PARTICLE
+    assert select_rain_color(0.3, 0) == 5
+    assert select_rain_color(0.3, 1) == 12
+    assert select_rain_color(0.3, 2) == 6
+    assert select_rain_color(0.3, 3) == 7
+    assert select_rain_color(0.98, 2) == 7
+
+
+def test_rain_depth_tier_marks_far_rain_for_shadow_color() -> None:
+    app = LightCylinderApp()
+
+    assert app._rain_depth_tier(app.camera.distance + 120.0) == 0
+    assert app._rain_depth_tier(app.camera.distance + 48.0) == 1
+    assert app._rain_depth_tier(app.camera.distance) == 2
+    assert app._rain_depth_tier(app.camera.distance - 80.0) == 3
 
 
 def test_splash_color_mapping_fades_quickly() -> None:
@@ -151,6 +171,17 @@ def test_yellow_light_accent_bands_add_lines_and_a_band() -> None:
     assert all(payload[-1] == PALETTE_GROUND_STRONG_LIGHT for _depth, _kind, payload in accents)
 
 
+def test_photons_are_available_for_depth_sorting_with_light_bands() -> None:
+    app = LightCylinderApp()
+
+    particle_items = app._light_particle_items()
+    band_depths = [depth for depth, _quad in app._light_band_quads()]
+
+    assert particle_items
+    assert band_depths
+    assert all(depth > 0.0 for depth, _particle, _position in particle_items)
+
+
 def test_menu_button_toggles_observation_panel() -> None:
     app = LightCylinderApp()
     x, y, width, height = MENU_BUTTON_RECT
@@ -173,6 +204,20 @@ def test_menu_stepper_updates_stage_and_rain_amount() -> None:
     assert handled
     assert app.tuning.rain == 2
     assert app.rain_field.intensity == MENU_RAIN_INTENSITIES[1]
+
+
+def test_menu_stepper_updates_firefly_count_stage() -> None:
+    app = LightCylinderApp()
+    app.menu_open = True
+    firefly_index = 5
+    _minus_rect, plus_rect = app._menu_stepper_rects(firefly_index)
+    x, y, width, height = plus_rect
+
+    handled = app._handle_menu_click_at(x + width // 2, y + height // 2)
+
+    assert handled
+    assert app.tuning.fireflies == 2
+    assert app.tuning.firefly_count == 6
 
 
 def test_menu_auto_toggle_changes_auto_rotate() -> None:
@@ -219,6 +264,29 @@ def test_menu_rain_toggle_changes_rain_enabled() -> None:
 
     assert handled
     assert app.rain_enabled
+
+
+def test_menu_firefly_toggle_changes_firefly_enabled() -> None:
+    app = LightCylinderApp()
+    app.menu_open = True
+    x, y, width, height = app._menu_firefly_toggle_rect()
+
+    handled = app._handle_menu_click_at(x + width // 2, y + height // 2)
+
+    assert handled
+    assert app.firefly_enabled
+
+
+def test_firefly_items_are_hidden_until_enabled() -> None:
+    app = LightCylinderApp()
+    app.firefly_field.spawn_timer = 0.0
+    app.firefly_field.update(0.0, app._wind_sample(app.world.bottom_center), "CLEAR", 0.0)
+
+    assert app._firefly_items() == ()
+
+    app._set_firefly_enabled(True)
+
+    assert app._firefly_items()
 
 
 def test_observation_cycle_uses_menu_rain_stage_as_base_amount() -> None:

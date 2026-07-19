@@ -63,8 +63,8 @@ blade tips: each blade samples only root, middle, and tip, with tip response
 strongest. This should make leaves appear to cross into light while wind moves
 them. The bottom grid can support boundary inspection, but normal viewing keeps
 floor rings and radial lines hidden.
-Light bands and grass are depth-sorted together so camera rotation can change
-which grass appears in front of each band.
+Light bands, grass, and particles are depth-sorted together so camera rotation
+can change which elements appear in front of each band.
 
 When debug is off, light-axis lines and radius circles must disappear. The viewer
 should infer the beam from particles, grass tips, and the floor.
@@ -106,6 +106,8 @@ flash for an instant at fixed positions and varied heights as a separate layer,
 so they read as rainfall texture rather than stretched drops. Grass remains the
 focal subject. Floor arrival is silent disappearance only; splashes, wet ground,
 and grass contact are reserved for a later wave.
+Rain uses palette colors 5, 12, 6, and 7 from far to near, adding depth without
+changing the simple 1px vertical line language.
 
 LC008 gives rain a restrained consequence. Ground impacts create tiny splash
 pixels that vanish quickly, nearby grass can be pressed down for a moment, and
@@ -125,6 +127,17 @@ piece breathing through one chapter: clear air, gathering shade, light rain,
 fuller rain, stopping, after-rain, and return. It should not feel like a broad
 weather simulator. MENU density and motion stages remain the viewer's chosen
 baseline, while the cycle quietly moves temporary rain and light multipliers.
+
+LC011 adds optional firefly visitors. They should read as visitors inside the
+specimen, not a new subject or insect swarm. The default is OFF. When
+enabled, zero fireflies for a while is acceptable, and the MENU count stage can
+raise the active cap enough for the visitors to read clearly. They should drift
+through the grass-top to middle-air region with slow, uneven blinking and longer
+target paths than tiny local hovering. They may be slightly brighter inside the
+light, but remain visible outside it because they carry their own glow. Near
+visitors should become visibly larger than far visitors so the screen reads as a
+shallow observed volume, not a flat sparkle layer. Rain should make them scarce,
+and strong rain should stop new arrivals.
 
 ## Vertical Composition
 

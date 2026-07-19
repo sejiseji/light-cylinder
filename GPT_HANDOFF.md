@@ -8,7 +8,7 @@ cylindrical natural space.
 
 ## Current Wave
 
-LC010 Observation Cycle.
+LC011 Firefly Visitors.
 
 ## Completed
 
@@ -77,6 +77,7 @@ LC010 Observation Cycle.
 - Tip droplets naturally fall and disappear
 - Top-right MENU panel for 1-3 stage observation tuning
 - Stage 1 keeps the baseline look for photons, grass, wind, rain, and auto rotate
+- FIREFLY stage caps active visitors at 3, 6, or 9
 - MENU `AUTO` toggle changes the same auto-rotate state as the `X` key
 - MENU `RAIN` toggle changes the same rain ON/OFF state as the `N` key
 - Pyxel-independent `ObservationCycle`
@@ -91,6 +92,14 @@ LC010 Observation Cycle.
 - Five dynamic mixed-width tapered light bands from upper beam to floor
 - Bottom coordinate axes hidden in normal and debug viewing
 - Bottom floor rings and radial lines hidden unless boundary display is enabled
+- Optional firefly visitors with `F` and MENU `FIREFLY`, initial state OFF
+- Pyxel-independent `Firefly` and `FireflyField`
+- Fireflies stay inside the cylinder, cap at nine active visitors, blink slowly,
+  and use fixed-seed target-seeking drift with a preferred minimum target
+  distance
+- Firefly screen size grows toward the camera for stronger front/back depth
+- Strong rain prevents new firefly arrivals; light rain and after-rain stretch
+  the spawn delay
 
 ## Not Completed
 
@@ -128,6 +137,8 @@ python scripts/check_all.py
 - W: toggle wind
 - L: toggle light media
 - N: toggle rain
+- F: toggle firefly visitors
+- M: toggle observation cycle
 - Q and E: decrease and increase rain amount
 - R: reset camera
 - D: toggle debug HUD and light guides
@@ -146,7 +157,7 @@ Initial camera:
 
 - yaw: -0.22
 - pitch: 0.34
-- distance: 430
+- distance: 455
 - auto rotate speed: 0.0035 radians per frame
 - camera inertia decay: 0.68
 - auto pitch: subtle sway around the latest manual pitch baseline
@@ -165,29 +176,29 @@ Initial camera:
 ## Wind
 
 - Base direction angle: 0.35 radians
-- Base speed: 0.55
-- Response scale: 13.0
+- Base speed: 0.65
+- Response scale: 17.0
 - Slow pulse: sinusoidal
 - Spatial phase: X/Z position
 - Blade phase: `GrassBlade.phase`
 - Gust: deterministic sin-squared envelope
-- Wind max bend: 42 percent of blade height
+- Wind max bend: 68 percent of blade height
 - Base pulse rate: 0.42
-- Base pulse amount: 0.22
+- Base pulse amount: 0.38
 - Direction sway rate: 0.37
 - Gust interval: 12.0
 - Gust duration: 5.5
 - Micro wind rate: 0.19
-- Micro wind amount: 0.10
+- Micro wind amount: 0.16
 
 ## Light
 
-- Beam origin: `(-34, 246, -22)`
+- Beam origin: `(-34, 312, -22)`
 - Beam direction: `(0.22, -1.0, 0.18)` normalized
-- Beam length: 285
+- Beam length: 360
 - Beam radius: 44
 - Core radius: 14
-- Particles: 48
+- Particles: 360 baseline, 1080 stage-3 draw budget
 - Floor sparks: 28
 - Cloud shadow rate: 0.075
 - Cloud shadow amount: 0.16
@@ -207,14 +218,15 @@ Initial camera:
 - Default amount: 0.45
 - Amount step: 0.15
 - Fall speed range: 96 to 142 world units per second
-- Segment length range: 8 to 15 world units
-- Wind drift scale: 34
-- Wind tilt scale: 10
-- Light visibility threshold: 0.16
-- Bright rain threshold: 0.52
+- Segment lengths: fixed 7, 10, or 13 world units
+- Long static streaks: 126 to 258 world units, flash for an instant
+- Wind drift scale: 0
+- Wind tilt scale: 0
+- Bright rain threshold: 0.94
 - Initial state: rain off, clear scene preserved
-- Generation: fixed-seed top-disk candidates, mostly biased to the light corridor
-- Rendering: line segments only, no direct rain volume or splash effect
+- Generation: fixed-seed top-disk candidates across the cylinder
+- Rendering: vertical 1px line segments across the cylinder, with depth colors
+  5, 12, 6, and 7
 
 ## Rain Reactions
 
@@ -275,6 +287,7 @@ Initial viewing state:
 - wind: on
 - light media: on
 - rain: off
+- fireflies: off
 - auto rotate: off
 
 Use `D` for inspection and `B` to compare the restrained cylinder boundary.
@@ -297,14 +310,15 @@ LC006.5 added Artistic Review notes to every wave result from now on.
 - Typical visible particles in debug review: expected to rise with the 360
   particle baseline
 - Light particles: 360 baseline, 1080 stage-3 draw budget
-- Rain candidates: 64, with about 29 active at the default 0.45 amount before
-  light gating
+- Rain candidates: 64, with about 29 active at the default 0.45 amount
 - LC008 reaction work is impact-event based; no puddle grid, ripple simulation,
   audio, or per-frame random sampling is added
 - LC009 adds one small environment state object and at most 28 tip droplets;
   droplet candidates are fixed and no per-frame random sampling is added
 - LC010 adds one constant-time observation cycle object; it does not regenerate
   grass, particles, or rain candidates
+- LC011 adds at most nine fireflies, depth-sorted with grass, light bands, and
+  photons; the FIREFLY stage changes the cap through 3, 6, and 9
 - Approximate line draw calls are reported in debug HUD
 - GUI review kept a stable 30 FPS feel with light, wind, particles, boundary
   on/off, zoom, and slow auto rotate.
@@ -317,16 +331,16 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000 through LC009 plus Observation Controls were committed and pushed with
-approval, and `prototype-v0.1.0` marks the first observation prototype. LC010 is
-in the working tree until explicitly approved for commit. Future commits, pushes,
-and tags require user approval.
+LC000 through LC010 plus environmental-control refinements were committed and
+pushed with approval, and `prototype-v0.1.0` marks the first observation
+prototype. LC011 is in the working tree until explicitly approved for commit.
+Future commits, pushes, and tags require user approval.
 
 ## Next Wave
 
-Next work should review whether the automated observation cycle needs visual
-timing balance before adding title/UI. Puddles, ripples, thunder, and rain audio
-remain intentionally separate.
+Next work should visually review whether optional fireflies stay balanced enough
+before adding title/UI. Puddles, ripples, thunder, and rain audio remain
+intentionally separate.
 
 ## Design Decisions
 

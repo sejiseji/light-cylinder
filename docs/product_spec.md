@@ -23,7 +23,9 @@ distance, and debug visibility without turning the work into an action game.
 The MVP should establish a stable mobile-first vertical composition, a
 cylindrical observation volume, procedural grass, layered wind, sliced light,
 optional rain-through-light, restrained rain reactions, after-rain recovery, and
-an optional observation cycle. Simple touch controls remain a later mobile wave.
+an optional observation cycle. Rare firefly visitors may be toggled on, but they
+remain a secondary visitor layer rather than the subject. Simple touch controls
+remain a later mobile wave.
 
 ## Out Of Scope For MVP
 

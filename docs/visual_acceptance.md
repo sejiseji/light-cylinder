@@ -103,6 +103,24 @@ LC010-specific completion checks:
 - The cycle remains quiet enough that grass and light stay the subject.
 - The scene still starts in manual clear state.
 
+LC011-specific completion checks:
+
+- Initial state keeps fireflies OFF.
+- `F` and MENU `FIREFLY` toggle the same state.
+- OFF state preserves the existing observation screen.
+- Fireflies stay inside the cylinder and do not exceed nine active visitors.
+- MENU FIREFLY stage changes the visitor cap through 3, 6, and 9.
+- Empty intervals with no visible fireflies are allowed and expected.
+- Motion is smooth target-seeking drift with enough travel distance to read
+  across the scene, not frame-by-frame jitter.
+- Glow blinks slowly and weakly.
+- Near fireflies draw larger than far fireflies.
+- Fireflies remain visible outside the light beam, with only a slight light boost
+  inside it.
+- Rain reduces new arrivals, and strong rain prevents them.
+- Grass, light, and rain remain more important than the visitors.
+- No meaningful FPS drop is visible.
+
 ## Artistic Review
 
 Each wave after LC006 should end with an artistic review in addition to technical

@@ -78,3 +78,9 @@ LC010 adds one constant-time observation cycle object. It emits a phase, rain
 multiplier, and light multiplier each frame. It does not allocate per-frame
 weather objects, does not change the fixed rain drop pool, and does not
 regenerate grass or particles.
+
+LC011 adds at most nine active fireflies. Spawn and movement are fixed-seed and
+kept in `FireflyField`, with no per-frame random target churn. Each firefly adds
+only one small depth-sorted draw item and a few pixel operations when its blink
+is visible. The FIREFLY stage changes only the active cap, through 3, 6, and 9
+visitors.

@@ -14,13 +14,14 @@
 - LC008: rain, grass, and ground reactions
 - LC009: After Rain
 - LC010: Observation Cycle
+- LC011: Firefly Visitors
 
 ## NEXT
 
-- LC011: title and UI
+- LC012: title and UI
 
 ## LATER
 
-- LC012: touch controls
-- LC013: ambience and audio
-- LC014: web and iOS packaging
+- LC013: touch controls
+- LC014: ambience and audio
+- LC015: web and iOS packaging

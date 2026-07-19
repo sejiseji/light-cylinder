@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from light_cylinder.config import (
     MENU_AUTO_ROTATE_MULTIPLIERS,
+    MENU_FIREFLY_COUNTS,
     MENU_GRASS_COUNTS,
     MENU_PHOTON_COUNTS,
     MENU_RAIN_INTENSITIES,
@@ -13,7 +14,7 @@ from light_cylinder.config import (
     MENU_WIND_SPEED_MULTIPLIERS,
 )
 
-MENU_SETTING_KEYS = ("photons", "grass", "wind", "rain", "rotate")
+MENU_SETTING_KEYS = ("photons", "grass", "wind", "rain", "rotate", "fireflies")
 
 
 @dataclass(slots=True)
@@ -23,6 +24,7 @@ class ObservationTuning:
     wind: int = MENU_STAGE_MIN
     rain: int = MENU_STAGE_MIN
     rotate: int = MENU_STAGE_MIN
+    fireflies: int = MENU_STAGE_MIN
 
     def stage_for(self, key: str) -> int:
         _validate_key(key)
@@ -66,6 +68,10 @@ class ObservationTuning:
     @property
     def auto_rotate_multiplier(self) -> float:
         return MENU_AUTO_ROTATE_MULTIPLIERS[self.rotate - MENU_STAGE_MIN]
+
+    @property
+    def firefly_count(self) -> int:
+        return MENU_FIREFLY_COUNTS[self.fireflies - MENU_STAGE_MIN]
 
 
 def _clamp_stage(stage: int) -> int:

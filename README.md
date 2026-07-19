@@ -11,11 +11,11 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC010 adds an optional observation cycle. The scene still starts clear and
-manual, but pressing `M` lets the cylinder move through clear air, deepening
-CloudShadow, light rain, normal rain, rain stop, after-rain, and clear recovery.
-The cycle uses existing light, rain, wetness, and droplet systems rather than
-adding a broader weather simulator. Puddles, ripples, thunder, rain audio,
+LC011 adds optional firefly visitors. The scene still starts clear and manual,
+with fireflies off, but pressing `F` or using MENU can allow adjustable visitors
+into the cylinder. They drift farther across the volume with slow blinking,
+appear far less often during rain, and never replace grass, light, rain, or the
+observation cycle as the main subject. Puddles, ripples, thunder, rain audio,
 all-grass droplets, touch input, and web packaging remain later waves.
 
 ## Display Model
@@ -48,10 +48,10 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC010 screen starts in a clear viewing state: light on, wind on, rain off,
-boundary off, debug off, auto rotate off. It shows wind-animated grass, denser
-mixed-size light particles, tip lighting, subtle floor light, and five quiet mixed-width
-tapered light bands. Bottom floor rings and radial lines stay hidden until the
+The LC011 screen starts in a clear viewing state: light on, wind on, rain off,
+fireflies off, boundary off, debug off, auto rotate off. It shows wind-animated
+grass, denser mixed-size light particles, tip lighting, subtle floor light, and
+five quiet mixed-width tapered light bands. Bottom floor rings and radial lines stay hidden until the
 cylinder boundary is shown.
 Debug mode adds camera state, draw counters, the centered composition safe area,
 environment phase, rain counters, splash count, wetness, grass reaction count,
@@ -59,8 +59,9 @@ tip droplet count, observation cycle phase, and light axis/radius guides. Bottom
 coordinate axes stay hidden.
 
 The top-right `MENU` button opens a readable observation panel. Photon density,
-grass density, wind strength, rain amount, and auto-rotate speed are adjustable
-from stage 1 to 3, and auto-rotate plus rain can also be toggled ON/OFF there.
+grass density, wind strength, rain amount, auto-rotate speed, and firefly visitor
+count are adjustable from stage 1 to 3, and auto-rotate, rain, and fireflies can
+also be toggled ON/OFF there.
 WIND strengthens the stage 1 sway around the same steady bend instead of moving
 to a different resting bend, and higher stages also advance the wind motion time
 faster. Stage 1 is the current baseline look. These settings are session-only
@@ -87,6 +88,7 @@ angle follows the observer's chosen baseline.
 - W: toggle wind application
 - L: toggle light media
 - N: toggle rain
+- F: toggle firefly visitors
 - M: toggle observation cycle
 - Q and E: decrease and increase rain amount
 - R: reset camera

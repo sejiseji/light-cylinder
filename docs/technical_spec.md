@@ -180,12 +180,11 @@ LC006 draw order is:
 
 1. fixed dark background with sparse vertical bands
 2. optional floor grid and cylinder boundary
-3. light particles
-4. depth-sorted grass and mixed-width tapered light bands
-5. floor spark pixels
-6. debug-only safe area, counters, light axis, and light guide rings
+3. depth-sorted grass, light particles, and mixed-width tapered light bands
+4. floor spark pixels
+5. debug-only safe area, counters, light axis, and light guide rings
 
-The initial camera values are yaw -0.22, pitch 0.34, distance 430, and target Y
+The initial camera values are yaw -0.22, pitch 0.34, distance 455, and target Y
 at `CYLINDER_HEIGHT * 0.43`. Auto rotate uses a slow 0.0035 radians per frame,
 roughly a one-minute orbit at 30 FPS. Auto rotate also adds a subtle pitch sway
 around a mutable pitch center.
@@ -226,6 +225,9 @@ not fall, move, or stretch, and they flash for only an instant at fixed
 positions among the falling short drops. Their candidate count is intentionally
 higher than before, with varied head heights so the long flashes can appear low,
 mid, or high in the cylinder.
+Rain color uses four depth tiers from far to near: palette colors 5, 12, 6, and
+7. Bright near/mid rain can also resolve to the nearest tier color 7, preserving
+depth while keeping strong streaks visible.
 
 Normal rendering still does not draw the light beam directly. Rain is visible
 throughout the cylinder when enabled; light is carried by particles, grass tips,
@@ -235,11 +237,10 @@ LC007 draw order is:
 
 1. fixed dark background with sparse vertical bands
 2. optional floor grid and cylinder boundary
-3. light particles
-4. full-cylinder vertical rain segments
-5. depth-sorted grass, mixed-width tapered light bands, and yellow accents
-6. floor spark pixels
-7. debug-only safe area, counters, light axis, and light guide rings
+3. full-cylinder vertical rain segments
+4. depth-sorted grass, light particles, mixed-width tapered light bands, and yellow accents
+5. floor spark pixels
+6. debug-only safe area, counters, light axis, and light guide rings
 
 ## Rain Reactions
 
@@ -265,12 +266,11 @@ LC008 draw order is:
 
 1. fixed dark background with sparse vertical bands
 2. optional floor grid and cylinder boundary with light/wetness-aware midpoint color
-3. light particles
-4. full-cylinder vertical rain segments
-5. splash pixels
-6. depth-sorted grass/reactions, mixed-width tapered light bands, and yellow accents
-7. floor spark pixels
-8. debug-only safe area, counters, light axis, and light guide rings
+3. full-cylinder vertical rain segments
+4. splash pixels
+5. depth-sorted grass/reactions, light particles, mixed-width tapered light bands, and yellow accents
+6. floor spark pixels
+7. debug-only safe area, counters, light axis, and light guide rings
 
 Wet floor shading is intentionally coarse: it can darken the optional floor grid
 and allows a weak reflection color only where light is already present. LC008
@@ -310,20 +310,19 @@ LC009 draw order keeps droplets quiet:
 
 1. fixed dark background with sparse vertical bands
 2. optional floor grid and cylinder boundary with light/wetness/reflection-aware midpoint color
-3. light particles
-4. full-cylinder vertical rain segments
-5. splash pixels
-6. depth-sorted grass/reactions, mixed-width tapered light bands, and yellow accents
-7. light-gated tip droplet pixels
-8. floor spark pixels
-9. debug-only safe area, counters, light axis, and light guide rings
+3. full-cylinder vertical rain segments
+4. splash pixels
+5. depth-sorted grass/reactions, light particles, mixed-width tapered light bands, and yellow accents
+6. light-gated tip droplet pixels
+7. floor spark pixels
+8. debug-only safe area, counters, light axis, and light guide rings
 
 Puddles, ripple simulation, thunder, rain audio, and all-grass droplet retention
 remain out of scope.
 
 ## Observation Menu
 
-The top-right MENU button opens an overlay panel with five 1-3 stage controls
+The top-right MENU button opens an overlay panel with six 1-3 stage controls
 and an auto-rotate ON/OFF toggle.
 All controls start at stage 1, which is the LC009 baseline:
 
@@ -333,7 +332,10 @@ All controls start at stage 1, which is the LC009 baseline:
   2.7, and advances wind motion time by 1.0, 1.45, or 2.0
 - rain amount: sets rain intensity to 0.45, 0.65, or 0.85
 - auto rotate speed: multiplies auto-rotate by 1.0, 1.45, or 1.9
+- firefly visitor count: caps active visitors at 3, 6, or 9
 - AUTO toggle: changes the same auto-rotate state as the `X` key
+- RAIN toggle: changes the same rain ON/OFF state as the `N` key
+- FIREFLY toggle: changes the same optional visitor state as the `F` key
 
 The app pre-generates the maximum particle and grass budgets, then draws the
 active prefix for the selected stage. This keeps stage changes deterministic and
@@ -342,8 +344,8 @@ The grass control changes draw density, not the deterministic generated field.
 Light bands are inserted into the same depth-sorted draw list as grass blades so
 rotation can affect the apparent front/back relationship between blades and
 bands.
-The rain control changes only the amount preset and does not toggle rain on or
-off. Settings are not persisted; every launch starts from stage 1.
+The rain amount control changes only the amount preset and does not toggle rain
+on or off. Settings are not persisted; every launch starts from stage 1.
 
 ## Observation Cycle
 
@@ -373,6 +375,27 @@ deepening and lifting CloudShadow without altering `LightField` internals.
 
 Manual `N`, `Q`, or `E` rain input disables the cycle before applying the manual
 operation, so returning to direct control does not inherit hidden cycle state.
+
+## Firefly Visitors
+
+LC011 adds `Firefly` and `FireflyField` in `firefly.py`. They do not import
+Pyxel. Fireflies are optional visitors, not a permanent ambient particle field:
+the default state is OFF, the active cap is nine at stage 3, and fixed-seed
+spawn delays still create periods with no fireflies at all.
+
+Each firefly stores position, velocity, target, age, lifetime, glow phase, and
+glow speed. Update uses target attraction, slow wander, boundary avoidance, and
+a very weak wind influence. Targets are sampled inside the cylinder from just
+above the grass layer to the mid-volume, with a preferred minimum travel
+distance, so movement stays smooth, contained, and visibly crosses more of the
+scene.
+Strong rain prevents new firefly spawns; lighter rain stretches the spawn delay,
+and after-rain allows rare returns. Rendering remains in `app.py`, where
+fireflies are inserted into the same depth-sorted list as grass, light bands, and
+photons. Unlike photons and rain, fireflies remain visible outside the light beam
+because they are their own small light source. Screen size also uses camera
+depth: nearer fireflies can draw as larger glow circles, while far visitors stay
+near single-pixel points.
 
 ## Resource Resolution
 

@@ -17,6 +17,9 @@ from light_cylinder.config import (
     CYLINDER_RADIUS,
     CYLINDER_VERTICAL_GUIDES,
     DISPLAY_TITLE_EN,
+    FIREFLY_BRIGHT_THRESHOLD,
+    FIREFLY_RING_THRESHOLD,
+    FIREFLY_VISIBLE_THRESHOLD,
     GRASS_SEED,
     GRASS_SEGMENTS,
     GRASS_WIDTH_MULTIPLIER,
@@ -65,6 +68,7 @@ from light_cylinder.config import (
     PROJECT_TITLE,
     RAIN_BRIGHT_VISIBILITY_THRESHOLD,
     RAIN_DEFAULT_INTENSITY,
+    RAIN_DEPTH_COLORS,
     RENDER_HEIGHT,
     RENDER_WIDTH,
     SAFE_LEFT,
@@ -76,6 +80,7 @@ from light_cylinder.config import (
     validate_display_config,
 )
 from light_cylinder.environment import EnvironmentState
+from light_cylinder.firefly import Firefly, FireflyField
 from light_cylinder.grass import GrassBlade, GrassField, compute_wind_bend, sample_blade_points
 from light_cylinder.input import MouseInputState, read_control_intent
 from light_cylinder.light import LightField, LightParticle
@@ -95,17 +100,19 @@ LightBandLine = tuple[int, int, int, int, int]
 MenuRect = tuple[int, int, int, int]
 
 MENU_BUTTON_RECT: MenuRect = (SAFE_RIGHT - 78, 8, 70, 22)
-MENU_PANEL_RECT: MenuRect = (SAFE_RIGHT - 270, 34, 262, 186)
+MENU_PANEL_RECT: MenuRect = (SAFE_RIGHT - 270, 34, 262, 232)
 MENU_ROW_TOP = 62
 MENU_ROW_HEIGHT = 22
-MENU_AUTO_ROW_INDEX = 5
-MENU_RAIN_TOGGLE_ROW_INDEX = 6
+MENU_AUTO_ROW_INDEX = 6
+MENU_RAIN_TOGGLE_ROW_INDEX = 7
+MENU_FIREFLY_TOGGLE_ROW_INDEX = 8
 MENU_ROW_LABELS = {
     "photons": "PHOTON",
     "grass": "GRASS",
     "wind": "WIND",
     "rain": "AMOUNT",
     "rotate": "ROTATE",
+    "fireflies": "FIREFLY",
 }
 PIXEL_FONT = {
     "A": ("111", "101", "111", "101", "101"),
@@ -166,6 +173,7 @@ class LightCylinderApp:
         self.wind_enabled = True
         self.light_enabled = True
         self.rain_enabled = False
+        self.firefly_enabled = False
         self.environment = EnvironmentState()
         self.tuning = ObservationTuning()
         self.observation_cycle = ObservationCycle()
@@ -186,6 +194,7 @@ class LightCylinderApp:
         )
         self.rain_field = RainField.create_default(self.world, self.light_field.beam)
         self.rain_field.set_intensity(self.tuning.rain_intensity)
+        self.firefly_field = FireflyField.create_default(self.world)
         self.ground_reactions = GroundReactionField()
         self.grass_reactions = GrassReactionField.create(len(self.grass_field.blades))
         self.tip_droplets = TipDropletField.create(
@@ -203,6 +212,7 @@ class LightCylinderApp:
         self.visible_rain_count = 0
         self.visible_splash_count = 0
         self.visible_droplet_count = 0
+        self.visible_firefly_count = 0
         self.lit_segment_count = 0
         self.approx_line_draw_calls = 0
 
@@ -242,6 +252,8 @@ class LightCylinderApp:
             self.wind_enabled = not self.wind_enabled
         if intent.toggle_light:
             self.light_enabled = not self.light_enabled
+        if intent.toggle_firefly:
+            self._set_firefly_enabled(not self.firefly_enabled)
         if intent.toggle_observation_cycle:
             self._set_observation_cycle_enabled(not self.observation_cycle.enabled)
         if self.observation_cycle.enabled and (
@@ -281,6 +293,19 @@ class LightCylinderApp:
         self._seed_after_rain_droplets()
         self.rain_enabled = self.environment.is_raining
         self.tip_droplets.update(dt, self.grass_field.blades)
+        if self.firefly_enabled:
+            firefly_wind = (
+                self._wind_sample(self.world.bottom_center)
+                if self.wind_enabled
+                else Vec3(0.0, 0.0, 0.0)
+            )
+            self.firefly_field.update(
+                dt,
+                firefly_wind,
+                self.environment.phase.value,
+                self.rain_field.intensity if self.environment.is_raining else 0.0,
+                self.tuning.firefly_count,
+            )
         yaw_delta = self._camera_motion_delta("yaw", intent.yaw_delta)
         pitch_delta = self._camera_motion_delta("pitch", intent.pitch_delta)
         zoom_delta = self._camera_motion_delta("zoom", intent.zoom_delta)
@@ -290,6 +315,11 @@ class LightCylinderApp:
             pitch_delta += self._auto_rotate_pitch_delta(dt, pitch_delta)
         self.camera.orbit(yaw_delta, pitch_delta)
         self.camera.zoom(zoom_delta)
+
+    def _set_firefly_enabled(self, enabled: bool) -> None:
+        self.firefly_enabled = enabled
+        if not enabled:
+            self.firefly_field.clear()
 
     def _set_rain_enabled(self, enabled: bool) -> None:
         if enabled:
@@ -353,6 +383,9 @@ class LightCylinderApp:
             self._set_rain_enabled(not self.rain_enabled)
             if self.rain_enabled and self.rain_field.intensity == 0.0:
                 self.rain_field.set_intensity(self.tuning.rain_intensity)
+            return True
+        if _point_in_rect(mouse_x, mouse_y, self._menu_firefly_toggle_rect()):
+            self._set_firefly_enabled(not self.firefly_enabled)
             return True
         return True
 
@@ -432,7 +465,6 @@ class LightCylinderApp:
         if self.boundary_visible:
             self._draw_floor(pyxel)
             self._draw_depth_sorted_lines(pyxel, self.cylinder_lines)
-        self._draw_light_particles(pyxel)
         self._draw_rain(pyxel)
         self._draw_splashes(pyxel)
         self._draw_grass_and_light_bands(pyxel)
@@ -600,35 +632,45 @@ class LightCylinderApp:
 
     def _draw_light_particles(self, pyxel) -> None:
         self.visible_particle_count = 0
-        if not self.light_enabled:
-            return
+        for _depth, particle, position in sorted(
+            self._light_particle_items(),
+            key=lambda item: item[0],
+            reverse=True,
+        ):
+            self._draw_light_particle(pyxel, particle, position)
 
-        sortable: list[tuple[float, LightParticle, Vec3]] = []
+    def _light_particle_items(self) -> tuple[tuple[float, LightParticle, Vec3], ...]:
+        if not self.light_enabled:
+            return ()
+
+        items: list[tuple[float, LightParticle, Vec3]] = []
         for particle, position in self.light_field.particle_positions()[: self.tuning.photon_count]:
             depth = self.camera.world_to_camera(position).z
-            sortable.append((depth, particle, position))
+            items.append((depth, particle, position))
+        return tuple(items)
 
-        for _depth, particle, position in sorted(sortable, key=lambda item: item[0], reverse=True):
-            intensity = self._light_intensity_at(position) * particle.brightness
-            if intensity < LIGHT_PARTICLE_VISIBILITY_THRESHOLD:
-                continue
-            projected = self.camera.project(position)
-            if projected is None:
-                continue
+    def _draw_light_particle(self, pyxel, particle: LightParticle, position: Vec3) -> bool:
+        intensity = self._light_intensity_at(position) * particle.brightness
+        if intensity < LIGHT_PARTICLE_VISIBILITY_THRESHOLD:
+            return False
+        projected = self.camera.project(position)
+        if projected is None:
+            return False
 
-            color = select_particle_color(intensity)
-            x = self._screen_int(projected.x)
-            y = self._screen_int(projected.y)
-            radius = particle_draw_radius(particle.size, intensity)
-            if radius >= 2:
-                pyxel.circ(x, y, radius, color)
-                if intensity > 0.76:
-                    pyxel.pset(x, y, PALETTE_BRIGHT_PARTICLE)
-            elif radius == 1:
-                pyxel.circ(x, y, 1, color)
-            else:
-                pyxel.pset(x, y, color)
-            self.visible_particle_count += 1
+        color = select_particle_color(intensity)
+        x = self._screen_int(projected.x)
+        y = self._screen_int(projected.y)
+        radius = particle_draw_radius(particle.size, intensity)
+        if radius >= 2:
+            pyxel.circ(x, y, radius, color)
+            if intensity > 0.76:
+                pyxel.pset(x, y, PALETTE_BRIGHT_PARTICLE)
+        elif radius == 1:
+            pyxel.circ(x, y, 1, color)
+        else:
+            pyxel.pset(x, y, color)
+        self.visible_particle_count += 1
+        return True
 
     def _draw_rain(self, pyxel) -> None:
         self.visible_rain_count = 0
@@ -640,12 +682,12 @@ class LightCylinderApp:
         for drop, start, end in self.rain_field.segments(self.world, wind):
             midpoint = (start + end) * 0.5
             depth = self.camera.world_to_camera(midpoint).z
-            color = select_rain_color(drop.brightness)
+            color = select_rain_color(drop.brightness, self._rain_depth_tier(depth))
             sortable.append((depth, start, end, color))
         for streak, start, end in self.rain_field.static_segments(self.world):
             midpoint = (start + end) * 0.5
             depth = self.camera.world_to_camera(midpoint).z
-            color = select_rain_color(streak.brightness)
+            color = select_rain_color(streak.brightness, self._rain_depth_tier(depth))
             sortable.append((depth, start, end, color))
 
         for _depth, start, end, color in sorted(sortable, key=lambda item: item[0], reverse=True):
@@ -663,6 +705,15 @@ class LightCylinderApp:
         y2 = self._screen_int(projected_end.y)
         pyxel.line(x, min(y1, y2), x, max(y1, y2), color)
         return True
+
+    def _rain_depth_tier(self, depth: float) -> int:
+        if depth > self.camera.distance + 96.0:
+            return 0
+        if depth > self.camera.distance + 24.0:
+            return 1
+        if depth > self.camera.distance - 56.0:
+            return 2
+        return 3
 
     def _draw_splashes(self, pyxel) -> None:
         self.visible_splash_count = 0
@@ -700,10 +751,17 @@ class LightCylinderApp:
         self.visible_blade_count = 0
         self.visible_segment_count = 0
         self.lit_segment_count = 0
+        self.visible_particle_count = 0
+        self.visible_firefly_count = 0
         sortable: list[tuple[float, str, object]] = [
             (depth, "band", quad) for depth, quad in self._light_band_quads()
         ]
         sortable.extend(self._light_accent_bands())
+        sortable.extend(
+            (depth, "particle", (particle, position))
+            for depth, particle, position in self._light_particle_items()
+        )
+        sortable.extend((depth, "firefly", firefly) for depth, firefly in self._firefly_items())
         for blade_index, blade in enumerate(self.grass_field.blades[: self.tuning.grass_count]):
             points = self._sample_current_blade_points(blade_index, blade)
             midpoint = points[len(points) // 2]
@@ -722,6 +780,13 @@ class LightCylinderApp:
                 continue
             if kind == "accent_line":
                 self._draw_light_band_line(pyxel, payload)
+                continue
+            if kind == "particle":
+                particle, position = payload
+                self._draw_light_particle(pyxel, particle, position)
+                continue
+            if kind == "firefly":
+                self._draw_firefly(pyxel, payload)
                 continue
 
             blade, points, light_colors = payload
@@ -755,6 +820,45 @@ class LightCylinderApp:
                     pyxel.pset(
                         self._screen_int(tip.x), self._screen_int(tip.y), PALETTE_NORMAL_GRASS
                     )
+
+    def _firefly_items(self) -> tuple[tuple[float, Firefly], ...]:
+        if not self.firefly_enabled:
+            return ()
+        return tuple(
+            (self.camera.world_to_camera(firefly.position).z, firefly)
+            for firefly in self.firefly_field.active_fireflies()
+        )
+
+    def _draw_firefly(self, pyxel, firefly: Firefly) -> bool:
+        glow = firefly.glow()
+        if self.light_enabled:
+            glow = min(1.0, glow + self._light_intensity_at(firefly.position) * 0.12)
+        if glow < FIREFLY_VISIBLE_THRESHOLD:
+            return False
+
+        projected = self.camera.project(firefly.position)
+        if projected is None:
+            return False
+
+        x = self._screen_int(projected.x)
+        y = self._screen_int(projected.y)
+        depth = self.camera.world_to_camera(firefly.position).z
+        radius = firefly_draw_radius(depth, self.camera.distance, glow)
+        center_color = (
+            PALETTE_GROUND_STRONG_LIGHT
+            if glow >= FIREFLY_BRIGHT_THRESHOLD
+            else PALETTE_GROUND_LIGHT
+        )
+        if radius >= 2:
+            pyxel.circ(x, y, radius, PALETTE_GROUND_LIGHT)
+        elif glow >= FIREFLY_BRIGHT_THRESHOLD:
+            for offset_x, offset_y in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                pyxel.pset(x + offset_x, y + offset_y, PALETTE_GROUND_LIGHT)
+        if glow >= FIREFLY_RING_THRESHOLD:
+            pyxel.circb(x, y, min(4, radius + 1), PALETTE_GROUND_STRONG_LIGHT)
+        pyxel.pset(x, y, center_color)
+        self.visible_firefly_count += 1
+        return True
 
     def _sample_current_blade_points(
         self,
@@ -965,8 +1069,14 @@ class LightCylinderApp:
                 PALETTE_LIT_GRASS,
             ),
             (left_x, 12 + line * 7, cycle_sample.phase.value, PALETTE_LIT_GRASS),
-            (left_x, 12 + line * 8, f"YAW {self.camera.yaw:.2f}", PALETTE_DEBUG_TEXT),
-            (left_x, 12 + line * 9, f"PITCH {self.camera.pitch:.2f}", PALETTE_DEBUG_TEXT),
+            (
+                left_x,
+                12 + line * 8,
+                f"FF {'ON' if self.firefly_enabled else 'OFF'}",
+                PALETTE_LIT_GRASS,
+            ),
+            (left_x, 12 + line * 9, f"YAW {self.camera.yaw:.2f}", PALETTE_DEBUG_TEXT),
+            (left_x, 12 + line * 10, f"PITCH {self.camera.pitch:.2f}", PALETTE_DEBUG_TEXT),
             (right_x, right_y, f"GRASS {self.visible_blade_count}", PALETTE_DEBUG_TEXT),
             (right_x, right_y + line, f"LIT {self.lit_segment_count}", PALETTE_DEBUG_TEXT),
             (right_x, right_y + line * 2, f"PT {self.visible_particle_count}", PALETTE_DEBUG_TEXT),
@@ -981,12 +1091,18 @@ class LightCylinderApp:
             (
                 right_x,
                 right_y + line * 6,
-                f"GUST {self.wind_field.current_gust_strength:.2f}",
+                f"FF {self.visible_firefly_count}",
                 PALETTE_DEBUG_TEXT,
             ),
             (
                 right_x,
                 right_y + line * 7,
+                f"GUST {self.wind_field.current_gust_strength:.2f}",
+                PALETTE_DEBUG_TEXT,
+            ),
+            (
+                right_x,
+                right_y + line * 8,
                 f"TIME {self.wind_field.elapsed_time:.1f}",
                 PALETTE_DEBUG_TEXT,
             ),
@@ -1036,6 +1152,14 @@ class LightCylinderApp:
             self.rain_enabled,
             "ON" if self.rain_enabled else "OFF",
         )
+        firefly_y = MENU_ROW_TOP + MENU_FIREFLY_TOGGLE_ROW_INDEX * MENU_ROW_HEIGHT
+        self._draw_text(pyxel, panel_x + 10, firefly_y + 2, "FIREFLY", PALETTE_DEBUG_TEXT)
+        self._draw_menu_toggle_button(
+            pyxel,
+            self._menu_firefly_toggle_rect(),
+            self.firefly_enabled,
+            "ON" if self.firefly_enabled else "OFF",
+        )
 
     def _draw_menu_step_button(self, pyxel, rect: MenuRect, label: str) -> None:
         x, y, width, height = rect
@@ -1066,6 +1190,11 @@ class LightCylinderApp:
     def _menu_rain_toggle_rect(self) -> MenuRect:
         panel_x, _panel_y, _panel_w, _panel_h = MENU_PANEL_RECT
         row_y = MENU_ROW_TOP + MENU_RAIN_TOGGLE_ROW_INDEX * MENU_ROW_HEIGHT
+        return (panel_x + 132, row_y, 92, 20)
+
+    def _menu_firefly_toggle_rect(self) -> MenuRect:
+        panel_x, _panel_y, _panel_w, _panel_h = MENU_PANEL_RECT
+        row_y = MENU_ROW_TOP + MENU_FIREFLY_TOGGLE_ROW_INDEX * MENU_ROW_HEIGHT
         return (panel_x + 132, row_y, 92, 20)
 
     def _draw_light_debug(self, pyxel) -> None:
@@ -1256,10 +1385,24 @@ def particle_draw_radius(size: float, intensity: float) -> int:
     return 0
 
 
-def select_rain_color(brightness: float) -> int:
-    if brightness > RAIN_BRIGHT_VISIBILITY_THRESHOLD:
-        return PALETTE_BRIGHT_PARTICLE
-    return PALETTE_DIM_PARTICLE
+def firefly_draw_radius(depth: float, camera_distance: float, glow: float) -> int:
+    if glow < FIREFLY_VISIBLE_THRESHOLD:
+        return 0
+    radius = 2
+    if glow >= FIREFLY_RING_THRESHOLD:
+        radius += 1
+    if depth < camera_distance - 48.0:
+        radius += 1
+    if depth < camera_distance - 120.0:
+        radius += 1
+    return min(4, radius)
+
+
+def select_rain_color(brightness: float, depth_tier: int = 1) -> int:
+    if brightness > RAIN_BRIGHT_VISIBILITY_THRESHOLD and depth_tier >= 2:
+        return RAIN_DEPTH_COLORS[3]
+    safe_tier = max(0, min(len(RAIN_DEPTH_COLORS) - 1, depth_tier))
+    return RAIN_DEPTH_COLORS[safe_tier]
 
 
 def select_splash_color(intensity: float, normalized_age: float) -> int:

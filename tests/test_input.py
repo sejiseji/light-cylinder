@@ -15,6 +15,7 @@ class FakePyxel:
     KEY_B = "b"
     KEY_W = "w"
     KEY_L = "l"
+    KEY_F = "f"
     KEY_M = "m"
     KEY_N = "n"
     KEY_Q = "q"
@@ -57,6 +58,7 @@ def test_control_intent_defaults() -> None:
     assert not intent.toggle_wind
     assert not intent.toggle_light
     assert not intent.toggle_rain
+    assert not intent.toggle_firefly
     assert not intent.toggle_observation_cycle
     assert intent.rain_intensity_delta == 0.0
     assert not intent.reset_camera
@@ -74,6 +76,7 @@ def test_control_intent_holds_values() -> None:
         toggle_wind=True,
         toggle_light=True,
         toggle_rain=True,
+        toggle_firefly=True,
         toggle_observation_cycle=True,
         rain_intensity_delta=1.0,
         reset_camera=True,
@@ -89,6 +92,7 @@ def test_control_intent_holds_values() -> None:
     assert intent.toggle_wind
     assert intent.toggle_light
     assert intent.toggle_rain
+    assert intent.toggle_firefly
     assert intent.toggle_observation_cycle
     assert intent.rain_intensity_delta == 1.0
     assert intent.reset_camera
@@ -104,6 +108,7 @@ def test_read_control_intent_from_key_state() -> None:
             FakePyxel.KEY_B,
             FakePyxel.KEY_W,
             FakePyxel.KEY_L,
+            FakePyxel.KEY_F,
             FakePyxel.KEY_M,
             FakePyxel.KEY_N,
             FakePyxel.KEY_E,
@@ -123,6 +128,7 @@ def test_read_control_intent_from_key_state() -> None:
     assert intent.toggle_wind
     assert intent.toggle_light
     assert intent.toggle_rain
+    assert intent.toggle_firefly
     assert intent.toggle_observation_cycle
     assert intent.rain_intensity_delta == 1.0
     assert intent.reset_camera

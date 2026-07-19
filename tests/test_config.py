@@ -131,6 +131,7 @@ def test_camera_config_invariants() -> None:
     assert config.RAIN_WIND_DRIFT_SCALE >= 0
     assert config.RAIN_WIND_TILT_SCALE >= 0
     assert 0.0 <= config.RAIN_BRIGHT_VISIBILITY_THRESHOLD <= 1.0
+    assert config.RAIN_DEPTH_COLORS == (5, 12, 6, 7)
     assert config.RAIN_SPLASH_LIFETIME > 0
     assert config.RAIN_SPLASH_GRAVITY >= 0
     assert config.RAIN_SPLASH_SPEED >= 0
@@ -150,6 +151,22 @@ def test_camera_config_invariants() -> None:
     assert 0.0 <= config.TIP_DROPLET_LIGHT_THRESHOLD <= 1.0
     assert config.TIP_DROPLET_HOLD_MIN <= config.TIP_DROPLET_HOLD_MAX
     assert config.TIP_DROPLET_FALL_SPEED >= 0
+    assert config.FIREFLY_SEED == 7341
+    assert config.FIREFLY_MAX_COUNT == 9
+    assert 0.0 <= config.FIREFLY_TARGET_MIN_HEIGHT_FACTOR < config.FIREFLY_TARGET_MAX_HEIGHT_FACTOR
+    assert config.FIREFLY_TARGET_MAX_HEIGHT_FACTOR <= 1.0
+    assert config.FIREFLY_TARGET_REACH_RADIUS > 0
+    assert config.FIREFLY_TARGET_MIN_DISTANCE > config.FIREFLY_TARGET_REACH_RADIUS
+    assert 0.0 < config.FIREFLY_LIFETIME_MIN <= config.FIREFLY_LIFETIME_MAX
+    assert 0.0 < config.FIREFLY_SPAWN_DELAY_MIN <= config.FIREFLY_SPAWN_DELAY_MAX
+    assert config.FIREFLY_RAIN_SPAWN_MULTIPLIER >= 0.0
+    assert config.FIREFLY_RAIN_SPAWN_MULTIPLIER < config.FIREFLY_AFTER_RAIN_SPAWN_MULTIPLIER
+    assert config.FIREFLY_AFTER_RAIN_SPAWN_MULTIPLIER < config.FIREFLY_CLEAR_SPAWN_MULTIPLIER
+    assert 0.0 <= config.FIREFLY_STRONG_RAIN_THRESHOLD <= 1.0
+    assert config.FIREFLY_MAX_SPEED > 0
+    assert config.FIREFLY_WIND_INFLUENCE < 0.2
+    assert 0.0 <= config.FIREFLY_VISIBLE_THRESHOLD < config.FIREFLY_BRIGHT_THRESHOLD
+    assert config.FIREFLY_BRIGHT_THRESHOLD < config.FIREFLY_RING_THRESHOLD <= 1.0
     assert config.LIGHT_PARTICLE_MAX_COUNT >= config.LIGHT_PARTICLE_COUNT
     assert config.LIGHT_ACCENT_BAND_COUNT == 3
     assert len(config.LIGHT_ACCENT_BAND_WIDTHS) == config.LIGHT_ACCENT_BAND_COUNT
@@ -161,6 +178,7 @@ def test_camera_config_invariants() -> None:
     assert config.MENU_GRASS_COUNTS[0] == config.GRASS_COUNT
     assert config.MENU_GRASS_COUNTS == (config.GRASS_COUNT, 375, 450)
     assert config.MENU_RAIN_INTENSITIES[0] == config.RAIN_DEFAULT_INTENSITY
+    assert config.MENU_FIREFLY_COUNTS == (3, 6, config.FIREFLY_MAX_COUNT)
     assert len(config.MENU_WIND_MULTIPLIERS) == config.MENU_STAGE_MAX
     assert config.MENU_WIND_MULTIPLIERS == (1.0, 1.85, 2.7)
     assert len(config.MENU_WIND_SPEED_MULTIPLIERS) == config.MENU_STAGE_MAX

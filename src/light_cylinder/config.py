@@ -133,6 +133,7 @@ RAIN_STATIC_STREAK_FLASH_THRESHOLD = 0.998
 RAIN_WIND_DRIFT_SCALE = 0.0
 RAIN_WIND_TILT_SCALE = 0.0
 RAIN_BRIGHT_VISIBILITY_THRESHOLD = 0.94
+RAIN_DEPTH_COLORS = (5, 12, 6, 7)
 RAIN_SPLASH_LIFETIME = 0.22
 RAIN_SPLASH_GRAVITY = 92.0
 RAIN_SPLASH_SPEED = 16.0
@@ -174,6 +175,35 @@ TIP_DROPLET_HOLD_MIN = 18.0
 TIP_DROPLET_HOLD_MAX = 32.0
 TIP_DROPLET_FALL_SPEED = 8.0
 TIP_DROPLET_SEED = 6149
+
+FIREFLY_SEED = 7341
+FIREFLY_MAX_COUNT = 9
+FIREFLY_TARGET_MIN_HEIGHT_FACTOR = 0.12
+FIREFLY_TARGET_MAX_HEIGHT_FACTOR = 0.58
+FIREFLY_TARGET_REACH_RADIUS = 14.0
+FIREFLY_TARGET_MIN_DISTANCE = 54.0
+FIREFLY_LIFETIME_MIN = 14.0
+FIREFLY_LIFETIME_MAX = 30.0
+FIREFLY_SPAWN_DELAY_MIN = 2.0
+FIREFLY_SPAWN_DELAY_MAX = 5.0
+FIREFLY_CLEAR_SPAWN_MULTIPLIER = 1.0
+FIREFLY_AFTER_RAIN_SPAWN_MULTIPLIER = 0.36
+FIREFLY_RAIN_SPAWN_MULTIPLIER = 0.12
+FIREFLY_STRONG_RAIN_THRESHOLD = 0.7
+FIREFLY_MAX_SPEED = 30.0
+FIREFLY_TARGET_ACCELERATION = 18.0
+FIREFLY_WANDER_ACCELERATION = 3.0
+FIREFLY_BOUNDARY_MARGIN = 18.0
+FIREFLY_BOUNDARY_ACCELERATION = 8.0
+FIREFLY_WIND_INFLUENCE = 0.08
+FIREFLY_VELOCITY_DAMPING = 0.97
+FIREFLY_GLOW_SPEED_MIN = 0.65
+FIREFLY_GLOW_SPEED_MAX = 1.25
+FIREFLY_VISIBLE_THRESHOLD = 0.35
+FIREFLY_BRIGHT_THRESHOLD = 0.7
+FIREFLY_RING_THRESHOLD = 0.9
+
+MENU_FIREFLY_COUNTS = (3, 6, FIREFLY_MAX_COUNT)
 
 PALETTE_PRESET = "morning"
 PALETTE_PRESETS = {
@@ -434,6 +464,10 @@ def validate_display_config() -> None:
         raise ValueError("rain wind scales must be non-negative")
     if not 0.0 <= RAIN_BRIGHT_VISIBILITY_THRESHOLD <= 1.0:
         raise ValueError("rain brightness threshold must be normalized")
+    if len(RAIN_DEPTH_COLORS) != 4:
+        raise ValueError("rain depth colors must define four tiers")
+    if any(not 0 <= color <= 15 for color in RAIN_DEPTH_COLORS):
+        raise ValueError("rain depth colors must use the Pyxel palette")
     if RAIN_SPLASH_LIFETIME <= 0 or RAIN_SPLASH_GRAVITY < 0 or RAIN_SPLASH_SPEED < 0:
         raise ValueError("rain splash timing and motion must be positive")
     if RAIN_SPLASHES_PER_IMPACT < 0:
@@ -465,6 +499,45 @@ def validate_display_config() -> None:
         raise ValueError("tip droplet hold range must be ordered")
     if TIP_DROPLET_FALL_SPEED < 0:
         raise ValueError("tip droplet fall speed must be non-negative")
+    if FIREFLY_MAX_COUNT < 0:
+        raise ValueError("firefly count must be non-negative")
+    if not (0.0 <= FIREFLY_TARGET_MIN_HEIGHT_FACTOR < FIREFLY_TARGET_MAX_HEIGHT_FACTOR <= 1.0):
+        raise ValueError("firefly height factors must be normalized and ordered")
+    if FIREFLY_TARGET_REACH_RADIUS <= 0:
+        raise ValueError("firefly target reach radius must be positive")
+    if FIREFLY_TARGET_MIN_DISTANCE <= FIREFLY_TARGET_REACH_RADIUS:
+        raise ValueError("firefly target distance must exceed reach radius")
+    if FIREFLY_LIFETIME_MIN <= 0 or FIREFLY_LIFETIME_MAX < FIREFLY_LIFETIME_MIN:
+        raise ValueError("firefly lifetime range must be positive and ordered")
+    if FIREFLY_SPAWN_DELAY_MIN <= 0 or FIREFLY_SPAWN_DELAY_MAX < FIREFLY_SPAWN_DELAY_MIN:
+        raise ValueError("firefly spawn delay range must be positive and ordered")
+    if not (
+        0.0
+        <= FIREFLY_RAIN_SPAWN_MULTIPLIER
+        <= FIREFLY_AFTER_RAIN_SPAWN_MULTIPLIER
+        <= FIREFLY_CLEAR_SPAWN_MULTIPLIER
+    ):
+        raise ValueError("firefly spawn multipliers must be normalized and ordered")
+    if not 0.0 <= FIREFLY_STRONG_RAIN_THRESHOLD <= 1.0:
+        raise ValueError("firefly rain threshold must be normalized")
+    if FIREFLY_MAX_SPEED <= 0 or FIREFLY_TARGET_ACCELERATION < 0 or FIREFLY_WANDER_ACCELERATION < 0:
+        raise ValueError("firefly motion values must be positive")
+    if FIREFLY_BOUNDARY_MARGIN <= 0 or FIREFLY_BOUNDARY_ACCELERATION < 0:
+        raise ValueError("firefly boundary values must be positive")
+    if FIREFLY_WIND_INFLUENCE < 0:
+        raise ValueError("firefly wind influence must be non-negative")
+    if not 0.0 < FIREFLY_VELOCITY_DAMPING <= 1.0:
+        raise ValueError("firefly damping must be normalized")
+    if FIREFLY_GLOW_SPEED_MIN <= 0 or FIREFLY_GLOW_SPEED_MAX < FIREFLY_GLOW_SPEED_MIN:
+        raise ValueError("firefly glow speed range must be positive and ordered")
+    if (
+        not 0.0
+        <= FIREFLY_VISIBLE_THRESHOLD
+        <= FIREFLY_BRIGHT_THRESHOLD
+        <= FIREFLY_RING_THRESHOLD
+        <= 1.0
+    ):
+        raise ValueError("firefly glow thresholds must be normalized and ordered")
     if not 0.0 <= CAMERA_INERTIA_DECAY < 1.0:
         raise ValueError("camera inertia decay must be normalized below one")
     if AUTO_ROTATE_PITCH_SWAY_AMOUNT < 0:
@@ -493,6 +566,7 @@ def _validate_menu_stages() -> None:
         MENU_WIND_SPEED_MULTIPLIERS,
         MENU_RAIN_INTENSITIES,
         MENU_AUTO_ROTATE_MULTIPLIERS,
+        MENU_FIREFLY_COUNTS,
     )
     if any(len(values) != MENU_STAGE_MAX for values in stage_sets):
         raise ValueError("menu stage value sets must have three entries")
@@ -502,8 +576,12 @@ def _validate_menu_stages() -> None:
         raise ValueError("menu grass stage 1 must match the current grass count")
     if MENU_RAIN_INTENSITIES[0] != RAIN_DEFAULT_INTENSITY:
         raise ValueError("menu rain stage 1 must match the current rain intensity")
+    if MENU_FIREFLY_COUNTS[-1] != FIREFLY_MAX_COUNT:
+        raise ValueError("menu firefly stage 3 must match the firefly cap")
     if any(value <= 0 for value in MENU_PHOTON_COUNTS + MENU_GRASS_COUNTS):
         raise ValueError("menu density stage values must be positive")
+    if any(value <= 0 for value in MENU_FIREFLY_COUNTS):
+        raise ValueError("menu firefly stage values must be positive")
     if any(
         value <= 0.0
         for value in (
