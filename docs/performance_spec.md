@@ -56,3 +56,13 @@ short-lived splash particles and can affect at most one nearby grass blade. Gras
 reaction state is one small record per blade and decays each frame. Ground
 wetness is a single scalar, not a surface simulation. There is still no puddle
 grid, ripple solver, audio engine, or per-frame random sampling.
+
+LC009 adds one constant-time environment state object and at most 28 active
+grass-tip droplets. Droplet candidates are selected once, and droplets update by
+simple hold/fall arithmetic. There is no all-blade water state, no puddle grid,
+no ripple solver, no audio engine, and no per-frame random sampling.
+
+The observation MENU pre-generates the stage-3 budgets, then draws active
+prefixes. Stage 1 remains the baseline 48 light particles and 420 grass blades;
+stage 3 raises those draw budgets to 80 particles and 620 grass blades. The rain
+stage changes intensity only and does not increase the fixed drop pool size.

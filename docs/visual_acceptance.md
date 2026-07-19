@@ -74,6 +74,22 @@ LC008-specific completion checks:
 - The clear initial scene remains unchanged.
 - Grass count 420 and 30 FPS feel are preserved.
 
+LC009-specific completion checks:
+
+- Toggling rain off enters `AFTER_RAIN` when the ground is still wet.
+- After-rain returns naturally to `CLEAR`.
+- CloudShadow feels like it slowly lifts rather than snapping brighter.
+- Wet-floor reflection lingers a little after rain stops.
+- Drying speed changes with remaining wetness.
+- Only a small subset of grass tips can hold droplets.
+- Droplets are visible only in light.
+- Droplets fall and disappear without becoming rain or sparkle noise.
+- The MENU button remains small in the top right and does not become the focal
+  point.
+- All MENU stages start at 1 so the initial viewing state remains the baseline.
+- Puddles, ripples, thunder, rain audio, and all-grass droplets remain absent.
+- The clear initial scene remains unchanged.
+
 ## Artistic Review
 
 Each wave after LC006 should end with an artistic review in addition to technical

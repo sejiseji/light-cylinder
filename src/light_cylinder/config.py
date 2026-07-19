@@ -71,6 +71,7 @@ GUST_STRENGTH = 0.36
 
 LIGHT_SEED = 4055
 LIGHT_PARTICLE_COUNT = 48
+LIGHT_PARTICLE_MAX_COUNT = 80
 LIGHT_GROUND_SPARK_COUNT = 28
 LIGHT_BEAM_ORIGIN = (-34.0, 246.0, -22.0)
 LIGHT_BEAM_DIRECTION = (0.22, -1.0, 0.18)
@@ -118,6 +119,29 @@ RAIN_GROUND_DRY_RATE = 0.035
 RAIN_GRASS_IMPACT_RADIUS = 12.0
 RAIN_GRASS_IMPACT_DECAY_RATE = 4.2
 RAIN_GRASS_REACTION_BEND_SCALE = 4.8
+
+MENU_STAGE_MIN = 1
+MENU_STAGE_MAX = 3
+MENU_PHOTON_COUNTS = (LIGHT_PARTICLE_COUNT, 64, LIGHT_PARTICLE_MAX_COUNT)
+MENU_GRASS_COUNTS = (GRASS_COUNT, 520, 620)
+MENU_WIND_MULTIPLIERS = (1.0, 1.35, 1.7)
+MENU_RAIN_INTENSITIES = (RAIN_DEFAULT_INTENSITY, 0.65, 0.85)
+MENU_AUTO_ROTATE_MULTIPLIERS = (1.0, 1.45, 1.9)
+
+AFTER_RAIN_MIN_WETNESS = 0.05
+AFTER_RAIN_CLEAR_WETNESS = 0.035
+AFTER_RAIN_MIN_DURATION = 7.0
+AFTER_RAIN_CLOUD_RECOVERY_RATE = 0.055
+AFTER_RAIN_LIGHT_SHADOW_AMOUNT = 0.1
+AFTER_RAIN_REFLECTION_DECAY_RATE = 0.045
+AFTER_RAIN_DRY_RATE_MIN = 0.38
+AFTER_RAIN_DRY_RATE_MAX = 1.25
+TIP_DROPLET_MAX_COUNT = 28
+TIP_DROPLET_LIGHT_THRESHOLD = 0.24
+TIP_DROPLET_HOLD_MIN = 18.0
+TIP_DROPLET_HOLD_MAX = 32.0
+TIP_DROPLET_FALL_SPEED = 8.0
+TIP_DROPLET_SEED = 6149
 
 PALETTE_PRESET = "morning"
 PALETTE_PRESETS = {
@@ -301,6 +325,8 @@ def validate_display_config() -> None:
         raise ValueError("light particle random walk must be non-negative")
     if LIGHT_PARTICLE_VISIBILITY_THRESHOLD < 0 or LIGHT_GROUND_SPARK_THRESHOLD < 0:
         raise ValueError("light visibility thresholds must be non-negative")
+    if LIGHT_PARTICLE_COUNT <= 0 or LIGHT_PARTICLE_MAX_COUNT < LIGHT_PARTICLE_COUNT:
+        raise ValueError("light particle counts must be positive and ordered")
     if not (
         0.0
         <= LIGHT_GRASS_THRESHOLD_LOW
@@ -341,6 +367,25 @@ def validate_display_config() -> None:
         raise ValueError("rain grass impact radius must be positive")
     if RAIN_GRASS_IMPACT_DECAY_RATE < 0 or RAIN_GRASS_REACTION_BEND_SCALE < 0:
         raise ValueError("rain grass reaction values must be non-negative")
+    _validate_menu_stages()
+    if not 0.0 <= AFTER_RAIN_CLEAR_WETNESS <= AFTER_RAIN_MIN_WETNESS <= 1.0:
+        raise ValueError("after-rain wetness thresholds must be ordered")
+    if AFTER_RAIN_MIN_DURATION < 0:
+        raise ValueError("after-rain minimum duration must be non-negative")
+    if not 0.0 <= AFTER_RAIN_LIGHT_SHADOW_AMOUNT <= 1.0:
+        raise ValueError("after-rain light shadow amount must be normalized")
+    if AFTER_RAIN_CLOUD_RECOVERY_RATE < 0 or AFTER_RAIN_REFLECTION_DECAY_RATE < 0:
+        raise ValueError("after-rain recovery rates must be non-negative")
+    if not 0.0 <= AFTER_RAIN_DRY_RATE_MIN <= AFTER_RAIN_DRY_RATE_MAX:
+        raise ValueError("after-rain dry rate range must be ordered")
+    if TIP_DROPLET_MAX_COUNT < 0:
+        raise ValueError("tip droplet count must be non-negative")
+    if not 0.0 <= TIP_DROPLET_LIGHT_THRESHOLD <= 1.0:
+        raise ValueError("tip droplet light threshold must be normalized")
+    if TIP_DROPLET_HOLD_MIN < 0 or TIP_DROPLET_HOLD_MAX < TIP_DROPLET_HOLD_MIN:
+        raise ValueError("tip droplet hold range must be ordered")
+    if TIP_DROPLET_FALL_SPEED < 0:
+        raise ValueError("tip droplet fall speed must be non-negative")
     if not 0.0 <= CAMERA_INERTIA_DECAY < 1.0:
         raise ValueError("camera inertia decay must be normalized below one")
     if PALETTE_PRESET not in PALETTE_PRESETS:
@@ -351,3 +396,32 @@ def validate_display_config() -> None:
         for color in preset.values():
             if not 0 <= color <= 15:
                 raise ValueError("palette color values must use the Pyxel palette")
+
+
+def _validate_menu_stages() -> None:
+    if MENU_STAGE_MIN != 1 or MENU_STAGE_MAX != 3:
+        raise ValueError("menu stages must be the 1..3 range")
+    stage_sets = (
+        MENU_PHOTON_COUNTS,
+        MENU_GRASS_COUNTS,
+        MENU_WIND_MULTIPLIERS,
+        MENU_RAIN_INTENSITIES,
+        MENU_AUTO_ROTATE_MULTIPLIERS,
+    )
+    if any(len(values) != MENU_STAGE_MAX for values in stage_sets):
+        raise ValueError("menu stage value sets must have three entries")
+    if MENU_PHOTON_COUNTS[0] != LIGHT_PARTICLE_COUNT:
+        raise ValueError("menu photon stage 1 must match the current particle count")
+    if MENU_GRASS_COUNTS[0] != GRASS_COUNT:
+        raise ValueError("menu grass stage 1 must match the current grass count")
+    if MENU_RAIN_INTENSITIES[0] != RAIN_DEFAULT_INTENSITY:
+        raise ValueError("menu rain stage 1 must match the current rain intensity")
+    if any(value <= 0 for value in MENU_PHOTON_COUNTS + MENU_GRASS_COUNTS):
+        raise ValueError("menu density stage values must be positive")
+    if any(value <= 0.0 for value in MENU_WIND_MULTIPLIERS + MENU_AUTO_ROTATE_MULTIPLIERS):
+        raise ValueError("menu motion multipliers must be positive")
+    if any(not 0.0 <= value <= 1.0 for value in MENU_RAIN_INTENSITIES):
+        raise ValueError("menu rain intensities must be normalized")
+    for values in stage_sets:
+        if tuple(sorted(values)) != values:
+            raise ValueError("menu stage values must be ordered")

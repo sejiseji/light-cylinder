@@ -1,4 +1,5 @@
 from light_cylinder.app import (
+    MENU_BUTTON_RECT,
     LightCylinderApp,
     select_floor_color,
     select_grass_color,
@@ -8,6 +9,7 @@ from light_cylinder.app import (
     select_splash_color,
 )
 from light_cylinder.config import (
+    MENU_RAIN_INTENSITIES,
     PALETTE_BRIGHT_PARTICLE,
     PALETTE_DIM_PARTICLE,
     PALETTE_DISTANT_GRASS,
@@ -72,3 +74,27 @@ def test_camera_reset_clears_inertia() -> None:
     app._reset_camera()
 
     assert app.camera_pitch_velocity == 0.0
+
+
+def test_menu_button_toggles_observation_panel() -> None:
+    app = LightCylinderApp()
+    x, y, width, height = MENU_BUTTON_RECT
+
+    handled = app._handle_menu_click_at(x + width // 2, y + height // 2)
+
+    assert handled
+    assert app.menu_open
+
+
+def test_menu_stepper_updates_stage_and_rain_amount() -> None:
+    app = LightCylinderApp()
+    app.menu_open = True
+    rain_index = 3
+    _minus_rect, plus_rect = app._menu_stepper_rects(rain_index)
+    x, y, width, height = plus_rect
+
+    handled = app._handle_menu_click_at(x + width // 2, y + height // 2)
+
+    assert handled
+    assert app.tuning.rain == 2
+    assert app.rain_field.intensity == MENU_RAIN_INTENSITIES[1]

@@ -140,12 +140,16 @@ class LightField:
     elapsed_time: float = 0.0
 
     @classmethod
-    def create_default(cls, world: CylinderWorld) -> LightField:
+    def create_default(
+        cls,
+        world: CylinderWorld,
+        particle_count: int = LIGHT_PARTICLE_COUNT,
+    ) -> LightField:
         beam = LightBeam.create_default()
         rng = Random(LIGHT_SEED)
         return cls(
             beam=beam,
-            particles=_generate_particles(beam, rng),
+            particles=_generate_particles(beam, rng, particle_count),
             ground_sparks=_generate_ground_sparks(world, beam, rng),
         )
 
@@ -167,9 +171,15 @@ class LightField:
         return max(LIGHT_CLOUD_SHADOW_FLOOR, multiplier)
 
 
-def _generate_particles(beam: LightBeam, rng: Random) -> tuple[LightParticle, ...]:
+def _generate_particles(
+    beam: LightBeam,
+    rng: Random,
+    particle_count: int,
+) -> tuple[LightParticle, ...]:
+    if particle_count < 0:
+        raise ValueError("particle count must be non-negative")
     particles: list[LightParticle] = []
-    for _index in range(LIGHT_PARTICLE_COUNT):
+    for _index in range(particle_count):
         normalized_radius = rng.random() ** 0.72
         particles.append(
             LightParticle(

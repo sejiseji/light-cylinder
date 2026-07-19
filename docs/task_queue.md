@@ -12,14 +12,14 @@
 - LC006.5: observation polish
 - LC007: Rain Through the Light
 - LC008: rain, grass, and ground reactions
+- LC009: After Rain
 
 ## NEXT
 
-- LC009: weather transitions
+- LC010: title and UI
 
 ## LATER
 
-- LC010: title and UI
 - LC011: touch controls
 - LC012: ambience and audio
 - LC013: web and iOS packaging

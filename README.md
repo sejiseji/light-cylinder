@@ -11,11 +11,12 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC008 adds restrained rain reactions. The scene still starts clear; pressing `N`
-introduces sparse wind-slanted rain, small ground splashes, local grass presses,
-ground wetness, and weak wet-floor light reflection. Rain amount can be adjusted
-with `Q` and `E`. Puddles, ripples, thunder, rain audio, retained water drops,
-touch input, and web packaging remain later waves.
+LC009 adds an `AFTER_RAIN` observation state. The scene still starts clear;
+pressing `N` introduces rain, and pressing `N` again lets the cylinder slowly
+return toward clear air: CloudShadow lifts, wet ground dries, weak reflections
+linger, and a small set of grass-tip droplets remain visible only in light before
+falling away. Puddles, ripples, thunder, rain audio, all-grass droplets, touch
+input, and web packaging remain later waves.
 
 ## Display Model
 
@@ -47,12 +48,18 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC008 screen starts in a clear viewing state: light on, wind on, rain off,
+The LC009 screen starts in a clear viewing state: light on, wind on, rain off,
 boundary off, debug off, auto rotate off. It shows wind-animated grass, sparse
 particles, tip lighting, and subtle floor light without drawing the beam itself.
 Debug mode adds camera state, draw counters, the centered composition safe area,
-rain counters, splash count, wetness, grass reaction count, and light axis/radius
-guides.
+environment phase, rain counters, splash count, wetness, grass reaction count,
+tip droplet count, and light axis/radius guides.
+
+The top-right `MENU` button opens a small observation panel. Photon density,
+grass density, wind strength, rain amount, and auto-rotate speed are adjustable
+from stage 1 to 3. Stage 1 is the current baseline look. These settings are
+session-only and reset to stage 1 after restart. `RAIN` changes only the rain
+amount preset; rain still starts and stops through `N`.
 
 ## Controls
 
@@ -69,6 +76,7 @@ guides.
 - Q and E: decrease and increase rain amount
 - R: reset camera
 - D: toggle debug HUD, reference axes, and light guides
+- MENU button: open the observation tuning panel
 - ESC: quit
 
 ## Validate

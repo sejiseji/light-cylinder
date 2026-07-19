@@ -275,6 +275,69 @@ allows a weak reflection color only where light is already present. LC008 does
 not add puddles, ripple simulation, grass-tip water retention, thunder, rain
 audio, or after-rain transitions.
 
+## After Rain
+
+LC009 adds `EnvironmentState` in `environment.py`. It is Pyxel-independent and
+keeps the weather model deliberately small:
+
+```text
+CLEAR
+RAIN
+AFTER_RAIN
+```
+
+`N` still toggles rain. Turning rain off while ground wetness remains enters
+`AFTER_RAIN`; otherwise the scene returns to `CLEAR`. During after-rain, the
+environment slowly reduces its extra cloud shadow, keeps a weak wet-floor
+reflection afterglow, changes drying speed based on remaining wetness, and
+returns naturally to `CLEAR` after a short minimum duration and enough drying.
+
+LC009 does not alter `LightField` internals. Instead, app-level light sampling
+multiplies the existing CloudShadow value by `EnvironmentState.light_multiplier`.
+This preserves the LC006.5 CloudShadow implementation while allowing rain clouds
+to clear after rainfall.
+
+Tip droplets are stored in `TipDropletField` in `reactions.py`. Only a fixed
+small candidate set of grass blades can receive droplets, and droplets are seeded
+only when transitioning from `RAIN` to `AFTER_RAIN`. They are rendered only if
+their sampled point is inside enough light. Each droplet holds for a short
+deterministic time, then falls vertically and disappears. LC009 intentionally
+does not attach water to all 420 blades.
+
+LC009 draw order keeps droplets quiet:
+
+1. fixed dark background with sparse vertical bands
+2. floor grid with light/wetness/reflection-aware midpoint color
+3. optional cylinder boundary
+4. light particles
+5. light-gated rain segments
+6. splash pixels
+7. wind/reaction-sampled, depth-sorted grass
+8. light-gated tip droplet pixels
+9. floor spark pixels
+10. debug-only axes, reference points, safe area, counters, and light guides
+
+Puddles, ripple simulation, thunder, rain audio, and all-grass droplet retention
+remain out of scope.
+
+## Observation Menu
+
+The top-right MENU button opens an overlay panel with five 1-3 stage controls.
+All controls start at stage 1, which is the LC009 baseline:
+
+- photon density: draws the first 48, 64, or 80 generated light particles
+- grass density: draws the first 420, 520, or 620 generated grass blades
+- wind strength: multiplies sampled wind by 1.0, 1.35, or 1.7
+- rain amount: sets rain intensity to 0.45, 0.65, or 0.85
+- auto rotate speed: multiplies auto-rotate by 1.0, 1.45, or 1.9
+
+The app pre-generates the maximum particle and grass budgets, then draws the
+active prefix for the selected stage. This keeps stage changes deterministic and
+avoids regenerating scene data while the observation is running.
+The grass control changes draw density, not the deterministic generated field.
+The rain control changes only the amount preset and does not toggle rain on or
+off. Settings are not persisted; every launch starts from stage 1.
+
 ## Resource Resolution
 
 Runtime resources should be resolved relative to source files with pathlib or

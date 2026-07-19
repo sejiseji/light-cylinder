@@ -19,7 +19,15 @@ comparison while keeping the clear scene as the default:
 - Q and E: decrease and increase rain amount
 - R: reset camera to the viewing composition
 - D: toggle debug HUD, camera details, reference axes, and light guides
+- Top-right MENU button: open the observation tuning panel
 - ESC: exit
+
+The MENU panel exposes five 1-3 stage controls: photon density, grass density,
+wind strength, rain amount, and auto-rotate speed. Stage 1 is the current
+baseline composition for all five controls. Settings are session-only and reset
+to stage 1 on restart. The rain stage changes only the rain amount preset; rain
+ON/OFF remains controlled by `N`. The panel captures mouse input only inside its
+button and panel region, so normal drag rotation continues elsewhere.
 
 Touch controls are planned for a later wave after camera and scene behavior are
 stable enough to test on mobile layouts.

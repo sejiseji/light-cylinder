@@ -106,6 +106,12 @@ light, it may catch a weak reflection color. These reactions should feel like
 touch, not spectacle: no puddles, ripples, retained droplets, thunder, or rain
 audio are added.
 
+LC009 adds after-rain as a quiet return toward clear air. Rain clouds should lift
+slowly, wet floor cues should linger briefly, and only a few grass tips may hold
+water. Droplets should appear as rare light catches, not jewelry or sparkle
+noise, and should fall away naturally. The state should make time feel preserved
+inside the cylinder without changing the work into a rain scene.
+
 ## Vertical Composition
 
 The composition is tall and mobile-first. The internal render size is 448 x 852,

@@ -48,6 +48,12 @@ def test_light_field_generates_sparse_particles_and_ground_sparks() -> None:
     assert all(field.beam.intensity_at(spark.position) > 0.0 for spark in field.ground_sparks)
 
 
+def test_light_field_can_generate_a_larger_particle_budget() -> None:
+    field = LightField.create_default(CylinderWorld(), particle_count=LIGHT_PARTICLE_COUNT + 4)
+
+    assert len(field.particles) == LIGHT_PARTICLE_COUNT + 4
+
+
 def test_light_particles_stay_inside_beam() -> None:
     field = LightField.create_default(CylinderWorld())
 

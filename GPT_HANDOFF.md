@@ -8,7 +8,7 @@ cylindrical natural space.
 
 ## Current Wave
 
-LC008 Rain Reactions.
+LC009 After Rain.
 
 ## Completed
 
@@ -66,12 +66,20 @@ LC008 Rain Reactions.
 - Global ground wetness with slow drying after rain stops
 - Local grass press reactions stored separately from static `GrassBlade` data
 - Wet floor darkening and weak light reflection
+- Pyxel-independent `EnvironmentState` with `CLEAR`, `RAIN`, and `AFTER_RAIN`
+- Rain OFF transition into after-rain recovery when wetness remains
+- CloudShadow recovery multiplier layered over the existing light field
+- Wet-floor reflection afterglow that can outlive raw wetness
+- Small fixed candidate set for grass-tip droplets after rain
+- Tip droplets visible only when they sample enough light
+- Tip droplets naturally fall and disappear
+- Top-right MENU panel for 1-3 stage observation tuning
+- Stage 1 keeps the baseline look for photons, grass, wind, rain, and auto rotate
 
 ## Not Completed
 
-Puddles, ripple simulation, retained grass-tip droplets, thunder, rain audio,
-after-rain weather transition, touch controls, web packaging, and iOS packaging
-are intentionally not implemented yet.
+Puddles, ripple simulation, thunder, rain audio, all-grass water drops, touch
+controls, web packaging, and iOS packaging are intentionally not implemented yet.
 
 ## Run
 
@@ -205,6 +213,21 @@ Initial camera:
 - Grass reaction state is separate from immutable `GrassBlade` data
 - Initial state: wetness zero, no splashes, no active grass reactions
 
+## After Rain
+
+- Environment phases: `CLEAR`, `RAIN`, `AFTER_RAIN`
+- Minimum after-rain duration: 7.0 seconds
+- After-rain entry wetness: 0.05
+- Clear return wetness: 0.035
+- Cloud recovery rate: 0.055
+- Additional shadow amount: 0.10
+- Wet reflection decay rate: 0.045
+- After-rain dry-rate range: 0.38 to 1.25
+- Tip droplet candidates: 28 blades
+- Tip droplet light threshold: 0.24
+- Tip droplet hold range: 2.8 to 8.4 seconds
+- Tip droplet fall speed: 18
+
 ## Palette
 
 - active preset: morning
@@ -252,13 +275,16 @@ LC006.5 added Artistic Review notes to every wave result from now on.
 
 ## Performance
 
-- Grass count: 420
-- Nominal segments: 2,100
+- Grass count: 420 baseline, 620 stage-3 draw budget
+- Nominal segments: 2,100 baseline, 3,100 stage-3 draw budget
 - Typical visible particles in debug review: about 29 to 36
+- Light particles: 48 baseline, 80 stage-3 draw budget
 - Rain candidates: 64, with about 29 active at the default 0.45 amount before
   light gating
 - LC008 reaction work is impact-event based; no puddle grid, ripple simulation,
   audio, or per-frame random sampling is added
+- LC009 adds one small environment state object and at most 28 tip droplets;
+  droplet candidates are fixed and no per-frame random sampling is added
 - Approximate line draw calls are reported in debug HUD
 - GUI review kept a stable 30 FPS feel with light, wind, particles, boundary
   on/off, zoom, and slow auto rotate.
@@ -271,16 +297,16 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000 through LC007 were committed and pushed with approval, and
-`prototype-v0.1.0` marks the first observation prototype. LC008 is in the working
+LC000 through LC008 were committed and pushed with approval, and
+`prototype-v0.1.0` marks the first observation prototype. LC009 is in the working
 tree until explicitly approved for commit. Future commits, pushes, and tags
 require user approval.
 
 ## Next Wave
 
-Next work should review whether LC008 needs visual balancing before moving into
-weather transitions. Puddles, ripples, retained droplets, and after-rain states
-remain intentionally separate.
+Next work should review whether after-rain needs visual balancing before adding
+larger weather transitions. Puddles, ripples, thunder, and rain audio remain
+intentionally separate.
 
 ## Design Decisions
 

@@ -21,8 +21,8 @@ distance, and debug visibility without turning the work into an action game.
 
 The MVP should establish a stable mobile-first vertical composition, a
 cylindrical observation volume, procedural grass, layered wind, sliced light,
-optional rain-through-light, restrained rain reactions, and simple touch
-controls.
+optional rain-through-light, restrained rain reactions, after-rain recovery, and
+simple touch controls.
 
 ## Out Of Scope For MVP
 

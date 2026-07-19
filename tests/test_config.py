@@ -114,6 +114,24 @@ def test_camera_config_invariants() -> None:
     assert config.RAIN_GRASS_IMPACT_RADIUS > 0
     assert config.RAIN_GRASS_IMPACT_DECAY_RATE >= 0
     assert config.RAIN_GRASS_REACTION_BEND_SCALE >= 0
+    assert 0.0 <= config.AFTER_RAIN_CLEAR_WETNESS <= config.AFTER_RAIN_MIN_WETNESS <= 1.0
+    assert config.AFTER_RAIN_MIN_DURATION >= 0
+    assert config.AFTER_RAIN_CLOUD_RECOVERY_RATE >= 0
+    assert 0.0 <= config.AFTER_RAIN_LIGHT_SHADOW_AMOUNT <= 1.0
+    assert config.AFTER_RAIN_REFLECTION_DECAY_RATE >= 0
+    assert 0.0 <= config.AFTER_RAIN_DRY_RATE_MIN <= config.AFTER_RAIN_DRY_RATE_MAX
+    assert config.TIP_DROPLET_MAX_COUNT >= 0
+    assert 0.0 <= config.TIP_DROPLET_LIGHT_THRESHOLD <= 1.0
+    assert config.TIP_DROPLET_HOLD_MIN <= config.TIP_DROPLET_HOLD_MAX
+    assert config.TIP_DROPLET_FALL_SPEED >= 0
+    assert config.LIGHT_PARTICLE_MAX_COUNT >= config.LIGHT_PARTICLE_COUNT
+    assert config.MENU_STAGE_MIN == 1
+    assert config.MENU_STAGE_MAX == 3
+    assert config.MENU_PHOTON_COUNTS[0] == config.LIGHT_PARTICLE_COUNT
+    assert config.MENU_GRASS_COUNTS[0] == config.GRASS_COUNT
+    assert config.MENU_RAIN_INTENSITIES[0] == config.RAIN_DEFAULT_INTENSITY
+    assert len(config.MENU_WIND_MULTIPLIERS) == config.MENU_STAGE_MAX
+    assert len(config.MENU_AUTO_ROTATE_MULTIPLIERS) == config.MENU_STAGE_MAX
     for name in dir(config):
         if name.startswith("PALETTE_"):
             value = getattr(config, name)
