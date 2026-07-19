@@ -15,9 +15,39 @@ from light_cylinder.config import (
     GRASS_COUNT,
     GRASS_SEED,
     GRASS_SEGMENTS,
+    LIGHT_FLOOR_THRESHOLD_HIGH,
+    LIGHT_FLOOR_THRESHOLD_LOW,
+    LIGHT_FLOOR_THRESHOLD_MEDIUM,
+    LIGHT_GRASS_THRESHOLD_HIGH,
+    LIGHT_GRASS_THRESHOLD_LOW,
+    LIGHT_GRASS_THRESHOLD_MEDIUM,
+    LIGHT_GROUND_SPARK_THRESHOLD,
+    LIGHT_PARTICLE_VISIBILITY_THRESHOLD,
     MOUSE_PITCH_SPEED,
     MOUSE_WHEEL_ZOOM_SPEED,
     MOUSE_YAW_SPEED,
+    PALETTE_AXIS_X,
+    PALETTE_AXIS_Y,
+    PALETTE_AXIS_Z,
+    PALETTE_BACKGROUND,
+    PALETTE_BACKGROUND_BAND,
+    PALETTE_BRIGHT_PARTICLE,
+    PALETTE_CYLINDER_FAR_EDGE,
+    PALETTE_CYLINDER_NEAR_EDGE,
+    PALETTE_CYLINDER_VERTICAL,
+    PALETTE_DEBUG_ACCENT,
+    PALETTE_DEBUG_FRAME,
+    PALETTE_DEBUG_TEXT,
+    PALETTE_DIM_PARTICLE,
+    PALETTE_DISTANT_GRASS,
+    PALETTE_FOREGROUND_GRASS,
+    PALETTE_GROUND_LIGHT,
+    PALETTE_GROUND_SHADOW,
+    PALETTE_GROUND_STRONG_LIGHT,
+    PALETTE_LIT_GRASS,
+    PALETTE_NORMAL_GRASS,
+    PALETTE_SAFE_AREA,
+    PALETTE_STRONGLY_LIT_GRASS,
     PROJECT_TITLE,
     RENDER_HEIGHT,
     RENDER_WIDTH,
@@ -45,8 +75,8 @@ class LightCylinderApp:
         self.camera = Camera.create_default()
         self.mouse_state = MouseInputState()
         self.auto_rotate = False
-        self.debug_visible = True
-        self.boundary_visible = True
+        self.debug_visible = False
+        self.boundary_visible = False
         self.wind_enabled = True
         self.light_enabled = True
         self.cylinder_lines = self._build_cylinder_lines()
@@ -58,6 +88,8 @@ class LightCylinderApp:
         self.visible_blade_count = 0
         self.visible_segment_count = 0
         self.visible_particle_count = 0
+        self.lit_segment_count = 0
+        self.approx_line_draw_calls = 0
 
     def run(self) -> None:
         import pyxel
@@ -93,6 +125,8 @@ class LightCylinderApp:
             self.wind_enabled = not self.wind_enabled
         if intent.toggle_light:
             self.light_enabled = not self.light_enabled
+        if intent.reset_camera:
+            self.camera = Camera.create_default()
 
         dt = 1.0 / TARGET_FPS
         self.wind_field.update(dt)
@@ -106,9 +140,16 @@ class LightCylinderApp:
     def draw(self) -> None:
         import pyxel
 
-        pyxel.cls(1)
+        self.approx_line_draw_calls = 0
+        self._draw_background(pyxel)
         self._draw_cylinder_scene(pyxel)
         self._draw_debug(pyxel)
+
+    def _draw_background(self, pyxel) -> None:
+        pyxel.cls(PALETTE_BACKGROUND)
+        for x in range(SAFE_LEFT, SAFE_RIGHT, 16):
+            if x % 32 == 0:
+                pyxel.line(x, 0, x, RENDER_HEIGHT - 1, PALETTE_BACKGROUND_BAND)
 
     def _draw_cylinder_scene(self, pyxel) -> None:
         self._draw_floor(pyxel)
@@ -138,12 +179,12 @@ class LightCylinderApp:
             return
 
         for spark in self.light_field.ground_sparks:
-            intensity = self.light_field.beam.intensity_at(spark.position) * spark.brightness
-            if intensity < 0.28:
+            intensity = self._light_intensity_at(spark.position) * spark.brightness
+            if intensity < LIGHT_GROUND_SPARK_THRESHOLD:
                 continue
             projected = self.camera.project(spark.position)
             if projected is not None:
-                color = 7 if intensity > 0.7 else 10
+                color = PALETTE_GROUND_STRONG_LIGHT if intensity > 0.7 else PALETTE_GROUND_LIGHT
                 pyxel.pset(self._screen_int(projected.x), self._screen_int(projected.y), color)
 
     def _draw_light_particles(self, pyxel) -> None:
@@ -157,14 +198,14 @@ class LightCylinderApp:
             sortable.append((depth, particle, position))
 
         for _depth, particle, position in sorted(sortable, key=lambda item: item[0], reverse=True):
-            intensity = self.light_field.beam.intensity_at(position) * particle.brightness
-            if intensity < 0.24:
+            intensity = self._light_intensity_at(position) * particle.brightness
+            if intensity < LIGHT_PARTICLE_VISIBILITY_THRESHOLD:
                 continue
             projected = self.camera.project(position)
             if projected is None:
                 continue
 
-            color = 7 if intensity > 0.72 else 10 if intensity > 0.45 else 6
+            color = select_particle_color(intensity)
             x = self._screen_int(projected.x)
             y = self._screen_int(projected.y)
             if intensity > 0.78:
@@ -176,6 +217,7 @@ class LightCylinderApp:
     def _draw_grass(self, pyxel) -> None:
         self.visible_blade_count = 0
         self.visible_segment_count = 0
+        self.lit_segment_count = 0
         sortable: list[tuple[float, LitGrassPath]] = []
         for blade in self.grass_field.blades:
             points = self._sample_current_blade_points(blade)
@@ -194,7 +236,7 @@ class LightCylinderApp:
             segment_count = len(points) - 1
             for segment_index, (start, end) in enumerate(pairwise(points)):
                 color = self._grass_segment_color(light_colors, segment_index, segment_count)
-                if self._draw_grass_segment(
+                draw_calls = self._draw_grass_segment(
                     pyxel,
                     start,
                     end,
@@ -202,9 +244,13 @@ class LightCylinderApp:
                     blade.width_class,
                     segment_index,
                     segment_count,
-                ):
+                )
+                if draw_calls:
                     blade_visible = True
                     self.visible_segment_count += 1
+                    self.approx_line_draw_calls += draw_calls
+                    if color in (PALETTE_LIT_GRASS, PALETTE_STRONGLY_LIT_GRASS):
+                        self.lit_segment_count += 1
             if blade_visible:
                 self.visible_blade_count += 1
 
@@ -213,7 +259,9 @@ class LightCylinderApp:
                 if light_colors[2] != light_colors[1]:
                     pyxel.pset(self._screen_int(tip.x), self._screen_int(tip.y), light_colors[2])
                 elif blade.color_variant == 2:
-                    pyxel.pset(self._screen_int(tip.x), self._screen_int(tip.y), 11)
+                    pyxel.pset(
+                        self._screen_int(tip.x), self._screen_int(tip.y), PALETTE_NORMAL_GRASS
+                    )
 
     def _sample_current_blade_points(self, blade: GrassBlade) -> tuple[Vec3, ...]:
         if not self.wind_enabled:
@@ -230,17 +278,18 @@ class LightCylinderApp:
         width_class: int,
         segment_index: int,
         segment_count: int,
-    ) -> bool:
+    ) -> int:
         projected_start = self.camera.project(start)
         projected_end = self.camera.project(end)
         if projected_start is None or projected_end is None:
-            return False
+            return 0
 
         x1 = self._screen_int(projected_start.x)
         y1 = self._screen_int(projected_start.y)
         x2 = self._screen_int(projected_end.x)
         y2 = self._screen_int(projected_end.y)
         pyxel.line(x1, y1, x2, y2, color)
+        draw_calls = 1
         for offset_x, offset_y in self._grass_taper_offsets(
             x1,
             y1,
@@ -251,7 +300,8 @@ class LightCylinderApp:
             segment_count,
         ):
             pyxel.line(x1 + offset_x, y1 + offset_y, x2 + offset_x, y2 + offset_y, color)
-        return True
+            draw_calls += 1
+        return draw_calls
 
     def _grass_taper_offsets(
         self,
@@ -280,13 +330,7 @@ class LightCylinderApp:
         return (perpendicular, (-perpendicular[0], -perpendicular[1]))
 
     def _grass_color(self, blade: GrassBlade, depth: float) -> int:
-        if depth > self.camera.distance + 80:
-            return 3
-        if blade.color_variant == 0:
-            return 11
-        if blade.color_variant == 1:
-            return 10
-        return 3
+        return select_grass_color(blade.color_variant, depth > self.camera.distance + 80)
 
     def _grass_light_colors(
         self,
@@ -302,20 +346,8 @@ class LightCylinderApp:
         return (root, middle, tip)
 
     def _grass_light_color(self, point: Vec3, base_color: int, tier_weight: float) -> int:
-        intensity = self.light_field.beam.intensity_at(point) * tier_weight
-        if tier_weight >= 1.0:
-            if intensity > 0.52:
-                return 7
-            if intensity > 0.28:
-                return 10
-            if intensity > 0.12:
-                return 11
-            return base_color
-        if intensity > 0.64:
-            return 7
-        if intensity > 0.4:
-            return 10
-        return base_color
+        intensity = self._light_intensity_at(point) * tier_weight
+        return select_grass_light_color(base_color, intensity, tier_weight)
 
     def _grass_segment_color(
         self,
@@ -334,27 +366,28 @@ class LightCylinderApp:
     def _floor_color(self, point: Vec3, base_color: int) -> int:
         if not self.light_enabled:
             return base_color
-        intensity = self.light_field.beam.intensity_at(point)
-        if intensity > 0.72:
-            return 7
-        if intensity > 0.36:
-            return 10
-        if intensity > 0.16:
-            return 13
-        return base_color
+        return select_floor_color(base_color, self._light_intensity_at(point))
+
+    def _light_intensity_at(self, point: Vec3) -> float:
+        return self.light_field.beam.intensity_at(point) * self.light_field.intensity_multiplier
 
     def _draw_reference_points(self, pyxel) -> None:
         origin = self.world.bottom_center
         projected_origin = self.camera.project(origin)
         if projected_origin is not None:
-            pyxel.circ(int(projected_origin.x), int(projected_origin.y), 3, 7)
-            pyxel.text(int(projected_origin.x) + 5, int(projected_origin.y) + 4, "O", 7)
+            pyxel.circ(int(projected_origin.x), int(projected_origin.y), 3, PALETTE_DEBUG_TEXT)
+            pyxel.text(
+                int(projected_origin.x) + 5,
+                int(projected_origin.y) + 4,
+                "O",
+                PALETTE_DEBUG_TEXT,
+            )
 
         for point, color, label in (
-            (self.world.sample_bottom_point(0.0, 0.0), 7, "C"),
-            (self.world.sample_bottom_point(1.0, 0.0), 8, "+X"),
-            (self.world.sample_bottom_point(1.0, 0.25), 12, "+Z"),
-            (self.world.top_center, 11, "TOP"),
+            (self.world.sample_bottom_point(0.0, 0.0), PALETTE_DEBUG_TEXT, "C"),
+            (self.world.sample_bottom_point(1.0, 0.0), PALETTE_AXIS_X, "+X"),
+            (self.world.sample_bottom_point(1.0, 0.25), PALETTE_AXIS_Z, "+Z"),
+            (self.world.top_center, PALETTE_AXIS_Y, "TOP"),
         ):
             projected = self.camera.project(point)
             if projected is not None:
@@ -365,40 +398,83 @@ class LightCylinderApp:
         if not self.debug_visible:
             return
 
-        pyxel.text(SAFE_LEFT + 8, 12, PROJECT_TITLE, 7)
-        pyxel.text(SAFE_LEFT + 8, 24, "LC005 LIGHT MEDIUM", 6)
-        pyxel.text(SAFE_LEFT + 8, 36, "ARROWS/DRAG YAW-PITCH", 6)
-        pyxel.text(SAFE_LEFT + 8, 48, "A/S/WHEEL ZOOM  L LIGHT", 6)
-        pyxel.text(SAFE_LEFT + 8, 60, "D DEBUG  ESC QUIT", 6)
-        pyxel.text(SAFE_LEFT + 8, 72, f"AUTO {'ON' if self.auto_rotate else 'OFF'}", 10)
-        pyxel.text(SAFE_LEFT + 8, 84, f"BOUNDARY {'ON' if self.boundary_visible else 'OFF'}", 10)
-        pyxel.text(SAFE_LEFT + 8, 96, f"WIND {'ON' if self.wind_enabled else 'OFF'}", 10)
-        pyxel.text(SAFE_LEFT + 8, 108, f"LIGHT {'ON' if self.light_enabled else 'OFF'}", 10)
+        pyxel.text(SAFE_LEFT + 8, 12, PROJECT_TITLE, PALETTE_BRIGHT_PARTICLE)
+        pyxel.text(SAFE_LEFT + 8, 24, "LC006 VISUAL INTEGRATION", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 36, "ARROWS/DRAG YAW-PITCH", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 48, "A/S/WHEEL ZOOM  R RESET", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 60, "X AUTO  B/W/L TOGGLES", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 72, "D HIDE DEBUG  ESC QUIT", PALETTE_DEBUG_TEXT)
+        pyxel.text(
+            SAFE_LEFT + 8, 84, f"AUTO {'ON' if self.auto_rotate else 'OFF'}", PALETTE_LIT_GRASS
+        )
+        pyxel.text(
+            SAFE_LEFT + 8,
+            96,
+            f"BOUNDARY {'ON' if self.boundary_visible else 'OFF'}",
+            PALETTE_LIT_GRASS,
+        )
+        pyxel.text(
+            SAFE_LEFT + 8, 108, f"WIND {'ON' if self.wind_enabled else 'OFF'}", PALETTE_LIT_GRASS
+        )
+        pyxel.text(
+            SAFE_LEFT + 8,
+            120,
+            f"LIGHT {'ON' if self.light_enabled else 'OFF'}",
+            PALETTE_LIT_GRASS,
+        )
 
         center_x = RENDER_WIDTH // 2
         center_y = RENDER_HEIGHT // 2
-        pyxel.rectb(0, 0, RENDER_WIDTH, RENDER_HEIGHT, 5)
-        pyxel.line(center_x, 0, center_x, RENDER_HEIGHT - 1, 13)
-        pyxel.line(0, center_y, RENDER_WIDTH - 1, center_y, 13)
-        pyxel.rectb(SAFE_LEFT, 0, COMPOSITION_SAFE_WIDTH, RENDER_HEIGHT, 11)
-        pyxel.line(SAFE_LEFT, 0, SAFE_LEFT, RENDER_HEIGHT - 1, 3)
-        pyxel.line(SAFE_RIGHT - 1, 0, SAFE_RIGHT - 1, RENDER_HEIGHT - 1, 3)
-        pyxel.text(SAFE_LEFT + 8, 126, f"yaw {self.camera.yaw:.2f}", 6)
-        pyxel.text(SAFE_LEFT + 8, 138, f"pitch {self.camera.pitch:.2f}", 6)
-        pyxel.text(SAFE_LEFT + 8, 150, f"distance {self.camera.distance:.1f}", 6)
-        pyxel.text(SAFE_LEFT + 8, 162, f"grass {len(self.grass_field)}", 6)
-        pyxel.text(SAFE_LEFT + 8, 174, f"segments {GRASS_SEGMENTS}", 6)
-        pyxel.text(SAFE_LEFT + 8, 186, f"seed {self.grass_field.seed}", 6)
-        pyxel.text(SAFE_LEFT + 8, 198, f"visible {self.visible_blade_count}", 6)
-        pyxel.text(SAFE_LEFT + 8, 210, f"lines {self.visible_segment_count}", 6)
-        pyxel.text(SAFE_LEFT + 8, 222, f"particles {self.visible_particle_count}", 6)
-        pyxel.text(SAFE_LEFT + 8, 234, f"wind {self.wind_field.base_speed:.2f}", 6)
-        pyxel.text(SAFE_LEFT + 8, 246, f"gust {self.wind_field.current_gust_strength:.2f}", 6)
-        pyxel.text(SAFE_LEFT + 8, 258, f"time {self.wind_field.elapsed_time:.1f}", 6)
+        pyxel.rectb(0, 0, RENDER_WIDTH, RENDER_HEIGHT, PALETTE_DEBUG_FRAME)
+        pyxel.line(center_x, 0, center_x, RENDER_HEIGHT - 1, PALETTE_DEBUG_ACCENT)
+        pyxel.line(0, center_y, RENDER_WIDTH - 1, center_y, PALETTE_DEBUG_ACCENT)
+        pyxel.rectb(SAFE_LEFT, 0, COMPOSITION_SAFE_WIDTH, RENDER_HEIGHT, PALETTE_SAFE_AREA)
+        pyxel.line(SAFE_LEFT, 0, SAFE_LEFT, RENDER_HEIGHT - 1, PALETTE_DISTANT_GRASS)
+        pyxel.line(SAFE_RIGHT - 1, 0, SAFE_RIGHT - 1, RENDER_HEIGHT - 1, PALETTE_DISTANT_GRASS)
+        pyxel.text(SAFE_LEFT + 8, 138, f"yaw {self.camera.yaw:.2f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 150, f"pitch {self.camera.pitch:.2f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 162, f"distance {self.camera.distance:.1f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 174, f"grass {len(self.grass_field)}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 186, f"segments {GRASS_SEGMENTS}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 198, f"visible {self.visible_blade_count}", PALETTE_DEBUG_TEXT)
+        pyxel.text(SAFE_LEFT + 8, 210, f"lit seg {self.lit_segment_count}", PALETTE_DEBUG_TEXT)
+        pyxel.text(
+            SAFE_LEFT + 8,
+            222,
+            f"line calls {self.approx_line_draw_calls}",
+            PALETTE_DEBUG_TEXT,
+        )
+        pyxel.text(
+            SAFE_LEFT + 8,
+            234,
+            f"particles {self.visible_particle_count}",
+            PALETTE_DEBUG_TEXT,
+        )
+        pyxel.text(SAFE_LEFT + 8, 246, f"wind {self.wind_field.base_speed:.2f}", PALETTE_DEBUG_TEXT)
+        pyxel.text(
+            SAFE_LEFT + 8,
+            258,
+            f"gust {self.wind_field.current_gust_strength:.2f}",
+            PALETTE_DEBUG_TEXT,
+        )
+        pyxel.text(
+            SAFE_LEFT + 8,
+            270,
+            f"light {self.light_field.intensity_multiplier:.2f}",
+            PALETTE_DEBUG_TEXT,
+        )
+        pyxel.text(
+            SAFE_LEFT + 8, 282, f"time {self.wind_field.elapsed_time:.1f}", PALETTE_DEBUG_TEXT
+        )
 
     def _draw_light_debug(self, pyxel) -> None:
         beam = self.light_field.beam
-        self._draw_world_line(pyxel, beam.axis_point_at(0.0), beam.axis_point_at(1.0), 7)
+        self._draw_world_line(
+            pyxel,
+            beam.axis_point_at(0.0),
+            beam.axis_point_at(1.0),
+            PALETTE_BRIGHT_PARTICLE,
+        )
         for normalized_position in (0.28, 0.5, 0.72):
             self._draw_light_radius_ring(pyxel, normalized_position)
 
@@ -413,7 +489,9 @@ class LightCylinderApp:
             for index in range(16)
         )
         for index, start in enumerate(points):
-            self._draw_world_line(pyxel, start, points[(index + 1) % len(points)], 10)
+            self._draw_world_line(
+                pyxel, start, points[(index + 1) % len(points)], PALETTE_LIT_GRASS
+            )
 
     def _build_cylinder_lines(self) -> tuple[WorldLine, ...]:
         bottom = self.world.bottom_ring_points(CYLINDER_RADIAL_SEGMENTS)
@@ -422,21 +500,25 @@ class LightCylinderApp:
 
         for index in range(CYLINDER_RADIAL_SEGMENTS):
             next_index = (index + 1) % CYLINDER_RADIAL_SEGMENTS
-            color = 5 if bottom[index].z < self.world.center_z else 13
+            color = (
+                PALETTE_CYLINDER_FAR_EDGE
+                if bottom[index].z < self.world.center_z
+                else PALETTE_CYLINDER_NEAR_EDGE
+            )
             lines.append((bottom[index], bottom[next_index], color))
             lines.append((top[index], top[next_index], color))
 
         for start, end in self.world.vertical_guide_segments(CYLINDER_VERTICAL_GUIDES):
-            lines.append((start, end, 6))
+            lines.append((start, end, PALETTE_CYLINDER_VERTICAL))
 
-        lines.append((self.world.bottom_center, self.world.top_center, 11))
+        lines.append((self.world.bottom_center, self.world.top_center, PALETTE_CYLINDER_VERTICAL))
         return tuple(lines)
 
     def _build_floor_lines(self) -> tuple[WorldLine, ...]:
         lines: list[WorldLine] = []
         for angle_index in range(8):
             end = self.world.sample_bottom_point(1.0, angle_index / 8)
-            lines.append((self.world.bottom_center, end, 5))
+            lines.append((self.world.bottom_center, end, PALETTE_GROUND_SHADOW))
 
         for radius_factor in (0.33, 0.66):
             ring = self.world.ring_points_at(
@@ -445,16 +527,22 @@ class LightCylinderApp:
                 self.world.radius * radius_factor,
             )
             for index in range(CYLINDER_RADIAL_SEGMENTS):
-                lines.append((ring[index], ring[(index + 1) % CYLINDER_RADIAL_SEGMENTS], 5))
+                lines.append(
+                    (
+                        ring[index],
+                        ring[(index + 1) % CYLINDER_RADIAL_SEGMENTS],
+                        PALETTE_GROUND_SHADOW,
+                    )
+                )
 
         return tuple(lines)
 
     def _build_axis_lines(self) -> tuple[WorldLine, ...]:
         origin = self.world.bottom_center
         return (
-            (origin, Vec3(CYLINDER_RADIUS * 1.25, 0.0, 0.0), 8),
-            (origin, Vec3(0.0, CYLINDER_HEIGHT * 1.08, 0.0), 11),
-            (origin, Vec3(0.0, 0.0, CYLINDER_RADIUS * 1.25), 12),
+            (origin, Vec3(CYLINDER_RADIUS * 1.25, 0.0, 0.0), PALETTE_AXIS_X),
+            (origin, Vec3(0.0, CYLINDER_HEIGHT * 1.08, 0.0), PALETTE_AXIS_Y),
+            (origin, Vec3(0.0, 0.0, CYLINDER_RADIUS * 1.25), PALETTE_AXIS_Z),
         )
 
     def _draw_depth_sorted_lines(self, pyxel, lines: tuple[WorldLine, ...]) -> None:
@@ -467,11 +555,11 @@ class LightCylinderApp:
         for _depth, (start, end, color) in sorted(sortable, key=lambda item: item[0], reverse=True):
             self._draw_world_line(pyxel, start, end, color)
 
-    def _draw_world_line(self, pyxel, start: Vec3, end: Vec3, color: int) -> None:
+    def _draw_world_line(self, pyxel, start: Vec3, end: Vec3, color: int) -> bool:
         projected_start = self.camera.project(start)
         projected_end = self.camera.project(end)
         if projected_start is None or projected_end is None:
-            return
+            return False
         pyxel.line(
             self._screen_int(projected_start.x),
             self._screen_int(projected_start.y),
@@ -479,6 +567,52 @@ class LightCylinderApp:
             self._screen_int(projected_end.y),
             color,
         )
+        self.approx_line_draw_calls += 1
+        return True
 
     def _screen_int(self, value: float) -> int:
         return max(-32768, min(32767, int(value)))
+
+
+def select_grass_color(color_variant: int, is_distant: bool) -> int:
+    if is_distant:
+        return PALETTE_DISTANT_GRASS
+    if color_variant == 1:
+        return PALETTE_FOREGROUND_GRASS
+    if color_variant == 2:
+        return PALETTE_DISTANT_GRASS
+    return PALETTE_NORMAL_GRASS
+
+
+def select_grass_light_color(base_color: int, intensity: float, tier_weight: float) -> int:
+    if tier_weight >= 1.0:
+        if intensity > LIGHT_GRASS_THRESHOLD_HIGH:
+            return PALETTE_STRONGLY_LIT_GRASS
+        if intensity > LIGHT_GRASS_THRESHOLD_MEDIUM:
+            return PALETTE_LIT_GRASS
+        if intensity > LIGHT_GRASS_THRESHOLD_LOW:
+            return PALETTE_NORMAL_GRASS
+        return base_color
+    if intensity > LIGHT_GRASS_THRESHOLD_HIGH + 0.06:
+        return PALETTE_STRONGLY_LIT_GRASS
+    if intensity > LIGHT_GRASS_THRESHOLD_MEDIUM + 0.08:
+        return PALETTE_LIT_GRASS
+    return base_color
+
+
+def select_floor_color(base_color: int, intensity: float) -> int:
+    if intensity > LIGHT_FLOOR_THRESHOLD_HIGH:
+        return PALETTE_GROUND_STRONG_LIGHT
+    if intensity > LIGHT_FLOOR_THRESHOLD_MEDIUM:
+        return PALETTE_GROUND_LIGHT
+    if intensity > LIGHT_FLOOR_THRESHOLD_LOW:
+        return PALETTE_CYLINDER_NEAR_EDGE
+    return base_color
+
+
+def select_particle_color(intensity: float) -> int:
+    if intensity > 0.72:
+        return PALETTE_BRIGHT_PARTICLE
+    if intensity > 0.48:
+        return PALETTE_LIT_GRASS
+    return PALETTE_DIM_PARTICLE

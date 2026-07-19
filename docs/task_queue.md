@@ -8,14 +8,14 @@
 - LC003: procedural curved grass
 - LC004: layered wind
 - LC005: light media and tip lighting
+- LC006: temporal and visual tuning
 
 ## NEXT
 
-- LC006: temporal and visual tuning
+- LC007: rain
 
 ## LATER
 
-- LC007: rain
 - LC008: rain, grass, and ground reactions
 - LC009: weather transitions
 - LC010: title and UI

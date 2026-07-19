@@ -22,3 +22,19 @@ LC005-specific completion checks:
 - Wind moves grass in and out of the light.
 - `L` toggles the light comparison on and off.
 - No meaningful FPS drop is visible.
+
+LC006-specific completion checks:
+
+- HUD off keeps grass as the main subject.
+- Light direction is recognizable within a few seconds.
+- Light is not directly drawn, but its presence is readable.
+- Particles do not read as snow or insects.
+- Grass root thickness and thin tips remain legible.
+- Wind reads as neither fully synchronized nor fully random.
+- Light pulse reads as breathing, not blinking.
+- Cylinder boundary does not read as a cage.
+- Boundary off still leaves a coherent contained space.
+- Initial composition can be used as a presentation screenshot.
+- Auto rotate can be watched for at least one minute without feeling too fast.
+- HUD off can be watched for at least one minute.
+- The scene creates a small desire to keep looking.

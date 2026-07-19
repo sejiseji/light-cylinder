@@ -13,6 +13,7 @@ class ControlIntent:
     toggle_boundary: bool = False
     toggle_wind: bool = False
     toggle_light: bool = False
+    reset_camera: bool = False
     quit_requested: bool = False
 
 
@@ -86,5 +87,6 @@ def read_control_intent(
         toggle_boundary=pyxel_module.btnp(pyxel_module.KEY_B),
         toggle_wind=pyxel_module.btnp(pyxel_module.KEY_W),
         toggle_light=pyxel_module.btnp(pyxel_module.KEY_L),
+        reset_camera=pyxel_module.btnp(pyxel_module.KEY_R),
         quit_requested=pyxel_module.btnp(pyxel_module.KEY_ESCAPE),
     )

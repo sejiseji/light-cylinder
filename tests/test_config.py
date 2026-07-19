@@ -36,6 +36,7 @@ def test_camera_config_invariants() -> None:
     assert config.MOUSE_PITCH_SPEED > 0
     assert config.MOUSE_WHEEL_ZOOM_SPEED > 0
     assert config.AUTO_ROTATE_SPEED > 0
+    assert 6.283185307179586 / (config.AUTO_ROTATE_SPEED * config.TARGET_FPS) >= 30
     assert config.CYLINDER_RADIUS == 96.0
     assert config.CYLINDER_HEIGHT == 240.0
     assert config.CYLINDER_RADIAL_SEGMENTS == 32
@@ -66,3 +67,23 @@ def test_camera_config_invariants() -> None:
     assert config.LIGHT_BEAM_RADIUS > 0
     assert 0 <= config.LIGHT_BEAM_CORE_RADIUS < config.LIGHT_BEAM_RADIUS
     assert config.LIGHT_BEAM_END_FADE > 0
+    assert 0.0 <= config.LIGHT_PULSE_AMOUNT <= 1.0
+    assert config.LIGHT_PULSE_RATE >= 0
+    assert config.LIGHT_PARTICLE_SWAY_RATE >= 0
+    assert config.LIGHT_PARTICLE_SWAY_AMOUNT >= 0
+    assert config.LIGHT_PARTICLE_DRIFT_MIN <= config.LIGHT_PARTICLE_DRIFT_MAX
+    assert config.LIGHT_PARTICLE_VISIBILITY_THRESHOLD >= 0
+    assert config.LIGHT_GROUND_SPARK_THRESHOLD >= 0
+    assert (
+        config.LIGHT_GRASS_THRESHOLD_LOW
+        <= config.LIGHT_GRASS_THRESHOLD_MEDIUM
+        <= config.LIGHT_GRASS_THRESHOLD_HIGH
+    )
+    assert (
+        config.LIGHT_FLOOR_THRESHOLD_LOW
+        <= config.LIGHT_FLOOR_THRESHOLD_MEDIUM
+        <= config.LIGHT_FLOOR_THRESHOLD_HIGH
+    )
+    for name in dir(config):
+        if name.startswith("PALETTE_"):
+            assert 0 <= getattr(config, name) <= 15

@@ -8,8 +8,8 @@ Each wave should remain small enough to review and commit on its own.
 - LC003: procedural curved grass - done
 - LC004: layered wind - done
 - LC005: light media and tip lighting - done
-- LC006: temporal and visual tuning
-- LC007: rain
+- LC006: temporal and visual tuning - done
+- LC007: rain - next
 - LC008: rain, grass, and ground reactions
 - LC009: weather transitions
 - LC010: title and UI

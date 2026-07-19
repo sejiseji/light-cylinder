@@ -15,6 +15,7 @@ class FakePyxel:
     KEY_B = "b"
     KEY_W = "w"
     KEY_L = "l"
+    KEY_R = "r"
     KEY_ESCAPE = "escape"
     MOUSE_BUTTON_LEFT = "mouse-left"
     MOUSE_POS_X = "mouse-x"
@@ -48,6 +49,10 @@ def test_control_intent_defaults() -> None:
     assert intent.zoom_delta == 0.0
     assert not intent.toggle_auto_rotate
     assert not intent.toggle_debug
+    assert not intent.toggle_boundary
+    assert not intent.toggle_wind
+    assert not intent.toggle_light
+    assert not intent.reset_camera
     assert not intent.quit_requested
 
 
@@ -61,6 +66,7 @@ def test_control_intent_holds_values() -> None:
         toggle_boundary=True,
         toggle_wind=True,
         toggle_light=True,
+        reset_camera=True,
         quit_requested=True,
     )
 
@@ -72,6 +78,7 @@ def test_control_intent_holds_values() -> None:
     assert intent.toggle_boundary
     assert intent.toggle_wind
     assert intent.toggle_light
+    assert intent.reset_camera
     assert intent.quit_requested
 
 
@@ -84,6 +91,7 @@ def test_read_control_intent_from_key_state() -> None:
             FakePyxel.KEY_B,
             FakePyxel.KEY_W,
             FakePyxel.KEY_L,
+            FakePyxel.KEY_R,
             FakePyxel.KEY_ESCAPE,
         },
     )
@@ -98,6 +106,7 @@ def test_read_control_intent_from_key_state() -> None:
     assert intent.toggle_boundary
     assert intent.toggle_wind
     assert intent.toggle_light
+    assert intent.reset_camera
     assert intent.quit_requested
 
 

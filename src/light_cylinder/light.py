@@ -13,6 +13,12 @@ from light_cylinder.config import (
     LIGHT_BEAM_RADIUS,
     LIGHT_GROUND_SPARK_COUNT,
     LIGHT_PARTICLE_COUNT,
+    LIGHT_PARTICLE_DRIFT_MAX,
+    LIGHT_PARTICLE_DRIFT_MIN,
+    LIGHT_PARTICLE_SWAY_AMOUNT,
+    LIGHT_PARTICLE_SWAY_RATE,
+    LIGHT_PULSE_AMOUNT,
+    LIGHT_PULSE_RATE,
     LIGHT_SEED,
 )
 from light_cylinder.math3d import Vec3, clamp
@@ -100,7 +106,9 @@ class LightParticle:
 
     def position_at(self, beam: LightBeam, elapsed_time: float) -> Vec3:
         axial_position = (self.axial_position + self.drift_speed * elapsed_time) % beam.length
-        angle = self.angle + sin(elapsed_time * 0.35 + self.phase) * 0.18
+        angle = self.angle + sin(elapsed_time * LIGHT_PARTICLE_SWAY_RATE + self.phase) * (
+            LIGHT_PARTICLE_SWAY_AMOUNT
+        )
         basis_u, basis_v = beam.basis()
         offset = basis_u * (cos(angle) * self.radial_distance)
         offset += basis_v * (sin(angle) * self.radial_distance)
@@ -141,6 +149,10 @@ class LightField:
             for particle in self.particles
         )
 
+    @property
+    def intensity_multiplier(self) -> float:
+        return 1.0 + LIGHT_PULSE_AMOUNT * sin(self.elapsed_time * LIGHT_PULSE_RATE)
+
 
 def _generate_particles(beam: LightBeam, rng: Random) -> tuple[LightParticle, ...]:
     particles: list[LightParticle] = []
@@ -152,7 +164,7 @@ def _generate_particles(beam: LightBeam, rng: Random) -> tuple[LightParticle, ..
                 radial_distance=normalized_radius * beam.radius * 0.92,
                 angle=rng.random() * tau,
                 phase=rng.random() * tau,
-                drift_speed=rng.uniform(-4.0, 7.5),
+                drift_speed=rng.uniform(LIGHT_PARTICLE_DRIFT_MIN, LIGHT_PARTICLE_DRIFT_MAX),
                 brightness=rng.uniform(0.58, 1.0),
             )
         )

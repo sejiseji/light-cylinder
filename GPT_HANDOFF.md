@@ -7,7 +7,7 @@ inside a tall cylindrical natural space.
 
 ## Current Wave
 
-LC005 light media and tip lighting.
+LC006 visual integration and presentation polish.
 
 ## Completed
 
@@ -41,6 +41,12 @@ LC005 light media and tip lighting.
 - Bottom-grid light color changes and sparse floor spark points
 - Light media toggle with `L`
 - Debug-only light axis and radius guide rings
+- LC006 palette consolidation with named `PALETTE_*` config constants
+- Viewing-first default state: HUD off, boundary off, wind on, light on
+- Camera reset with `R`
+- Slower auto rotate for presentation
+- Debug HUD counters for visible blades, lit segments, approximate line calls,
+  and visible particles
 
 ## Not Completed
 
@@ -77,6 +83,7 @@ python scripts/check_all.py
 - B: toggle cylinder boundary
 - W: toggle wind
 - L: toggle light media
+- R: reset camera
 - D: toggle debug HUD, reference axes, and light guides
 - ESC: quit
 
@@ -86,8 +93,16 @@ The LC001 camera is an orbit camera. At yaw = 0 and pitch = 0, it looks along
 positive Z toward the target. Camera-space depth is positive in front of the
 camera. Points at or behind the near clip are skipped rather than clipped.
 
-The LC002 camera target is `Vec3(0, CYLINDER_HEIGHT * 0.45, 0)`, with default
+The LC006 camera target is `Vec3(0, CYLINDER_HEIGHT * 0.43, 0)`, with default
 radius 96, height 240, 32 radial segments, and 8 vertical guides.
+
+Initial camera:
+
+- yaw: -0.22
+- pitch: 0.34
+- distance: 430
+- auto rotate speed: 0.0035 radians per frame
+- auto pitch: not added
 
 ## Grass
 
@@ -110,24 +125,74 @@ radius 96, height 240, 32 radial segments, and 8 vertical guides.
 - Blade phase: `GrassBlade.phase`
 - Gust: deterministic sin-squared envelope
 - Wind max bend: 42 percent of blade height
+- Base pulse rate: 0.42
+- Base pulse amount: 0.22
+- Direction sway rate: 0.37
+- Gust interval: 12.0
+- Gust duration: 5.5
 
 ## Light
 
 - Beam origin: `(-34, 246, -22)`
 - Beam direction: `(0.22, -1.0, 0.18)` normalized
 - Beam length: 285
-- Beam radius: 42
-- Core radius: 13
+- Beam radius: 44
+- Core radius: 14
 - Particles: 48
 - Floor sparks: 28
+- Pulse rate: 0.11
+- Pulse amount: 0.13
+- Particle drift range: -2.6 to 4.8
 - Normal rendering: no direct beam drawing
 - Debug rendering: axis line and three radius rings
+
+## Palette
+
+- background: 1
+- background band: 2
+- distant grass: 3
+- normal grass: 11
+- foreground/lit grass: 10
+- strongly lit grass: 7
+- ground shadow: 5
+- ground light: 13
+- ground strong light: 10
+- dim particle: 6
+- bright particle: 7
+- cylinder far edge: 5
+- cylinder near edge: 13
+- cylinder vertical: 5
+- debug accent: 12
+
+## Presentation State
+
+Initial viewing state:
+
+- debug HUD: off
+- boundary: off
+- wind: on
+- light media: on
+- auto rotate: off
+
+Use `D` for inspection and `B` to compare the restrained cylinder boundary.
+Use `R` to restore the presentation camera.
 
 ## Visual Acceptance
 
 From LC005 onward, review `docs/visual_acceptance.md` after implementation.
-LC005 should make the light column readable through particles, grass tips, and
-floor lighting while keeping grass as the main subject.
+LC006 GUI review found the HUD-off scene readable as a viewing screen: grass
+remains primary, light direction reads through sparse particles and tip lighting,
+particles do not read as snow, boundary ON is subdued, and HUD OFF can be
+watched for at least one minute without the auto rotate feeling too fast.
+
+## Performance
+
+- Grass count: 420
+- Nominal segments: 2,100
+- Typical visible particles in debug review: about 29 to 36
+- Approximate line draw calls are reported in debug HUD
+- GUI review kept a stable 30 FPS feel with light, wind, particles, boundary
+  on/off, zoom, and slow auto rotate.
 
 ## Public Safety
 
@@ -137,13 +202,12 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000 through LC003 were committed and pushed with approval. LC004/LC005 changes are
+LC000 through LC005 were committed and pushed with approval. LC006 changes are
 not committed or pushed yet. Future commits and pushes require user approval.
 
 ## Next Wave
 
-LC006 should tune time, palette, HUD-off beauty, camera auto speed, wind rhythm,
-particle speed, and cylinder presence.
+LC007 should add rain without disturbing the LC006 presentation balance.
 
 ## Design Decisions
 

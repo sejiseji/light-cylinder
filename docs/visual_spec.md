@@ -64,6 +64,27 @@ only a few extra bright floor points.
 When debug is off, light-axis lines and radius circles must disappear. The viewer
 should infer the beam from particles, grass tips, and the floor.
 
+LC006 sets the visual priority order as grass, light, wind motion, particles,
+cylinder space, then debug information. The default viewing state hides the HUD
+and cylinder boundary so the first impression is a small illuminated grass field,
+not a development screen. Boundary lines remain available with `B`, but use dim
+far/vertical colors and a restrained near edge so the cylinder reads as an
+observation volume rather than a cage.
+
+The palette is centralized by use: dark background and bands, distant/normal/
+foreground grass, lit/strongly lit grass, ground shadow/light, dim/bright
+particles, cylinder far/near edges, and debug accents. The colors stay within
+Pyxel's standard palette and favor a quiet green/yellow light relationship over
+large bright surfaces.
+
+The initial camera uses yaw -0.22, pitch 0.34, distance 430, and a target at 43
+percent of cylinder height. This keeps grass centered in the safe composition,
+leaves upper air for particles, and lets the light direction read without debug
+guides.
+
+HUD off must remove reference axes, light debug rings, center/safe guide lines,
+and labels. Debug mode is strictly an inspection layer.
+
 ## Vertical Composition
 
 The composition is tall and mobile-first. The internal render size is 448 x 852,

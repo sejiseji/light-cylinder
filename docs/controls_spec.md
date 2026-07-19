@@ -2,7 +2,8 @@
 
 LC001 implements keyboard controls for orbit-camera inspection. LC004 adds mouse
 controls so the scene can be tested quickly during visual iteration. LC005 adds
-light comparison and makes debug mode the place for light-axis inspection:
+light comparison and makes debug mode the place for light-axis inspection. LC006
+starts in a viewing state and adds camera reset:
 
 - Left and Right: yaw left and right around the target
 - Up and Down: pitch the view up and down
@@ -13,6 +14,7 @@ light comparison and makes debug mode the place for light-axis inspection:
 - B: toggle cylinder boundary visibility
 - W: toggle wind application
 - L: toggle light media application
+- R: reset camera to the viewing composition
 - D: toggle debug HUD, camera details, reference axes, and light guides
 - ESC: exit
 

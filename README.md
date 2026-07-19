@@ -10,10 +10,11 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC005 establishes the first light column without drawing the beam itself. A
-Pyxel-independent `LightBeam` exposes `intensity_at(point)`, and particles,
-grass tips, and the bottom grid reveal where light exists. Rain, audio, touch
-input, and web packaging are intentionally left for later waves.
+LC006 integrates the cylinder, grass, wind, particles, light media, camera, HUD,
+and palette into a calmer presentation state. It keeps the light beam
+non-rendered, preserves 420 tapered grass blades, starts in an HUD-off viewing
+composition, and leaves rain, audio, touch input, and web packaging for later
+waves.
 
 ## Display Model
 
@@ -45,9 +46,10 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC005 screen shows the cylinder, bottom grid, wind-animated grass, sparse
-light particles, tip lighting on grass, and a lit bottom grid. Debug mode adds
-camera state, counts, wind state, the centered composition safe area, and light
+The LC006 screen starts in a viewing state: light on, wind on, boundary off,
+debug off, auto rotate off. It shows wind-animated grass, sparse particles, tip
+lighting, and subtle floor light without drawing the beam itself. Debug mode adds
+camera state, draw counters, the centered composition safe area, and light
 axis/radius guides.
 
 ## Controls
@@ -61,6 +63,7 @@ axis/radius guides.
 - B: toggle cylinder boundary
 - W: toggle wind application
 - L: toggle light media
+- R: reset camera
 - D: toggle debug HUD, reference axes, and light guides
 - ESC: quit
 

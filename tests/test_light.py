@@ -61,6 +61,7 @@ def test_light_field_update_advances_time() -> None:
     field.update(0.25)
 
     assert field.elapsed_time == pytest.approx(0.25)
+    assert field.intensity_multiplier > 1.0
 
 
 def test_light_field_update_rejects_negative_time() -> None:
@@ -68,3 +69,15 @@ def test_light_field_update_rejects_negative_time() -> None:
 
     with pytest.raises(ValueError):
         field.update(-0.1)
+
+
+def test_light_intensity_multiplier_is_slow_and_bounded() -> None:
+    field = LightField.create_default(CylinderWorld())
+
+    values = []
+    for _index in range(120):
+        field.update(0.5)
+        values.append(field.intensity_multiplier)
+
+    assert min(values) >= 0.8
+    assert max(values) <= 1.2

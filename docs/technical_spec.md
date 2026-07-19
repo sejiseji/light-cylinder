@@ -158,6 +158,43 @@ and draws only media that has sampled non-zero beam intensity:
 mode; only debug mode draws the light axis and three radius guide rings. This is
 the deliberate exception to the "do not draw the beam" rule.
 
+## Presentation Integration
+
+LC006 centralizes Pyxel palette choices in `config.py` as named `PALETTE_*`
+constants. `app.py` uses small pure helpers for color selection:
+
+- `select_grass_color`
+- `select_grass_light_color`
+- `select_floor_color`
+- `select_particle_color`
+
+These helpers are covered by tests and keep threshold decisions out of raw
+draw calls.
+
+The default view is an exhibition state: debug hidden, boundary hidden, light
+on, wind on, auto rotate off. `R` resets only the camera to the default viewing
+composition; it does not regenerate grass, wind, particles, or light data.
+
+LC006 draw order is:
+
+1. fixed dark background with sparse vertical bands
+2. floor grid with light-aware midpoint color
+3. optional cylinder boundary
+4. light particles
+5. wind-sampled, depth-sorted grass
+6. floor spark pixels
+7. debug-only axes, reference points, safe area, and light guides
+
+The initial camera values are yaw -0.22, pitch 0.34, distance 430, and target Y
+at `CYLINDER_HEIGHT * 0.43`. Auto rotate uses a slow 0.0035 radians per frame,
+roughly a one-minute orbit at 30 FPS. No automatic pitch oscillation is added in
+LC006.
+
+Light pulse and wind timing are intentionally unsynchronized. Light uses a slow
+0.11 rate with 0.13 amount. Wind uses a 0.42 base pulse rate, 0.22 amount, and a
+12.0 second gust interval with a 5.5 second smooth duration. Particle drift is
+per-particle and ranges from -2.6 to 4.8 world units per second.
+
 ## Resource Resolution
 
 Runtime resources should be resolved relative to source files with pathlib or

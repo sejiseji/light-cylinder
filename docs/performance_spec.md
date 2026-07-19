@@ -30,3 +30,11 @@ weighted strongest, middle response is weaker, and root response is intentionall
 rare. The bottom grid changes color from line midpoints instead of introducing a
 large separate light-spot field. The light beam itself is not drawn in normal
 view.
+
+LC006 keeps 420 grass blades, 5 nominal segments per blade, 48 particles, and 28
+floor spark points. Tapering means the visible grass segment count is not the
+same as line draw calls; the debug HUD reports visible blades, nominal segments,
+approximate line draw calls, lit segments, and visible particles. In GUI review,
+HUD off, boundary on/off, light on/off, wind on/off, zoom, and slow auto rotate
+held a stable 30 FPS feel. Web packaging should re-profile background bands,
+taper line calls, and particle drawing after browser scaling is introduced.
