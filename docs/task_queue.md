@@ -15,13 +15,18 @@
 - LC009: After Rain
 - LC010: Observation Cycle
 - LC011: Firefly Visitors
+- LC011.5: Atmospheric Background Depth
 
 ## NEXT
 
-- LC012: title and UI
+- LC012: Foxtail Grass
 
 ## LATER
 
-- LC013: touch controls
-- LC014: ambience and audio
-- LC015: web and iOS packaging
+- LC013: After-Rain Droplets
+- LC014: Summer Cumulus
+- LC014.5: Heat Haze
+- LC015: Distant Horizon
+- LC016: Summer Ambience
+- LC017: Presentation Pass
+- prototype-v0.3.0

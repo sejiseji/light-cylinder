@@ -1,6 +1,9 @@
 from light_cylinder.app import (
     MENU_BUTTON_RECT,
     LightCylinderApp,
+    atmospheric_dither_density,
+    atmospheric_dither_visible,
+    atmospheric_light_factor,
     firefly_draw_radius,
     particle_draw_radius,
     select_floor_color,
@@ -11,6 +14,7 @@ from light_cylinder.app import (
     select_splash_color,
 )
 from light_cylinder.config import (
+    ATMOSPHERIC_DITHER_BASE_DENSITY,
     GRASS_WIDTH_MULTIPLIER,
     LIGHT_ACCENT_BAND_COUNT,
     MENU_RAIN_INTENSITIES,
@@ -60,6 +64,45 @@ def test_particle_draw_radius_has_clear_size_steps() -> None:
     assert particle_draw_radius(0.7, 0.6) == 1
     assert particle_draw_radius(0.85, 0.65) == 2
     assert particle_draw_radius(1.0, 0.9) == 3
+
+
+def test_atmospheric_dither_density_prefers_center_mid_air() -> None:
+    center = atmospheric_dither_density(224, 360)
+    edge = atmospheric_dither_density(30, 360)
+    floor = atmospheric_dither_density(224, 760)
+
+    assert center <= ATMOSPHERIC_DITHER_BASE_DENSITY
+    assert center > edge
+    assert center > floor
+
+
+def test_atmospheric_dither_light_and_shadow_modulate_density() -> None:
+    baseline = atmospheric_dither_density(224, 360, light_factor=0.0, cloud_shadow=0.0)
+    lit = atmospheric_dither_density(224, 360, light_factor=1.0, cloud_shadow=0.0)
+    shadow = atmospheric_dither_density(224, 360, light_factor=0.0, cloud_shadow=1.0)
+
+    assert lit > baseline
+    assert shadow < baseline
+
+
+def test_atmospheric_light_factor_fades_from_axis() -> None:
+    axis = ((200.0, 100.0), (240.0, 500.0))
+
+    near = atmospheric_light_factor(220, 300, axis)
+    far = atmospheric_light_factor(320, 300, axis)
+
+    assert near > far
+    assert atmospheric_light_factor(220, 300, None) == 0.0
+
+
+def test_atmospheric_dither_visible_uses_stable_sparse_pattern() -> None:
+    density = atmospheric_dither_density(224, 360, light_factor=1.0)
+
+    first = atmospheric_dither_visible(224, 360, phase=2, density=density)
+    second = atmospheric_dither_visible(224, 360, phase=2, density=density)
+
+    assert first is second
+    assert not atmospheric_dither_visible(224, 360, phase=2, density=0.0)
 
 
 def test_firefly_draw_radius_increases_toward_camera() -> None:

@@ -1,8 +1,14 @@
 from itertools import pairwise
-from math import cos, sin, tau
+from math import cos, sin, sqrt, tau
 
 from light_cylinder.camera import Camera
 from light_cylinder.config import (
+    ATMOSPHERIC_DITHER_BASE_DENSITY,
+    ATMOSPHERIC_DITHER_HASH_MODULUS,
+    ATMOSPHERIC_DITHER_LIGHT_BOOST,
+    ATMOSPHERIC_DITHER_PHASE_RATE,
+    ATMOSPHERIC_DITHER_SHADOW_REDUCTION,
+    ATMOSPHERIC_DITHER_STEP,
     AUTO_ROTATE_PITCH_FOLLOW,
     AUTO_ROTATE_PITCH_SWAY_AMOUNT,
     AUTO_ROTATE_PITCH_SWAY_RATE,
@@ -457,9 +463,28 @@ class LightCylinderApp:
 
     def _draw_background(self, pyxel) -> None:
         pyxel.cls(PALETTE_BACKGROUND)
-        for x in range(SAFE_LEFT, SAFE_RIGHT, 16):
-            if x % 32 == 0:
-                pyxel.line(x, 0, x, RENDER_HEIGHT - 1, PALETTE_BACKGROUND_BAND)
+        axis = self._light_axis_screen_points()
+        phase = int(self.light_field.elapsed_time * ATMOSPHERIC_DITHER_PHASE_RATE)
+        cloud_shadow = max(
+            self.environment.cloud_shadow,
+            1.0 - self.observation_cycle.sample().light_multiplier,
+        )
+        for y in range(0, RENDER_HEIGHT, ATMOSPHERIC_DITHER_STEP):
+            for x in range(SAFE_LEFT, SAFE_RIGHT, ATMOSPHERIC_DITHER_STEP):
+                light_factor = atmospheric_light_factor(x, y, axis)
+                density = atmospheric_dither_density(x, y, light_factor, cloud_shadow)
+                if atmospheric_dither_visible(x, y, phase, density):
+                    pyxel.pset(x + phase % 2, y, PALETTE_BACKGROUND_BAND)
+
+    def _light_axis_screen_points(self) -> tuple[tuple[float, float], tuple[float, float]] | None:
+        if not self.light_enabled:
+            return None
+        beam = self.light_field.beam
+        start = self.camera.project(beam.axis_point_at(0.08))
+        end = self.camera.project(beam.axis_point_at(0.92))
+        if start is None or end is None:
+            return None
+        return ((start.x, start.y), (end.x, end.y))
 
     def _draw_cylinder_scene(self, pyxel) -> None:
         if self.boundary_visible:
@@ -1396,6 +1421,75 @@ def firefly_draw_radius(depth: float, camera_distance: float, glow: float) -> in
     if depth < camera_distance - 120.0:
         radius += 1
     return min(4, radius)
+
+
+def atmospheric_dither_density(
+    x: int,
+    y: int,
+    light_factor: float = 0.0,
+    cloud_shadow: float = 0.0,
+) -> float:
+    center_x = (SAFE_LEFT + SAFE_RIGHT) * 0.5
+    half_width = COMPOSITION_SAFE_WIDTH * 0.5
+    distance_from_center = min(1.0, abs(x - center_x) / half_width)
+    center_density = 1.0 - distance_from_center * distance_from_center
+
+    height = y / max(1, RENDER_HEIGHT - 1)
+    mid_air = max(0.0, 1.0 - abs(height - 0.42) / 0.34)
+    grass_suppression = 0.35 if height > 0.68 else 1.0
+    top_suppression = 0.55 if height < 0.08 else 1.0
+    shadow = 1.0 - ATMOSPHERIC_DITHER_SHADOW_REDUCTION * max(0.0, min(1.0, cloud_shadow))
+    density = (
+        ATMOSPHERIC_DITHER_BASE_DENSITY * center_density * mid_air * grass_suppression
+        + ATMOSPHERIC_DITHER_LIGHT_BOOST * max(0.0, min(1.0, light_factor))
+    )
+    return max(0.0, min(1.0, density * top_suppression * shadow))
+
+
+def atmospheric_light_factor(
+    x: int,
+    y: int,
+    axis: tuple[tuple[float, float], tuple[float, float]] | None,
+) -> float:
+    if axis is None:
+        return 0.0
+    distance = _point_to_segment_distance(float(x), float(y), axis[0], axis[1])
+    return max(0.0, min(1.0, 1.0 - distance / 42.0))
+
+
+def atmospheric_dither_visible(x: int, y: int, phase: int, density: float) -> bool:
+    if density <= 0.0:
+        return False
+    threshold = int(max(0.0, min(1.0, density)) * ATMOSPHERIC_DITHER_HASH_MODULUS)
+    if threshold <= 0:
+        return False
+    value = (
+        x * 17
+        + y * 31
+        + phase * 13
+        + ((x + phase) // ATMOSPHERIC_DITHER_STEP) * 7
+        + ((y - phase) // ATMOSPHERIC_DITHER_STEP) * 11
+    ) % ATMOSPHERIC_DITHER_HASH_MODULUS
+    return value < threshold
+
+
+def _point_to_segment_distance(
+    x: float,
+    y: float,
+    start: tuple[float, float],
+    end: tuple[float, float],
+) -> float:
+    x1, y1 = start
+    x2, y2 = end
+    dx = x2 - x1
+    dy = y2 - y1
+    length_squared = dx * dx + dy * dy
+    if length_squared == 0.0:
+        return sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1))
+    t = max(0.0, min(1.0, ((x - x1) * dx + (y - y1) * dy) / length_squared))
+    nearest_x = x1 + dx * t
+    nearest_y = y1 + dy * t
+    return sqrt((x - nearest_x) * (x - nearest_x) + (y - nearest_y) * (y - nearest_y))
 
 
 def select_rain_color(brightness: float, depth_tier: int = 1) -> int:

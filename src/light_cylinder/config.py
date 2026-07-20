@@ -12,6 +12,13 @@ SAFE_RIGHT = SAFE_LEFT + COMPOSITION_SAFE_WIDTH
 TARGET_FPS = 30
 UI_TEXT_SCALE = 3
 
+ATMOSPHERIC_DITHER_STEP = 4
+ATMOSPHERIC_DITHER_BASE_DENSITY = 0.1
+ATMOSPHERIC_DITHER_LIGHT_BOOST = 0.035
+ATMOSPHERIC_DITHER_SHADOW_REDUCTION = 0.25
+ATMOSPHERIC_DITHER_PHASE_RATE = 0.25
+ATMOSPHERIC_DITHER_HASH_MODULUS = 64
+
 DISPLAY_TITLE_JA = "光の標本"
 DISPLAY_TITLE_EN = "Specimen of Light"
 PROJECT_TITLE = DISPLAY_TITLE_EN
@@ -321,6 +328,18 @@ def validate_display_config() -> None:
         raise ValueError("target FPS must be positive")
     if UI_TEXT_SCALE < 1:
         raise ValueError("UI text scale must be positive")
+    if ATMOSPHERIC_DITHER_STEP < 1:
+        raise ValueError("atmospheric dither step must be positive")
+    if not 0.0 <= ATMOSPHERIC_DITHER_BASE_DENSITY <= 1.0:
+        raise ValueError("atmospheric dither density must be normalized")
+    if not 0.0 <= ATMOSPHERIC_DITHER_LIGHT_BOOST <= 1.0:
+        raise ValueError("atmospheric dither light boost must be normalized")
+    if not 0.0 <= ATMOSPHERIC_DITHER_SHADOW_REDUCTION <= 1.0:
+        raise ValueError("atmospheric dither shadow reduction must be normalized")
+    if ATMOSPHERIC_DITHER_PHASE_RATE < 0:
+        raise ValueError("atmospheric dither phase rate must be non-negative")
+    if ATMOSPHERIC_DITHER_HASH_MODULUS <= 0:
+        raise ValueError("atmospheric dither hash modulus must be positive")
     if CAMERA_MIN_DISTANCE <= 0:
         raise ValueError("minimum camera distance must be positive")
     if CAMERA_INITIAL_DISTANCE < CAMERA_MIN_DISTANCE:

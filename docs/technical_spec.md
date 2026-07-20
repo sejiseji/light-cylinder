@@ -178,7 +178,7 @@ composition; it does not regenerate grass, wind, particles, or light data.
 
 LC006 draw order is:
 
-1. fixed dark background with sparse vertical bands
+1. fixed dark background with atmospheric depth dither
 2. optional floor grid and cylinder boundary
 3. depth-sorted grass, light particles, and mixed-width tapered light bands
 4. floor spark pixels
@@ -235,7 +235,7 @@ floor response, and the mixed light bands.
 
 LC007 draw order is:
 
-1. fixed dark background with sparse vertical bands
+1. fixed dark background with atmospheric depth dither
 2. optional floor grid and cylinder boundary
 3. full-cylinder vertical rain segments
 4. depth-sorted grass, light particles, mixed-width tapered light bands, and yellow accents
@@ -264,7 +264,7 @@ local press rather than a second wind system.
 
 LC008 draw order is:
 
-1. fixed dark background with sparse vertical bands
+1. fixed dark background with atmospheric depth dither
 2. optional floor grid and cylinder boundary with light/wetness-aware midpoint color
 3. full-cylinder vertical rain segments
 4. splash pixels
@@ -308,7 +308,7 @@ does not attach water to all baseline blades.
 
 LC009 draw order keeps droplets quiet:
 
-1. fixed dark background with sparse vertical bands
+1. fixed dark background with atmospheric depth dither
 2. optional floor grid and cylinder boundary with light/wetness/reflection-aware midpoint color
 3. full-cylinder vertical rain segments
 4. splash pixels
@@ -396,6 +396,21 @@ photons. Unlike photons and rain, fireflies remain visible outside the light bea
 because they are their own small light source. Screen size also uses camera
 depth: nearer fireflies can draw as larger glow circles, while far visitors stay
 near single-pixel points.
+
+## Atmospheric Background Depth
+
+LC011.5 changes only the background rendering. `app.py` draws a two-color
+pseudo-transparency layer after clearing the screen: black remains the base, and
+palette background-band color appears as sparse fixed-hash points. Density is
+highest around the centered safe composition and middle air, fades near the
+screen edges, weakens around the grass/floor region, and gains a small boost near
+the projected light axis. CloudShadow reduces the density slightly so the air
+darkens with the existing light state.
+
+The pattern is not random per frame. It uses a deterministic hash over screen
+coordinates plus a slow integer phase derived from light-field elapsed time, so
+the layer breathes by a pixel-scale drift rather than becoming noise. No MENU
+control is added in this wave.
 
 ## Resource Resolution
 

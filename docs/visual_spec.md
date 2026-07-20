@@ -22,6 +22,12 @@ bands or shafts. Wind should layer motion across height and depth. Rain and
 particles should reveal depth with clear small/large variation without
 overwhelming the quiet mood.
 
+Future natural elements should be admitted only when they thicken the feeling of
+summer air. The intended sequence is foreground plant variation, rain memory,
+sky, heat, horizon, and finally sound. This keeps the work anchored in a
+midsummer afternoon and after-rain timeline instead of becoming a catalog of
+summer symbols.
+
 LC003 introduces static curved grass. Each blade uses a base point on the
 cylinder bottom, a height, a natural XZ bend, and a quadratic curve so the bend
 is weak near the root and strongest at the tip. Blade height, bend, color, and
@@ -138,6 +144,39 @@ light, but remain visible outside it because they carry their own glow. Near
 visitors should become visibly larger than far visitors so the screen reads as a
 shallow observed volume, not a flat sparkle layer. Rain should make them scarce,
 and strong rain should stop new arrivals.
+
+LC011.5 adds atmospheric background depth. The background should not read as
+static, wallpaper, or all-over noise. It should feel like black air with a barely
+visible dark-gray particulate layer, strongest in the middle air and near the
+cylinder center. The floor/grass region and screen edges should remain quieter,
+while the light-column neighborhood can raise density just enough to imply air
+catching light. The effect is always on and intentionally has no MENU control.
+
+LC012 should add foxtail grass as a grass relative, not as a new scene subject.
+Use two or three fixed-seed specimens. Compared with ordinary grass, they should
+be taller, more singular, slightly yellow-green, and defined by seed heads with
+six to ten sections. Stems should sway slowly, while the heads lag slightly
+behind wind motion. Rain can make them droop a little, and after-rain can leave a
+few lingering raindrops on the seed heads.
+
+LC013 should deepen after-rain droplets as rain memory, not morning dew. Use
+language and behavior around `raindrop`, `lingering droplet`, or `after-rain
+droplet`; avoid `dew` as the concept label.
+
+LC014 should introduce summer cumulus through backlight rather than full scenic
+cloud painting. On the current dark background, cloud edges can step through
+yellow, white, dark gray, and black instead of a bright blue-sky palette.
+
+LC014.5 should add heat haze only to distant sky elements such as cloud, mountain,
+and sea layers. Grass, rain, fireflies, and the cylinder boundary should not
+warp.
+
+LC015 should keep the horizon minimal: mountain silhouette, a quiet sea line, and
+weak reflection. Avoid detailed scenic illustration.
+
+LC016 should add sound only after the image is strong enough to hold itself.
+Cicadas and very weak wave sound are finishing ambience, not substitutes for
+visual density.
 
 ## Vertical Composition
 

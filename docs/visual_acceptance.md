@@ -121,6 +121,17 @@ LC011-specific completion checks:
 - Grass, light, and rain remain more important than the visitors.
 - No meaningful FPS drop is visible.
 
+LC011.5-specific completion checks:
+
+- Background reads as air depth, not a decorative pattern.
+- Dither is sparse and dark enough that Photon, rain, and fireflies remain clear.
+- Density is strongest around center/middle air and weaker near edges and floor.
+- Light-column vicinity is subtly lifted without drawing another beam.
+- CloudShadow makes the background air slightly darker.
+- Pattern drifts slowly and does not become random noise.
+- MENU remains unchanged.
+- No meaningful FPS drop is visible.
+
 ## Artistic Review
 
 Each wave after LC006 should end with an artistic review in addition to technical

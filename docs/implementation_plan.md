@@ -14,7 +14,13 @@ Each wave should remain small enough to review and commit on its own.
 - LC008: rain, grass, and ground reactions - done
 - LC009: After Rain - done
 - LC010: Observation Cycle - done
-- LC011: title and UI
-- LC012: touch controls
-- LC013: ambience and audio
-- LC014: web and iOS packaging
+- LC011: Firefly Visitors - done
+- LC011.5: Atmospheric Background Depth - done
+- LC012: Foxtail Grass
+- LC013: After-Rain Droplets
+- LC014: Summer Cumulus
+- LC014.5: Heat Haze
+- LC015: Distant Horizon
+- LC016: Summer Ambience
+- LC017: Presentation Pass
+- prototype-v0.3.0

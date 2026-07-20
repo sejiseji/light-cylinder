@@ -18,14 +18,25 @@ darkness.
 The player is primarily an observer. Interaction should gently adjust viewpoint,
 distance, and debug visibility without turning the work into an action game.
 
+## Selection Principle
+
+Future additions should make the summer air feel denser rather than simply add
+summer-labeled objects. Fast insects, human festival props, and night-season
+signals are avoided when they pull the work away from a quiet midsummer
+afternoon, sudden rain, and after-rain recovery.
+
 ## MVP Scope
 
 The MVP should establish a stable mobile-first vertical composition, a
 cylindrical observation volume, procedural grass, layered wind, sliced light,
 optional rain-through-light, restrained rain reactions, after-rain recovery, and
-an optional observation cycle. Rare firefly visitors may be toggled on, but they
-remain a secondary visitor layer rather than the subject. Simple touch controls
-remain a later mobile wave.
+an optional observation cycle. Firefly visitors may be toggled on, and a subtle
+atmospheric background layer can support depth, but both remain secondary to the
+light-and-grass observation. Simple touch controls remain a later mobile wave.
+
+After the current prototype, the next waves build density in this order:
+foxtail grass, after-rain droplet detail, summer cumulus, heat haze, distant
+horizon, summer ambience, and a presentation pass toward `prototype-v0.3.0`.
 
 ## Out Of Scope For MVP
 

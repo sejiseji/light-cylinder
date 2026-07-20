@@ -11,12 +11,17 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC011 adds optional firefly visitors. The scene still starts clear and manual,
-with fireflies off, but pressing `F` or using MENU can allow adjustable visitors
-into the cylinder. They drift farther across the volume with slow blinking,
-appear far less often during rain, and never replace grass, light, rain, or the
-observation cycle as the main subject. Puddles, ripples, thunder, rain audio,
+LC011.5 adds atmospheric background depth. The scene still starts clear and
+manual, but the flat black field now has a very sparse dark-gray air layer that
+is strongest near the cylinder center and middle air, weaker near the floor and
+edges, and slightly lifted around the light column. This stays ON by default and
+does not add a MENU control. Puddles, ripples, thunder, rain audio,
 all-grass droplets, touch input, and web packaging remain later waves.
+
+The next development sequence is focused on making the summer air denser rather
+than adding summer symbols: foxtail grass, after-rain droplets, summer cumulus,
+heat haze, distant horizon, summer ambience, then a presentation pass toward
+`prototype-v0.3.0`.
 
 ## Display Model
 
@@ -48,7 +53,7 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC011 screen starts in a clear viewing state: light on, wind on, rain off,
+The LC011.5 screen starts in a clear viewing state: light on, wind on, rain off,
 fireflies off, boundary off, debug off, auto rotate off. It shows wind-animated
 grass, denser mixed-size light particles, tip lighting, subtle floor light, and
 five quiet mixed-width tapered light bands. Bottom floor rings and radial lines stay hidden until the

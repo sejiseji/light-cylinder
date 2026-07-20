@@ -9,6 +9,12 @@ def test_display_constants() -> None:
     assert config.COMPOSITION_SAFE_WIDTH == 393
     assert config.TARGET_FPS == 30
     assert config.UI_TEXT_SCALE == 3
+    assert config.ATMOSPHERIC_DITHER_STEP == 4
+    assert 0.08 <= config.ATMOSPHERIC_DITHER_BASE_DENSITY <= 0.12
+    assert 0.0 < config.ATMOSPHERIC_DITHER_LIGHT_BOOST < config.ATMOSPHERIC_DITHER_BASE_DENSITY
+    assert 0.0 <= config.ATMOSPHERIC_DITHER_SHADOW_REDUCTION <= 1.0
+    assert config.ATMOSPHERIC_DITHER_PHASE_RATE > 0
+    assert config.ATMOSPHERIC_DITHER_HASH_MODULUS > 0
 
 
 def test_safe_area_invariants() -> None:

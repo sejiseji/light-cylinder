@@ -84,3 +84,9 @@ kept in `FireflyField`, with no per-frame random target churn. Each firefly adds
 only one small depth-sorted draw item and a few pixel operations when its blink
 is visible. The FIREFLY stage changes only the active cap, through 3, 6, and 9
 visitors.
+
+LC011.5 replaces the old sparse vertical background bands with a sparse,
+fixed-hash atmospheric dither over the safe composition area. Candidates are
+sampled every 4 pixels, use no per-frame random calls, and vary only by a slow
+integer phase. Density stays around a thin 8-12 percent feel at its strongest,
+then falls off by screen edge, floor height, and CloudShadow.
