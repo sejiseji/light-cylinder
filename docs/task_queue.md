@@ -17,6 +17,7 @@
 - LC011: Firefly Visitors
 - LC011.5: Atmospheric Background Depth
 - LC012: Foxtail Grass
+- LC012.5: GitHub Pages Web Preview
 
 ## NEXT
 

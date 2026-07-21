@@ -21,11 +21,17 @@ The reference device area is 393 x 852. The internal Pyxel render size is
 448 x 852. The central 393-pixel region is the composition safe area. CSS display
 scale and Pyxel internal resolution must remain separate concerns.
 
-## Mobile Web Direction
+## Web Preview
 
-The future web wrapper should preserve aspect ratio with contain-style fitting,
-prefer 100dvh, account for safe-area insets, and use VisualViewport measurement
-where needed. Browser UI changes must not alter the game coordinate system.
+`scripts/build_web.py` creates the browser preview used for GitHub Pages. The
+script stages only `main.py` and `src`, writes a deterministic Pyxel-compatible
+`.pyxapp` archive with fixed timestamps, then writes the Pyxel Web launcher with
+the virtual gamepad disabled. The committed entry point is `docs/index.html`.
+
+The browser wrapper should continue to preserve the Pyxel coordinate system. Any
+future CSS or page shell should preserve aspect ratio with contain-style fitting,
+prefer 100dvh, account for safe-area insets, and keep browser UI changes
+separate from the internal 448 x 852 render model.
 
 ## Dependency Boundaries
 

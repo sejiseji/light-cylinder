@@ -16,7 +16,8 @@ starts clear and manual, but a few taller fixed-seed foxtails now stand apart
 from the ordinary grass. Their stems sway slowly, their seed heads lag behind
 the wind, rain makes the heads droop slightly, and after-rain can leave a few
 small raindrops on the heads. Puddles, ripples, thunder, rain audio, all-grass
-droplets, touch input, and web packaging remain later waves.
+droplets, touch input, and iOS packaging remain later waves. A GitHub Pages
+entry point is now generated at `docs/index.html` for browser launch checks.
 
 The next development sequence is focused on making the summer air denser rather
 than adding summer symbols: foxtail grass, after-rain droplets, summer cumulus,
@@ -101,6 +102,28 @@ angle follows the observer's chosen baseline.
 - D: toggle debug HUD and light guides
 - MENU button: open the observation tuning panel
 - ESC: quit
+
+## Web Preview
+
+Build the GitHub Pages entry point with:
+
+```sh
+python scripts/build_web.py
+```
+
+This writes `docs/index.html` as a self-contained Pyxel Web page. The generated
+launcher disables Pyxel's virtual gamepad, matching the Fireworks Observer-style
+browser preview without mobile gamepad controls.
+
+For local browser confirmation:
+
+```sh
+python -m http.server 8000 --directory docs
+```
+
+Then open `http://127.0.0.1:8000/`. After pushing, the same committed
+`docs/index.html` can be served by GitHub Pages when the repository Pages source
+is configured to `main` / `docs`.
 
 ## Validate
 

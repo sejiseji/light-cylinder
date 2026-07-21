@@ -14,8 +14,8 @@ the work toward another story, speed, or season.
    cycle, optional firefly visitors, and atmospheric background depth.
 4. Deepen the summer afternoon image in the order people read a landscape:
    foreground plants, after-rain water memory, sky, heat, horizon, and ambience.
-5. Finish presentation quality, then prepare later mobile interaction and
-   packaging work.
+5. Keep the lightweight GitHub Pages preview healthy, finish presentation
+   quality, then prepare later mobile interaction and native packaging work.
 
 Current summer sequence:
 

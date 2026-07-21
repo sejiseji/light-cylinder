@@ -109,17 +109,30 @@ LC012 Foxtail Grass.
 - Foxtail stems sway slowly; seed heads use lagged wind response
 - Rain makes foxtail heads droop slightly; after-rain can leave a couple of head
   raindrops
+- GitHub Pages browser entry generated at `docs/index.html`
+- `scripts/build_web.py` packages the runtime Pyxel app, converts it to HTML,
+  and disables Pyxel's virtual gamepad for Fireworks Observer-style web preview
 
 ## Not Completed
 
 Puddles, ripple simulation, thunder, rain audio, all-grass water drops, touch
-controls, web packaging, and iOS packaging are intentionally not implemented yet.
+controls, and iOS packaging are intentionally not implemented yet.
 
 ## Run
 
 ```sh
 python main.py
 ```
+
+## Web Preview
+
+```sh
+python scripts/build_web.py
+python -m http.server 8000 --directory docs
+```
+
+Open `http://127.0.0.1:8000/`. The committed `docs/index.html` is the GitHub
+Pages entry point and must keep `gamepad: "disabled"`.
 
 ## Validate
 

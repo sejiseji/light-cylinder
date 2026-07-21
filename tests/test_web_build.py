@@ -1,0 +1,51 @@
+from pathlib import Path
+
+import pytest
+
+from scripts.build_web import (
+    DISABLED_GAMEPAD,
+    ENABLED_GAMEPAD,
+    disable_pyxel_web_gamepad,
+    write_pyxapp,
+)
+
+
+def test_disable_pyxel_web_gamepad_replaces_enabled_setting() -> None:
+    html = f'launchPyxel({{ command: "play", {ENABLED_GAMEPAD}, base64: "..." }});'
+
+    patched = disable_pyxel_web_gamepad(html)
+
+    assert ENABLED_GAMEPAD not in patched
+    assert DISABLED_GAMEPAD in patched
+
+
+def test_disable_pyxel_web_gamepad_is_idempotent() -> None:
+    html = f'launchPyxel({{ command: "play", {DISABLED_GAMEPAD}, base64: "..." }});'
+
+    assert disable_pyxel_web_gamepad(html) == html
+
+
+def test_disable_pyxel_web_gamepad_rejects_unrecognized_html() -> None:
+    with pytest.raises(ValueError, match="gamepad setting"):
+        disable_pyxel_web_gamepad("<!doctype html>")
+
+
+def test_committed_github_pages_entry_disables_virtual_gamepad() -> None:
+    html = Path("docs/index.html").read_text(encoding="utf-8")
+
+    assert 'launchPyxel({ command: "play"' in html
+    assert DISABLED_GAMEPAD in html
+    assert ENABLED_GAMEPAD not in html
+
+
+def test_pyxapp_archive_is_deterministic(tmp_path: Path) -> None:
+    app_dir = tmp_path / "app"
+    app_dir.mkdir()
+    (app_dir / "main.py").write_text("print('hello')\n", encoding="utf-8")
+    first = tmp_path / "first.pyxapp"
+    second = tmp_path / "second.pyxapp"
+
+    write_pyxapp(app_dir, first)
+    write_pyxapp(app_dir, second)
+
+    assert first.read_bytes() == second.read_bytes()
