@@ -412,6 +412,21 @@ coordinates plus a slow integer phase derived from light-field elapsed time, so
 the layer breathes by a pixel-scale drift rather than becoming noise. No MENU
 control is added in this wave.
 
+## Foxtail Grass
+
+LC012 adds `Foxtail`, `FoxtailShape`, and `FoxtailField` in `foxtail.py`. They do
+not import Pyxel. Foxtails are treated as grass relatives rather than generic
+decorations: the fixed-seed field creates three tall, singular specimens inside
+the cylinder. Heights are 1.4 to 1.8 times the ordinary grass max height, with a
+five-segment stem and a six-to-ten-section seed head.
+
+`sample_foxtail_shape` accepts wind, rain weight, and after-rain weight. The
+stem follows wind slowly, while the seed head uses a smaller lagged bend so it
+trails the stem. Rain adds a modest downward droop, and after-rain can emit a
+couple of deterministic head droplet positions. Rendering remains in `app.py`,
+where foxtails join the same depth-sorted list as grass, light bands, photons,
+and fireflies.
+
 ## Resource Resolution
 
 Runtime resources should be resolved relative to source files with pathlib or

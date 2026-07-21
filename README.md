@@ -11,12 +11,12 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC011.5 adds atmospheric background depth. The scene still starts clear and
-manual, but the flat black field now has a very sparse dark-gray air layer that
-is strongest near the cylinder center and middle air, weaker near the floor and
-edges, and slightly lifted around the light column. This stays ON by default and
-does not add a MENU control. Puddles, ripples, thunder, rain audio,
-all-grass droplets, touch input, and web packaging remain later waves.
+LC012 adds foxtail grass as a small foreground plant variation. The scene still
+starts clear and manual, but a few taller fixed-seed foxtails now stand apart
+from the ordinary grass. Their stems sway slowly, their seed heads lag behind
+the wind, rain makes the heads droop slightly, and after-rain can leave a few
+small raindrops on the heads. Puddles, ripples, thunder, rain audio, all-grass
+droplets, touch input, and web packaging remain later waves.
 
 The next development sequence is focused on making the summer air denser rather
 than adding summer symbols: foxtail grass, after-rain droplets, summer cumulus,
@@ -53,11 +53,12 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC011.5 screen starts in a clear viewing state: light on, wind on, rain off,
+The LC012 screen starts in a clear viewing state: light on, wind on, rain off,
 fireflies off, boundary off, debug off, auto rotate off. It shows wind-animated
 grass, denser mixed-size light particles, tip lighting, subtle floor light, and
-five quiet mixed-width tapered light bands. Bottom floor rings and radial lines stay hidden until the
-cylinder boundary is shown.
+five quiet mixed-width tapered light bands, with a few taller foxtails as
+foreground memory points. Bottom floor rings and radial lines stay hidden until
+the cylinder boundary is shown.
 Debug mode adds camera state, draw counters, the centered composition safe area,
 environment phase, rain counters, splash count, wetness, grass reaction count,
 tip droplet count, observation cycle phase, and light axis/radius guides. Bottom

@@ -61,6 +61,15 @@ def test_camera_config_invariants() -> None:
     assert config.GRASS_MIN_BEND <= config.GRASS_MAX_BEND
     assert config.GRASS_MIN_STIFFNESS <= config.GRASS_MAX_STIFFNESS
     assert config.GRASS_WIDTH_MULTIPLIER == 2
+    assert config.FOXTAIL_SEED == 8123
+    assert 2 <= config.FOXTAIL_COUNT <= 3
+    assert config.FOXTAIL_STEM_SEGMENTS == 5
+    assert 1.4 <= config.FOXTAIL_HEIGHT_MIN_FACTOR <= config.FOXTAIL_HEIGHT_MAX_FACTOR <= 1.8
+    assert config.FOXTAIL_HEAD_SEGMENTS_MIN >= 6
+    assert config.FOXTAIL_HEAD_SEGMENTS_MAX <= 10
+    assert 0.0 < config.FOXTAIL_HEAD_LAG_FACTOR < 1.0
+    assert config.FOXTAIL_WIND_RESPONSE_SCALE > 0.0
+    assert 0.0 <= config.FOXTAIL_RAIN_DROOP_SCALE <= 1.0
     assert config.WIND_SEED == 2718
     assert config.WIND_BASE_SPEED >= 0.65
     assert config.WIND_RESPONSE_SCALE >= 17.0

@@ -90,3 +90,8 @@ fixed-hash atmospheric dither over the safe composition area. Candidates are
 sampled every 4 pixels, use no per-frame random calls, and vary only by a slow
 integer phase. Density stays around a thin 8-12 percent feel at its strongest,
 then falls off by screen edge, floor height, and CloudShadow.
+
+LC012 adds three fixed-seed foxtail specimens. Each uses five stem segments and
+six to ten head sections, then joins the existing depth-sorted plant/light draw
+list. The work is constant and small: no broad plant field, no per-frame random
+sampling, no collision grid, and no all-grass droplet state.

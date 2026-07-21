@@ -152,12 +152,13 @@ cylinder center. The floor/grass region and screen edges should remain quieter,
 while the light-column neighborhood can raise density just enough to imply air
 catching light. The effect is always on and intentionally has no MENU control.
 
-LC012 should add foxtail grass as a grass relative, not as a new scene subject.
-Use two or three fixed-seed specimens. Compared with ordinary grass, they should
+LC012 adds foxtail grass as a grass relative, not as a new scene subject. It uses
+three fixed-seed specimens. Compared with ordinary grass, they should
 be taller, more singular, slightly yellow-green, and defined by seed heads with
-six to ten sections. Stems should sway slowly, while the heads lag slightly
-behind wind motion. Rain can make them droop a little, and after-rain can leave a
-few lingering raindrops on the seed heads.
+six to ten sections. Stems sway slowly, while the heads lag slightly behind wind
+motion. Rain can make them droop a little, and after-rain can leave a few
+lingering raindrops on the seed heads. They should act as foreground memory
+points, not compete with the grass field as the main subject.
 
 LC013 should deepen after-rain droplets as rain memory, not morning dew. Use
 language and behavior around `raindrop`, `lingering droplet`, or `after-rain

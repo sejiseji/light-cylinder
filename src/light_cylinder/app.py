@@ -26,6 +26,7 @@ from light_cylinder.config import (
     FIREFLY_BRIGHT_THRESHOLD,
     FIREFLY_RING_THRESHOLD,
     FIREFLY_VISIBLE_THRESHOLD,
+    FOXTAIL_SEED,
     GRASS_SEED,
     GRASS_SEGMENTS,
     GRASS_WIDTH_MULTIPLIER,
@@ -87,6 +88,7 @@ from light_cylinder.config import (
 )
 from light_cylinder.environment import EnvironmentState
 from light_cylinder.firefly import Firefly, FireflyField
+from light_cylinder.foxtail import Foxtail, FoxtailField, FoxtailShape, sample_foxtail_shape
 from light_cylinder.grass import GrassBlade, GrassField, compute_wind_bend, sample_blade_points
 from light_cylinder.input import MouseInputState, read_control_intent
 from light_cylinder.light import LightField, LightParticle
@@ -192,6 +194,7 @@ class LightCylinderApp:
             seed=GRASS_SEED,
             grass_count=self.tuning.max_grass_count,
         )
+        self.foxtail_field = FoxtailField.generate(self.world, seed=FOXTAIL_SEED)
         self.wind_field = WindField.create_default()
         self.wind_motion_time = 0.0
         self.light_field = LightField.create_default(
@@ -219,6 +222,7 @@ class LightCylinderApp:
         self.visible_splash_count = 0
         self.visible_droplet_count = 0
         self.visible_firefly_count = 0
+        self.visible_foxtail_count = 0
         self.lit_segment_count = 0
         self.approx_line_draw_calls = 0
 
@@ -778,6 +782,7 @@ class LightCylinderApp:
         self.lit_segment_count = 0
         self.visible_particle_count = 0
         self.visible_firefly_count = 0
+        self.visible_foxtail_count = 0
         sortable: list[tuple[float, str, object]] = [
             (depth, "band", quad) for depth, quad in self._light_band_quads()
         ]
@@ -787,6 +792,9 @@ class LightCylinderApp:
             for depth, particle, position in self._light_particle_items()
         )
         sortable.extend((depth, "firefly", firefly) for depth, firefly in self._firefly_items())
+        sortable.extend(
+            (depth, "foxtail", (foxtail, shape)) for depth, foxtail, shape in self._foxtail_items()
+        )
         for blade_index, blade in enumerate(self.grass_field.blades[: self.tuning.grass_count]):
             points = self._sample_current_blade_points(blade_index, blade)
             midpoint = points[len(points) // 2]
@@ -812,6 +820,10 @@ class LightCylinderApp:
                 continue
             if kind == "firefly":
                 self._draw_firefly(pyxel, payload)
+                continue
+            if kind == "foxtail":
+                foxtail, shape = payload
+                self._draw_foxtail(pyxel, foxtail, shape)
                 continue
 
             blade, points, light_colors = payload
@@ -845,6 +857,78 @@ class LightCylinderApp:
                     pyxel.pset(
                         self._screen_int(tip.x), self._screen_int(tip.y), PALETTE_NORMAL_GRASS
                     )
+
+    def _foxtail_items(self) -> tuple[tuple[float, Foxtail, FoxtailShape], ...]:
+        items: list[tuple[float, Foxtail, FoxtailShape]] = []
+        rain_weight = 1.0 if self.environment.is_raining else 0.0
+        after_rain_weight = (
+            self.environment.effective_floor_wetness(self.ground_reactions.wetness)
+            if self.environment.is_after_rain
+            else 0.0
+        )
+        for foxtail in self.foxtail_field.foxtails:
+            wind = (
+                self._wind_sample(foxtail.base, foxtail.phase)
+                if self.wind_enabled
+                else Vec3(0, 0, 0)
+            )
+            shape = sample_foxtail_shape(foxtail, wind, rain_weight, after_rain_weight)
+            depth = self.camera.world_to_camera(shape.stem_points[-1]).z
+            items.append((depth, foxtail, shape))
+        return tuple(items)
+
+    def _draw_foxtail(self, pyxel, foxtail: Foxtail, shape: FoxtailShape) -> None:
+        visible = False
+        for start, end in pairwise(shape.stem_points):
+            midpoint = (start + end) * 0.5
+            if self._draw_world_line(pyxel, start, end, self._foxtail_stem_color(midpoint)):
+                visible = True
+        for segment_index, (start, end) in enumerate(pairwise(shape.head_points)):
+            midpoint = (start + end) * 0.5
+            color = self._foxtail_head_color(midpoint)
+            if self._draw_world_line(pyxel, start, end, color):
+                visible = True
+            self._draw_foxtail_bristles(pyxel, end, segment_index, color)
+        for droplet in shape.droplet_points:
+            self._draw_foxtail_droplet(pyxel, droplet)
+        if visible:
+            self.visible_foxtail_count += 1
+
+    def _draw_foxtail_bristles(self, pyxel, point: Vec3, index: int, color: int) -> None:
+        projected = self.camera.project(point)
+        if projected is None:
+            return
+        x = self._screen_int(projected.x)
+        y = self._screen_int(projected.y)
+        offset = 1 + index % 2
+        pyxel.pset(x, y, color)
+        pyxel.pset(x + offset, y, color)
+        pyxel.pset(x - offset, y, color)
+        if index % 3 == 0:
+            pyxel.pset(x, y - 1, color)
+
+    def _draw_foxtail_droplet(self, pyxel, point: Vec3) -> bool:
+        intensity = self._light_intensity_at(point) if self.light_enabled else 0.0
+        if intensity < 0.16:
+            return False
+        projected = self.camera.project(point)
+        if projected is None:
+            return False
+        color = PALETTE_BRIGHT_PARTICLE if intensity > 0.54 else PALETTE_DIM_PARTICLE
+        pyxel.pset(self._screen_int(projected.x), self._screen_int(projected.y), color)
+        return True
+
+    def _foxtail_stem_color(self, point: Vec3) -> int:
+        intensity = self._light_intensity_at(point) if self.light_enabled else 0.0
+        if intensity > 0.42:
+            return PALETTE_STRONGLY_LIT_GRASS
+        return PALETTE_NORMAL_GRASS
+
+    def _foxtail_head_color(self, point: Vec3) -> int:
+        intensity = self._light_intensity_at(point) if self.light_enabled else 0.0
+        if intensity > 0.36:
+            return PALETTE_STRONGLY_LIT_GRASS
+        return PALETTE_NORMAL_GRASS
 
     def _firefly_items(self) -> tuple[tuple[float, Firefly], ...]:
         if not self.firefly_enabled:
@@ -1106,28 +1190,29 @@ class LightCylinderApp:
             (right_x, right_y + line, f"LIT {self.lit_segment_count}", PALETTE_DEBUG_TEXT),
             (right_x, right_y + line * 2, f"PT {self.visible_particle_count}", PALETTE_DEBUG_TEXT),
             (right_x, right_y + line * 3, f"RAIN {self.visible_rain_count}", PALETTE_DEBUG_TEXT),
+            (right_x, right_y + line * 4, f"FOX {self.visible_foxtail_count}", PALETTE_DEBUG_TEXT),
             (
                 right_x,
-                right_y + line * 4,
+                right_y + line * 5,
                 f"WET {self.ground_reactions.wetness:.2f}",
                 PALETTE_DEBUG_TEXT,
             ),
-            (right_x, right_y + line * 5, f"DROP {self.visible_droplet_count}", PALETTE_DEBUG_TEXT),
+            (right_x, right_y + line * 6, f"DROP {self.visible_droplet_count}", PALETTE_DEBUG_TEXT),
             (
                 right_x,
-                right_y + line * 6,
+                right_y + line * 7,
                 f"FF {self.visible_firefly_count}",
                 PALETTE_DEBUG_TEXT,
             ),
             (
                 right_x,
-                right_y + line * 7,
+                right_y + line * 8,
                 f"GUST {self.wind_field.current_gust_strength:.2f}",
                 PALETTE_DEBUG_TEXT,
             ),
             (
                 right_x,
-                right_y + line * 8,
+                right_y + line * 9,
                 f"TIME {self.wind_field.elapsed_time:.1f}",
                 PALETTE_DEBUG_TEXT,
             ),

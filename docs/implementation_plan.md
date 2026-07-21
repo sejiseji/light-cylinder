@@ -16,7 +16,7 @@ Each wave should remain small enough to review and commit on its own.
 - LC010: Observation Cycle - done
 - LC011: Firefly Visitors - done
 - LC011.5: Atmospheric Background Depth - done
-- LC012: Foxtail Grass
+- LC012: Foxtail Grass - done
 - LC013: After-Rain Droplets
 - LC014: Summer Cumulus
 - LC014.5: Heat Haze

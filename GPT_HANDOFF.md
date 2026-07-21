@@ -8,7 +8,7 @@ cylindrical natural space.
 
 ## Current Wave
 
-LC011.5 Atmospheric Background Depth.
+LC012 Foxtail Grass.
 
 ## Completed
 
@@ -104,6 +104,11 @@ LC011.5 Atmospheric Background Depth.
   in MENU
 - Background dither density varies by safe-area center distance, height, light
   axis proximity, and CloudShadow
+- Pyxel-independent `Foxtail`, `FoxtailShape`, and `FoxtailField`
+- Three fixed-seed foxtail specimens inside the cylinder
+- Foxtail stems sway slowly; seed heads use lagged wind response
+- Rain makes foxtail heads droop slightly; after-rain can leave a couple of head
+  raindrops
 
 ## Not Completed
 
@@ -325,6 +330,7 @@ LC006.5 added Artistic Review notes to every wave result from now on.
   photons; the FIREFLY stage changes the cap through 3, 6, and 9
 - LC011.5 adds sparse fixed-hash background dither every 4 pixels, with no
   per-frame random sampling
+- LC012 adds three foxtails with five stem segments and six to ten head sections
 - Approximate line draw calls are reported in debug HUD
 - GUI review kept a stable 30 FPS feel with light, wind, particles, boundary
   on/off, zoom, and slow auto rotate.
@@ -337,18 +343,17 @@ or temporary logs in tracked files.
 
 ## Git
 
-LC000 through LC011 plus environmental-control refinements were committed and
+LC000 through LC011.5 plus environmental-control refinements were committed and
 pushed with approval, and `prototype-v0.1.0` marks the first observation
-prototype. LC011.5 is in the working tree until explicitly approved for commit.
+prototype. LC012 is in the working tree until explicitly approved for commit.
 Future commits, pushes, and tags require user approval.
 
 ## Next Wave
 
-Next work should move to LC012 Foxtail Grass after visually reviewing whether
-the background depth remains subtle enough. The roadmap is now: LC012 Foxtail
-Grass, LC013 After-Rain Droplets, LC014 Summer Cumulus, LC014.5 Heat Haze, LC015
-Distant Horizon, LC016 Summer Ambience, LC017 Presentation Pass, then
-`prototype-v0.3.0`.
+Next work should move to LC013 After-Rain Droplets after visually reviewing
+whether foxtails stay plant-like and do not steal focus. The roadmap is now:
+LC013 After-Rain Droplets, LC014 Summer Cumulus, LC014.5 Heat Haze, LC015 Distant
+Horizon, LC016 Summer Ambience, LC017 Presentation Pass, then `prototype-v0.3.0`.
 
 The selection rule is to add only what makes the summer air feel denser. Avoid
 summer-coded objects that introduce a different speed, human story, or season.

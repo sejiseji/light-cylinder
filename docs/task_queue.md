@@ -16,14 +16,14 @@
 - LC010: Observation Cycle
 - LC011: Firefly Visitors
 - LC011.5: Atmospheric Background Depth
+- LC012: Foxtail Grass
 
 ## NEXT
 
-- LC012: Foxtail Grass
+- LC013: After-Rain Droplets
 
 ## LATER
 
-- LC013: After-Rain Droplets
 - LC014: Summer Cumulus
 - LC014.5: Heat Haze
 - LC015: Distant Horizon

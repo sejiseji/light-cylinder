@@ -60,6 +60,21 @@ GRASS_MIN_STIFFNESS = 0.45
 GRASS_MAX_STIFFNESS = 1.0
 GRASS_WIDTH_MULTIPLIER = 2
 
+FOXTAIL_SEED = 8123
+FOXTAIL_COUNT = 3
+FOXTAIL_STEM_SEGMENTS = 5
+FOXTAIL_HEIGHT_MIN_FACTOR = 1.4
+FOXTAIL_HEIGHT_MAX_FACTOR = 1.8
+FOXTAIL_NATURAL_BEND_MIN = 5.0
+FOXTAIL_NATURAL_BEND_MAX = 16.0
+FOXTAIL_HEAD_LENGTH_MIN = 12.0
+FOXTAIL_HEAD_LENGTH_MAX = 18.0
+FOXTAIL_HEAD_SEGMENTS_MIN = 6
+FOXTAIL_HEAD_SEGMENTS_MAX = 10
+FOXTAIL_HEAD_LAG_FACTOR = 0.56
+FOXTAIL_WIND_RESPONSE_SCALE = 11.0
+FOXTAIL_RAIN_DROOP_SCALE = 0.12
+
 WIND_SEED = 2718
 WIND_BASE_DIRECTION_ANGLE = 0.35
 WIND_BASE_SPEED = 0.65
@@ -370,6 +385,24 @@ def validate_display_config() -> None:
         raise ValueError("grass stiffness range must be positive and ordered")
     if GRASS_WIDTH_MULTIPLIER < 1:
         raise ValueError("grass width multiplier must be positive")
+    if FOXTAIL_COUNT < 0:
+        raise ValueError("foxtail count must be non-negative")
+    if FOXTAIL_STEM_SEGMENTS < 1:
+        raise ValueError("foxtail stem segments must be positive")
+    if not 1.0 <= FOXTAIL_HEIGHT_MIN_FACTOR <= FOXTAIL_HEIGHT_MAX_FACTOR:
+        raise ValueError("foxtail height factors must be ordered above grass")
+    if FOXTAIL_NATURAL_BEND_MIN < 0 or FOXTAIL_NATURAL_BEND_MAX < FOXTAIL_NATURAL_BEND_MIN:
+        raise ValueError("foxtail natural bend range must be ordered")
+    if FOXTAIL_HEAD_LENGTH_MIN <= 0 or FOXTAIL_HEAD_LENGTH_MAX < FOXTAIL_HEAD_LENGTH_MIN:
+        raise ValueError("foxtail head length range must be positive and ordered")
+    if FOXTAIL_HEAD_SEGMENTS_MIN < 1 or FOXTAIL_HEAD_SEGMENTS_MAX < FOXTAIL_HEAD_SEGMENTS_MIN:
+        raise ValueError("foxtail head segment range must be positive and ordered")
+    if not 0.0 <= FOXTAIL_HEAD_LAG_FACTOR <= 1.0:
+        raise ValueError("foxtail head lag factor must be normalized")
+    if FOXTAIL_WIND_RESPONSE_SCALE < 0:
+        raise ValueError("foxtail wind response must be non-negative")
+    if not 0.0 <= FOXTAIL_RAIN_DROOP_SCALE <= 1.0:
+        raise ValueError("foxtail rain droop must be normalized")
     if WIND_BASE_SPEED < 0:
         raise ValueError("wind base speed must be non-negative")
     if WIND_RESPONSE_SCALE < 0:

@@ -38,6 +38,10 @@ After the current prototype, the next waves build density in this order:
 foxtail grass, after-rain droplet detail, summer cumulus, heat haze, distant
 horizon, summer ambience, and a presentation pass toward `prototype-v0.3.0`.
 
+Foxtail grass is admitted as foreground plant variation because it thickens the
+summer air without introducing a new story. It should remain a few tall
+specimens, not a second grass system.
+
 ## Out Of Scope For MVP
 
 Complex progression, scoring, inventory, network features, account systems, and

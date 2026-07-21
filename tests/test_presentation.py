@@ -225,6 +225,15 @@ def test_photons_are_available_for_depth_sorting_with_light_bands() -> None:
     assert all(depth > 0.0 for depth, _particle, _position in particle_items)
 
 
+def test_foxtails_are_available_for_depth_sorting() -> None:
+    app = LightCylinderApp()
+
+    items = app._foxtail_items()
+
+    assert len(items) == 3
+    assert all(depth > 0.0 for depth, _foxtail, _shape in items)
+
+
 def test_menu_button_toggles_observation_panel() -> None:
     app = LightCylinderApp()
     x, y, width, height = MENU_BUTTON_RECT

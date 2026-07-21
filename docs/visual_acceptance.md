@@ -132,6 +132,17 @@ LC011.5-specific completion checks:
 - MENU remains unchanged.
 - No meaningful FPS drop is visible.
 
+LC012-specific completion checks:
+
+- Foxtails read as grass relatives, not a new unrelated object.
+- Only two to three tall specimens are present.
+- Seed heads are visibly distinct from ordinary grass blades.
+- Head motion lags behind stem motion.
+- Rain makes heads droop slightly without collapsing them.
+- AFTER_RAIN can leave a few head raindrops.
+- Foxtails do not steal the scene from the grass field and light.
+- No meaningful FPS drop is visible.
+
 ## Artistic Review
 
 Each wave after LC006 should end with an artistic review in addition to technical
