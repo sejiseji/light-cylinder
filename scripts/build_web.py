@@ -13,6 +13,7 @@ ENABLED_GAMEPAD = 'gamepad: "enabled"'
 DISABLED_GAMEPAD = 'gamepad: "disabled"'
 APP_NAME = "light-cylinder-web"
 FIXED_ZIP_DATE = (1980, 1, 1, 0, 0, 0)
+DEFAULT_OUTPUTS = ("index.html", "docs/index.html")
 
 
 def disable_pyxel_web_gamepad(html: str) -> str:
@@ -76,7 +77,7 @@ def write_html(pyxapp: Path, html: Path) -> None:
     )
 
 
-def build_web(root: Path, output: Path) -> Path:
+def build_web(root: Path, outputs: list[Path]) -> tuple[Path, ...]:
     build_dir = root / "web" / "build"
     app_dir = build_dir / APP_NAME
     build_dir.mkdir(parents=True, exist_ok=True)
@@ -91,22 +92,28 @@ def build_web(root: Path, output: Path) -> Path:
     write_html(pyxapp, html)
 
     patched = disable_pyxel_web_gamepad(html.read_text(encoding="utf-8"))
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(patched, encoding="utf-8")
-    return output
+    for output in outputs:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(patched, encoding="utf-8")
+    return tuple(outputs)
 
 
 def main(argv: list[str] | None = None) -> int:
     root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description="Build GitHub Pages HTML for Light Cylinder.")
-    parser.add_argument("--output", type=Path, default=root / "docs" / "index.html")
+    parser.add_argument(
+        "--output",
+        action="append",
+        type=Path,
+        help="HTML output path. May be repeated. Defaults to root and docs entries.",
+    )
     args = parser.parse_args(argv)
 
-    output = args.output
-    if not output.is_absolute():
-        output = root / output
-    built = build_web(root, output)
-    print(f"Built {built.relative_to(root)} with Pyxel virtual gamepad disabled.")
+    outputs = args.output or [Path(path) for path in DEFAULT_OUTPUTS]
+    resolved_outputs = [output if output.is_absolute() else root / output for output in outputs]
+    built_outputs = build_web(root, resolved_outputs)
+    built_names = ", ".join(str(path.relative_to(root)) for path in built_outputs)
+    print(f"Built {built_names} with Pyxel virtual gamepad disabled.")
     return 0
 
 

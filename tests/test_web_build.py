@@ -31,11 +31,14 @@ def test_disable_pyxel_web_gamepad_rejects_unrecognized_html() -> None:
 
 
 def test_committed_github_pages_entry_disables_virtual_gamepad() -> None:
-    html = Path("docs/index.html").read_text(encoding="utf-8")
+    for entry in (Path("index.html"), Path("docs/index.html")):
+        html = entry.read_text(encoding="utf-8")
 
-    assert 'launchPyxel({ command: "play"' in html
-    assert DISABLED_GAMEPAD in html
-    assert ENABLED_GAMEPAD not in html
+        assert 'launchPyxel({ command: "play"' in html
+        assert "<pyxel-run" not in html
+        assert "Pythonのファイル名.py" not in html
+        assert DISABLED_GAMEPAD in html
+        assert ENABLED_GAMEPAD not in html
 
 
 def test_pyxapp_archive_is_deterministic(tmp_path: Path) -> None:

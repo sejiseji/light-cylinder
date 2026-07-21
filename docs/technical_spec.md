@@ -26,7 +26,9 @@ scale and Pyxel internal resolution must remain separate concerns.
 `scripts/build_web.py` creates the browser preview used for GitHub Pages. The
 script stages only `main.py` and `src`, writes a deterministic Pyxel-compatible
 `.pyxapp` archive with fixed timestamps, then writes the Pyxel Web launcher with
-the virtual gamepad disabled. The committed entry point is `docs/index.html`.
+the virtual gamepad disabled. The committed entry points are `index.html` and
+`docs/index.html`, so GitHub Pages works from either `main` / root or `main` /
+`docs`.
 
 The browser wrapper should continue to preserve the Pyxel coordinate system. Any
 future CSS or page shell should preserve aspect ratio with contain-style fitting,
