@@ -17,6 +17,8 @@ Each wave should remain small enough to review and commit on its own.
 - LC011: Firefly Visitors - done
 - LC011.5: Atmospheric Background Depth - done
 - LC012: Foxtail Grass - done
+- LC012.5: GitHub Pages Web Preview - done
+- LC012.6: Ground and Grass Optimization - done
 - LC013: After-Rain Droplets
 - LC014: Summer Cumulus
 - LC014.5: Heat Haze

@@ -317,13 +317,14 @@ does not attach water to all baseline blades.
 LC009 draw order keeps droplets quiet:
 
 1. fixed dark background with atmospheric depth dither
-2. optional floor grid and cylinder boundary with light/wetness/reflection-aware midpoint color
-3. full-cylinder vertical rain segments
-4. splash pixels
-5. depth-sorted grass/reactions, light particles, mixed-width tapered light bands, and yellow accents
-6. light-gated tip droplet pixels
-7. floor spark pixels
-8. debug-only safe area, counters, light axis, and light guide rings
+2. fixed dark-soil ground marks with light/wetness/reflection-aware color
+3. optional floor grid and cylinder boundary with light/wetness/reflection-aware midpoint color
+4. full-cylinder vertical rain segments
+5. splash pixels
+6. depth-sorted grass/reactions, light particles, mixed-width tapered light bands, and yellow accents
+7. light-gated tip droplet pixels
+8. floor spark pixels
+9. debug-only safe area, counters, light axis, and light guide rings
 
 Puddles, ripple simulation, thunder, rain audio, and all-grass droplet retention
 remain out of scope.
@@ -335,7 +336,7 @@ and an auto-rotate ON/OFF toggle.
 All controls start at stage 1, which is the LC009 baseline:
 
 - photon density: draws the first 360, 720, or 1080 generated light particles
-- grass density: draws the first 300, 375, or 450 generated grass blades
+- grass density: draws the first 120, 180, or 240 generated grass blades
 - wind strength: keeps the steady wind anchor, amplifies motion by 1.0, 1.85, or
   2.7, and advances wind motion time by 1.0, 1.45, or 2.0
 - rain amount: sets rain intensity to 0.45, 0.65, or 0.85
@@ -349,6 +350,8 @@ The app pre-generates the maximum particle and grass budgets, then draws the
 active prefix for the selected stage. This keeps stage changes deterministic and
 avoids regenerating scene data while the observation is running.
 The grass control changes draw density, not the deterministic generated field.
+The generated field uses fixed clumps, so lower draw counts expose soil openings
+without making the scene evenly sparse.
 Light bands are inserted into the same depth-sorted draw list as grass blades so
 rotation can affect the apparent front/back relationship between blades and
 bands.
@@ -434,6 +437,17 @@ trails the stem. Rain adds a modest downward droop, and after-rain can emit a
 couple of deterministic head droplet positions. Rendering remains in `app.py`,
 where foxtails join the same depth-sorted list as grass, light bands, photons,
 and fireflies.
+
+## Ground And Grass Optimization
+
+LC012.6 lowers ordinary grass stages to 120, 180, and 240 blades and changes
+`GrassField.generate` to use clump-weighted fixed-seed placement. The static
+`GrassBlade` data model remains unchanged.
+
+The app also builds 220 deterministic `ground_soil_marks` at startup. These
+marks sit on the bottom plane, render in normal viewing, and use the same
+`select_floor_color` path as wet/light floor cues. They are distinct from the
+debug floor rings and radial guide lines, which remain boundary-only.
 
 ## Resource Resolution
 

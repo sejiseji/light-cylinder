@@ -34,14 +34,15 @@ large separate light-spot field. The light beam itself is not drawn in normal
 view.
 
 LC006 originally kept 360 grass blades, 5 nominal segments per blade, 48
-particles, and 28 floor spark points. Current observation controls lower the
-grass draw budget to 300 / 375 / 450 to avoid stage-3 spikes. Tapering means the
-visible grass segment count is not the same as line draw calls; the debug HUD
-reports visible blades, nominal segments, approximate line draw calls, lit
-segments, and visible particles. In GUI review, HUD off, boundary on/off, light
-on/off, wind on/off, zoom, and slow auto rotate held a stable 30 FPS feel. Web
-packaging should re-profile background bands, taper line calls, and particle
-drawing after browser scaling is introduced.
+particles, and 28 floor spark points. Observation controls later lowered the
+grass draw budget to 300 / 375 / 450, then LC012.6 lowered it again to
+120 / 180 / 240 for web responsiveness. Tapering means the visible grass segment
+count is not the same as line draw calls; the debug HUD reports visible blades,
+nominal segments, approximate line draw calls, lit segments, and visible
+particles. In GUI review, HUD off, boundary on/off, light on/off, wind on/off,
+zoom, and slow auto rotate held a stable 30 FPS feel. Web packaging should
+continue to re-profile background dither, soil marks, taper line calls, and
+particle drawing after browser scaling is introduced.
 
 LC006.5 does not increase grass, particle, or spark counts. Camera inertia is
 constant-time app state. Micro wind, cloud shadow, and particle random walk add a
@@ -67,8 +68,8 @@ simple hold/fall arithmetic. There is no all-blade water state, no puddle grid,
 no ripple solver, no audio engine, and no per-frame random sampling.
 
 The observation MENU pre-generates the stage-3 budgets, then draws active
-prefixes. Stage 1 now uses 360 light particles and 300 grass blades; stage 3
-raises those draw budgets to 1080 particles and 450 grass blades. Grass line
+prefixes. Stage 1 now uses 360 light particles and 120 grass blades; stage 3
+raises those draw budgets to 1080 particles and 240 grass blades. Grass line
 width is a drawing multiplier, not additional blade geometry. The rain stage
 changes intensity only and does not increase the fixed drop pool size.
 Light bands are five projected quadrilaterals with mixed width factors; they add
@@ -95,3 +96,10 @@ LC012 adds three fixed-seed foxtail specimens. Each uses five stem segments and
 six to ten head sections, then joins the existing depth-sorted plant/light draw
 list. The work is constant and small: no broad plant field, no per-frame random
 sampling, no collision grid, and no all-grass droplet state.
+
+LC012.6 adds 220 fixed ground soil marks and changes ordinary grass generation
+from an even field to clumped placement. The soil marks are generated once at
+startup and only projected/drawn each frame. The grass maximum drops to 240
+blades, or about 1,200 nominal segments before near-clip rejection, making stage
+3 close to the former stage-2 budget while preserving visual density through
+clustering.

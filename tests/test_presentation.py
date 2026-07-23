@@ -16,6 +16,7 @@ from light_cylinder.app import (
 from light_cylinder.config import (
     ATMOSPHERIC_DITHER_BASE_DENSITY,
     GRASS_WIDTH_MULTIPLIER,
+    GROUND_SOIL_MARK_COUNT,
     LIGHT_ACCENT_BAND_COUNT,
     MENU_RAIN_INTENSITIES,
     OBSERVATION_CYCLE_CLEAR_DURATION,
@@ -27,6 +28,7 @@ from light_cylinder.config import (
     PALETTE_FOREGROUND_GRASS,
     PALETTE_GROUND_SHADOW,
     PALETTE_GROUND_STRONG_LIGHT,
+    PALETTE_GROUND_WET,
     PALETTE_LIT_GRASS,
     PALETTE_NORMAL_GRASS,
     PALETTE_STRONGLY_LIT_GRASS,
@@ -52,6 +54,10 @@ def test_floor_light_mapping_has_three_levels() -> None:
     assert select_floor_color(PALETTE_GROUND_SHADOW, 0.5) != PALETTE_GROUND_SHADOW
     assert select_floor_color(PALETTE_GROUND_SHADOW, 0.9) != PALETTE_GROUND_SHADOW
     assert select_floor_color(PALETTE_GROUND_SHADOW, 0.0, 0.8) != PALETTE_GROUND_SHADOW
+
+
+def test_floor_wet_mapping_uses_dark_soil_without_light() -> None:
+    assert select_floor_color(PALETTE_GROUND_SHADOW, 0.0, 0.8) == PALETTE_GROUND_WET
 
 
 def test_particle_color_mapping_uses_dim_and_bright_levels() -> None:
@@ -232,6 +238,15 @@ def test_foxtails_are_available_for_depth_sorting() -> None:
 
     assert len(items) == 3
     assert all(depth > 0.0 for depth, _foxtail, _shape in items)
+
+
+def test_ground_soil_marks_are_fixed_on_the_cylinder_floor() -> None:
+    app = LightCylinderApp()
+
+    assert len(app.ground_soil_marks) == GROUND_SOIL_MARK_COUNT
+    assert all(app.world.contains(point) for point, _width in app.ground_soil_marks)
+    assert all(point.y == app.world.bottom_y for point, _width in app.ground_soil_marks)
+    assert {width for _point, width in app.ground_soil_marks} == {1, 2}
 
 
 def test_menu_button_toggles_observation_panel() -> None:

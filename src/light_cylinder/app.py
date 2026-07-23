@@ -1,5 +1,6 @@
 from itertools import pairwise
 from math import cos, sin, sqrt, tau
+from random import Random
 
 from light_cylinder.camera import Camera
 from light_cylinder.config import (
@@ -30,6 +31,10 @@ from light_cylinder.config import (
     GRASS_SEED,
     GRASS_SEGMENTS,
     GRASS_WIDTH_MULTIPLIER,
+    GROUND_SOIL_MARK_COUNT,
+    GROUND_SOIL_MARK_MAX_RADIUS,
+    GROUND_SOIL_MARK_MIN_RADIUS,
+    GROUND_SOIL_SEED,
     LIGHT_ACCENT_BAND_COUNT,
     LIGHT_ACCENT_BAND_RATE,
     LIGHT_ACCENT_BAND_WIDTHS,
@@ -68,6 +73,7 @@ from light_cylinder.config import (
     PALETTE_GROUND_LIGHT,
     PALETTE_GROUND_SHADOW,
     PALETTE_GROUND_STRONG_LIGHT,
+    PALETTE_GROUND_WET,
     PALETTE_LIT_GRASS,
     PALETTE_NORMAL_GRASS,
     PALETTE_SAFE_AREA,
@@ -101,6 +107,7 @@ from light_cylinder.weather import WindField
 from light_cylinder.world import CylinderWorld
 
 WorldLine = tuple[Vec3, Vec3, int]
+GroundSoilMark = tuple[Vec3, int]
 GrassPath = tuple[GrassBlade, tuple[Vec3, ...]]
 LitGrassPath = tuple[GrassBlade, tuple[Vec3, ...], tuple[int, int, int]]
 LightBandQuad = tuple[int, int, int, int, int, int, int, int, int]
@@ -188,6 +195,7 @@ class LightCylinderApp:
         self.menu_open = False
         self.cylinder_lines = self._build_cylinder_lines()
         self.floor_lines = self._build_floor_lines()
+        self.ground_soil_marks = self._build_ground_soil_marks()
         self.axis_lines = self._build_axis_lines()
         self.grass_field = GrassField.generate(
             self.world,
@@ -491,6 +499,7 @@ class LightCylinderApp:
         return ((start.x, start.y), (end.x, end.y))
 
     def _draw_cylinder_scene(self, pyxel) -> None:
+        self._draw_ground_soil(pyxel)
         if self.boundary_visible:
             self._draw_floor(pyxel)
             self._draw_depth_sorted_lines(pyxel, self.cylinder_lines)
@@ -512,6 +521,23 @@ class LightCylinderApp:
         for _depth, (start, end, color) in sorted(sortable, key=lambda item: item[0], reverse=True):
             midpoint = (start + end) * 0.5
             self._draw_world_line(pyxel, start, end, self._floor_color(midpoint, color))
+
+    def _draw_ground_soil(self, pyxel) -> None:
+        sortable: list[tuple[float, GroundSoilMark]] = []
+        for mark in self.ground_soil_marks:
+            point, _width = mark
+            sortable.append((self.camera.world_to_camera(point).z, mark))
+
+        for _depth, (point, width) in sorted(sortable, key=lambda item: item[0], reverse=True):
+            projected = self.camera.project(point)
+            if projected is None:
+                continue
+            x = self._screen_int(projected.x)
+            y = self._screen_int(projected.y)
+            color = self._floor_color(point, PALETTE_GROUND_SHADOW)
+            pyxel.pset(x, y, color)
+            if width > 1:
+                pyxel.pset(x + 1, y, color)
 
     def _draw_ground_sparks(self, pyxel) -> None:
         if not self.light_enabled:
@@ -829,6 +855,7 @@ class LightCylinderApp:
             blade, points, light_colors = payload
             blade_visible = False
             segment_count = len(points) - 1
+            self._draw_soil_anchor(pyxel, points[0])
             for segment_index, (start, end) in enumerate(pairwise(points)):
                 color = self._grass_segment_color(light_colors, segment_index, segment_count)
                 draw_calls = self._draw_grass_segment(
@@ -879,6 +906,7 @@ class LightCylinderApp:
 
     def _draw_foxtail(self, pyxel, foxtail: Foxtail, shape: FoxtailShape) -> None:
         visible = False
+        self._draw_soil_anchor(pyxel, shape.stem_points[0])
         for start, end in pairwise(shape.stem_points):
             midpoint = (start + end) * 0.5
             if self._draw_world_line(pyxel, start, end, self._foxtail_stem_color(midpoint)):
@@ -967,6 +995,17 @@ class LightCylinderApp:
             pyxel.circb(x, y, min(4, radius + 1), PALETTE_GROUND_STRONG_LIGHT)
         pyxel.pset(x, y, center_color)
         self.visible_firefly_count += 1
+        return True
+
+    def _draw_soil_anchor(self, pyxel, point: Vec3) -> bool:
+        projected = self.camera.project(point)
+        if projected is None:
+            return False
+        color = self._floor_color(point, PALETTE_GROUND_SHADOW)
+        x = self._screen_int(projected.x)
+        y = self._screen_int(projected.y)
+        pyxel.pset(x, y, color)
+        pyxel.pset(x + 1, y, color)
         return True
 
     def _sample_current_blade_points(
@@ -1377,6 +1416,17 @@ class LightCylinderApp:
 
         return tuple(lines)
 
+    def _build_ground_soil_marks(self) -> tuple[GroundSoilMark, ...]:
+        rng = Random(GROUND_SOIL_SEED)
+        marks: list[GroundSoilMark] = []
+        radius_span = GROUND_SOIL_MARK_MAX_RADIUS - GROUND_SOIL_MARK_MIN_RADIUS
+        for _index in range(GROUND_SOIL_MARK_COUNT):
+            radius = GROUND_SOIL_MARK_MIN_RADIUS + radius_span * rng.random()
+            point = self.world.sample_bottom_point(radius * radius, rng.random())
+            width = 2 if rng.random() > 0.78 else 1
+            marks.append((point, width))
+        return tuple(marks)
+
     def _build_axis_lines(self) -> tuple[WorldLine, ...]:
         origin = self.world.bottom_center
         return (
@@ -1464,7 +1514,7 @@ def select_grass_light_color(base_color: int, intensity: float, tier_weight: flo
 
 def select_floor_color(base_color: int, intensity: float, wetness: float = 0.0) -> int:
     if wetness > 0.68 and intensity <= LIGHT_FLOOR_THRESHOLD_LOW:
-        return PALETTE_BACKGROUND_BAND
+        return PALETTE_GROUND_WET
     if wetness > 0.28 and intensity > LIGHT_FLOOR_THRESHOLD_MEDIUM:
         return PALETTE_GROUND_LIGHT
     if intensity > LIGHT_FLOOR_THRESHOLD_HIGH:
@@ -1472,7 +1522,7 @@ def select_floor_color(base_color: int, intensity: float, wetness: float = 0.0) 
     if intensity > LIGHT_FLOOR_THRESHOLD_MEDIUM:
         return PALETTE_GROUND_LIGHT
     if intensity > LIGHT_FLOOR_THRESHOLD_LOW:
-        return PALETTE_CYLINDER_NEAR_EDGE
+        return PALETTE_GROUND_LIGHT
     return base_color
 
 

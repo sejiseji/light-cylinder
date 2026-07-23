@@ -32,7 +32,10 @@ cylindrical observation volume, procedural grass, layered wind, sliced light,
 optional rain-through-light, restrained rain reactions, after-rain recovery, and
 an optional observation cycle. Firefly visitors may be toggled on, and a subtle
 atmospheric background layer can support depth, but both remain secondary to the
-light-and-grass observation. Simple touch controls remain a later mobile wave.
+light-and-grass observation. Dark soil and lower clustered grass density are
+part of the presentation budget: they create breathing room around the plants
+and improve the web preview without changing the subject. Simple touch controls
+remain a later mobile wave.
 
 After the current prototype, the next waves build density in this order:
 foxtail grass, after-rain droplet detail, summer cumulus, heat haze, distant

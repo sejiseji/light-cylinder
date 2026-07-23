@@ -35,11 +35,12 @@ resting bend. WIND stages also speed up the wind motion time by 1.0, 1.45, and
 `AUTO` ON/OFF toggle for auto rotate, a `RAIN` ON/OFF toggle for rain, and a
 `FIREFLY` ON/OFF toggle for firefly visitors. Stage 1 is the current baseline
 composition for all six stage controls. Settings are session-only and reset to
-stage 1 on restart. The `AMOUNT` stage changes only the rain amount preset; rain
-ON/OFF is controlled by either `N` or MENU `RAIN`. The `FIREFLY` stage changes
-the active visitor cap through 3, 6, and 9, while the lower `FIREFLY` toggle controls
-whether visitors can appear at all. Fireflies start OFF and can be toggled by
-either `F` or MENU `FIREFLY`.
+stage 1 on restart. The `GRASS` stage draws 120, 180, or 240 blades from the
+fixed clumped field. The `AMOUNT` stage changes only the rain amount preset;
+rain ON/OFF is controlled by either `N` or MENU `RAIN`. The `FIREFLY` stage
+changes the active visitor cap through 3, 6, and 9, while the lower `FIREFLY`
+toggle controls whether visitors can appear at all. Fireflies start OFF and can
+be toggled by either `F` or MENU `FIREFLY`.
 The panel captures mouse input only inside its button and panel region, so
 normal drag rotation continues elsewhere.
 

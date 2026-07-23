@@ -5,6 +5,7 @@ from math import cos, isfinite, sin, tau
 from random import Random
 
 from light_cylinder.config import (
+    GRASS_CLUSTER_LAYOUT,
     GRASS_COUNT,
     GRASS_MAX_BEND,
     GRASS_MAX_HEIGHT,
@@ -12,6 +13,8 @@ from light_cylinder.config import (
     GRASS_MIN_BEND,
     GRASS_MIN_HEIGHT,
     GRASS_MIN_STIFFNESS,
+    GRASS_OPEN_SPACE_WEIGHT,
+    GRASS_RADIAL_DENSITY_WEIGHT,
     GRASS_SEED,
     WIND_MAX_BEND_RATIO,
     WIND_RESPONSE_SCALE,
@@ -55,7 +58,7 @@ class GrassField:
         while len(blades) < grass_count and attempts < attempts_limit:
             attempts += 1
             base = world.sample_bottom_point(rng.random(), rng.random())
-            if rng.random() > density_weight(world.normalized_radius(base)):
+            if rng.random() > clump_density_weight(base, world):
                 continue
 
             blades.append(
@@ -81,6 +84,28 @@ class GrassField:
 
 def density_weight(normalized_radius: float) -> float:
     return max(0.0, min(1.0, 1.0 - 0.35 * abs(normalized_radius - 0.65)))
+
+
+def clump_density_weight(point: Vec3, world: CylinderWorld) -> float:
+    radial_weight = density_weight(world.normalized_radius(point)) * GRASS_RADIAL_DENSITY_WEIGHT
+    cluster_weight = max(
+        _cluster_weight(point, world, *cluster) for cluster in GRASS_CLUSTER_LAYOUT
+    )
+    return clamp(GRASS_OPEN_SPACE_WEIGHT + radial_weight + cluster_weight, 0.0, 1.0)
+
+
+def _cluster_weight(
+    point: Vec3,
+    world: CylinderWorld,
+    normalized_radius: float,
+    normalized_angle: float,
+    strength: float,
+    width: float,
+) -> float:
+    center = world.sample_bottom_point(normalized_radius * normalized_radius, normalized_angle)
+    distance = (point - center).length() / world.radius
+    falloff = max(0.0, 1.0 - distance / width)
+    return strength * falloff * falloff
 
 
 def sample_blade_points(

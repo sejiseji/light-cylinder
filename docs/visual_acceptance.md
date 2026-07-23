@@ -73,7 +73,7 @@ LC008-specific completion checks:
 - Only wet floor areas in light gain a weak reflection cue.
 - Puddles, ripples, water drops, thunder, and rain audio remain absent.
 - The clear initial scene remains unchanged.
-- Grass count 300 baseline / 450 stage-3 and 30 FPS feel are preserved.
+- Grass count and 30 FPS feel are preserved for the then-current density budget.
 
 LC009-specific completion checks:
 
@@ -142,6 +142,18 @@ LC012-specific completion checks:
 - AFTER_RAIN can leave a few head raindrops.
 - Foxtails do not steal the scene from the grass field and light.
 - No meaningful FPS drop is visible.
+
+LC012.6-specific completion checks:
+
+- Grass roots read as emerging from dark soil rather than floating over a grid.
+- Soil remains visible without making the field feel empty.
+- Ordinary grass reads as clustered growth, not uniform sparse noise.
+- Foxtails stay integrated with nearby grass and do not feel isolated.
+- Rain wetness and after-rain floor reflection remain visible on the soil.
+- Floor rings and radial guide lines remain hidden until boundary display.
+- Grass stages use 120, 180, and 240 blades.
+- Stage 1 feels clearly lighter than the previous dense field.
+- Stage 3 remains usable in the web preview.
 
 ## Artistic Review
 

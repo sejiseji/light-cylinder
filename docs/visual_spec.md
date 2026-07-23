@@ -35,9 +35,10 @@ width class vary by fixed-seed generation. Rendering keeps roots clearly
 thicker and tapers toward the tip, so blades read as thin flat grass rather than
 uniform wires.
 
-The grass density is biased toward the middle band of the cylinder floor, with
-the center and outer edge slightly less dense. This keeps the floor direction and
-cylinder boundary readable while avoiding a perfectly even artificial carpet.
+The grass density later shifts from an even field to fixed-seed clumps. This
+keeps the floor from becoming uniform noise, leaves visible soil openings, and
+lets foxtails remain memory points without requiring a dense ordinary-grass
+carpet.
 
 ## Light And Dark
 
@@ -83,7 +84,7 @@ far/vertical colors and a restrained near edge so the cylinder reads as an
 observation volume rather than a cage.
 
 The palette is centralized by use: dark background and bands, distant/normal/
-foreground grass, lit/strongly lit grass, ground shadow/light, dim/bright
+foreground grass, lit/strongly lit grass, dry/wet/lit ground, dim/bright
 particles, cylinder far/near edges, and debug accents. The colors stay within
 Pyxel's standard palette and keep grass in green tones rather than yellow
 blades.
@@ -159,6 +160,14 @@ six to ten sections. Stems sway slowly, while the heads lag slightly behind wind
 motion. Rain can make them droop a little, and after-rain can leave a few
 lingering raindrops on the seed heads. They should act as foreground memory
 points, not compete with the grass field as the main subject.
+
+LC012.6 turns the bottom plane into visible dark soil and reduces ordinary grass
+budgets to 120, 180, and 240 blades. The soil should appear as sparse fixed
+marks in normal viewing, not as the debug floor grid. Wetness can darken those
+marks, and light can lift them toward a weak ocher reflection. Grass placement
+uses fixed clumps with intentional open soil between them, so the lower count
+reads as natural growth rather than missing detail. Boundary floor rings and
+radial lines stay hidden until `B` is enabled.
 
 LC013 should deepen after-rain droplets as rain memory, not morning dew. Use
 language and behavior around `raindrop`, `lingering droplet`, or `after-rain

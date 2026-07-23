@@ -8,7 +8,7 @@ cylindrical natural space.
 
 ## Current Wave
 
-LC012 Foxtail Grass.
+LC012.6 Ground and Grass Optimization.
 
 ## Completed
 
@@ -112,6 +112,12 @@ LC012 Foxtail Grass.
 - GitHub Pages browser entries generated at `index.html` and `docs/index.html`
 - `scripts/build_web.py` packages the runtime Pyxel app, converts it to HTML,
   and disables Pyxel's virtual gamepad for Fireworks Observer-style web preview
+- Dark soil ground marks render in normal viewing without showing floor rings
+  or radial guide lines
+- Wet soil darkens, while soil in light shifts toward a weak ocher reflection
+- Grass stages lowered to 120, 180, and 240 blades
+- Ordinary grass generation uses fixed-seed clumps so reduced density leaves
+  intentional soil openings instead of an even sparse carpet
 
 ## Not Completed
 
@@ -187,13 +193,13 @@ Initial camera:
 
 ## Grass
 
-- Count: 300 baseline, 450 stage-3 draw budget
+- Count: 120 baseline, 240 stage-3 draw budget
 - Segments per blade: 5
 - Seed: 1729
 - Height range: 18 to 46
 - Bend range: 2 to 15
 - Stiffness range: 0.45 to 1.0
-- Density: slightly sparse at center and rim, densest around the middle band
+- Density: fixed-seed clumps with low open-space weight so soil remains visible
 - Animation: layered wind in LC004
 
 ## Wind
@@ -291,8 +297,9 @@ Initial camera:
 - normal grass: 11
 - foreground/lit grass: 3
 - strongly lit grass: 11
-- ground shadow: 5
-- ground light: 13
+- ground shadow: 4
+- ground wet: 5
+- ground light: 9
 - ground strong light: 10
 - dim particle: 6
 - bright particle: 7
@@ -328,8 +335,8 @@ LC006.5 added Artistic Review notes to every wave result from now on.
 
 ## Performance
 
-- Grass count: 300 baseline, 450 stage-3 draw budget
-- Nominal segments: 1,800 baseline, 2,700 stage-3 draw budget
+- Grass count: 120 baseline, 240 stage-3 draw budget
+- Nominal segments: 600 baseline, 1,200 stage-3 draw budget
 - Typical visible particles in debug review: expected to rise with the 360
   particle baseline
 - Light particles: 360 baseline, 1080 stage-3 draw budget
@@ -345,6 +352,8 @@ LC006.5 added Artistic Review notes to every wave result from now on.
 - LC011.5 adds sparse fixed-hash background dither every 4 pixels, with no
   per-frame random sampling
 - LC012 adds three foxtails with five stem segments and six to ten head sections
+- LC012.6 lowers ordinary grass draw budgets and adds 220 fixed soil marks,
+  avoiding per-frame random sampling or a filled ground simulation
 - Approximate line draw calls are reported in debug HUD
 - GUI review kept a stable 30 FPS feel with light, wind, particles, boundary
   on/off, zoom, and slow auto rotate.

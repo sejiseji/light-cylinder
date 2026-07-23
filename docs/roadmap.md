@@ -11,7 +11,8 @@ the work toward another story, speed, or season.
 2. Add testable math, camera, and cylindrical-space primitives.
 3. Build procedural grass, wind, sliced light, particles, optional rain,
    restrained rain reactions, after-rain recovery, an optional observation
-   cycle, optional firefly visitors, and atmospheric background depth.
+   cycle, optional firefly visitors, atmospheric background depth, foxtail
+   accents, web preview, and ground/grass optimization.
 4. Deepen the summer afternoon image in the order people read a landscape:
    foreground plants, after-rain water memory, sky, heat, horizon, and ambience.
 5. Keep the lightweight GitHub Pages preview healthy, finish presentation
@@ -20,6 +21,8 @@ the work toward another story, speed, or season.
 Current summer sequence:
 
 - LC012: Foxtail Grass
+- LC012.5: GitHub Pages Web Preview
+- LC012.6: Ground and Grass Optimization
 - LC013: After-Rain Droplets
 - LC014: Summer Cumulus
 - LC014.5: Heat Haze

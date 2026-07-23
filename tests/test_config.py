@@ -54,13 +54,18 @@ def test_camera_config_invariants() -> None:
     assert config.CYLINDER_VERTICAL_GUIDES == 8
     assert 0.0 <= config.CYLINDER_TARGET_HEIGHT_FACTOR <= 1.0
     assert config.GRASS_SEED == 1729
-    assert config.GRASS_COUNT == 300
+    assert config.GRASS_COUNT == 120
     assert config.GRASS_SEGMENTS == 5
     assert config.GRASS_MIN_HEIGHT > 0
     assert config.GRASS_MIN_HEIGHT <= config.GRASS_MAX_HEIGHT
     assert config.GRASS_MIN_BEND <= config.GRASS_MAX_BEND
     assert config.GRASS_MIN_STIFFNESS <= config.GRASS_MAX_STIFFNESS
     assert config.GRASS_WIDTH_MULTIPLIER == 2
+    assert config.GRASS_CLUSTER_LAYOUT
+    assert 0.0 <= config.GRASS_OPEN_SPACE_WEIGHT <= 1.0
+    assert 0.0 <= config.GRASS_RADIAL_DENSITY_WEIGHT <= 1.0
+    assert config.GROUND_SOIL_MARK_COUNT >= 100
+    assert 0.0 <= config.GROUND_SOIL_MARK_MIN_RADIUS < config.GROUND_SOIL_MARK_MAX_RADIUS <= 1.0
     assert config.FOXTAIL_SEED == 8123
     assert 2 <= config.FOXTAIL_COUNT <= 3
     assert config.FOXTAIL_STEM_SEGMENTS == 5
@@ -191,7 +196,7 @@ def test_camera_config_invariants() -> None:
     assert config.MENU_PHOTON_COUNTS[0] == config.LIGHT_PARTICLE_COUNT
     assert config.MENU_PHOTON_COUNTS == (config.LIGHT_PARTICLE_COUNT, 720, 1080)
     assert config.MENU_GRASS_COUNTS[0] == config.GRASS_COUNT
-    assert config.MENU_GRASS_COUNTS == (config.GRASS_COUNT, 375, 450)
+    assert config.MENU_GRASS_COUNTS == (config.GRASS_COUNT, 180, 240)
     assert config.MENU_RAIN_INTENSITIES[0] == config.RAIN_DEFAULT_INTENSITY
     assert config.MENU_FIREFLY_COUNTS == (3, 6, config.FIREFLY_MAX_COUNT)
     assert len(config.MENU_WIND_MULTIPLIERS) == config.MENU_STAGE_MAX

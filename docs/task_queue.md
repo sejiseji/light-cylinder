@@ -18,6 +18,7 @@
 - LC011.5: Atmospheric Background Depth
 - LC012: Foxtail Grass
 - LC012.5: GitHub Pages Web Preview
+- LC012.6: Ground and Grass Optimization
 
 ## NEXT
 

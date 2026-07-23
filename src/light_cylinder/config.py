@@ -50,7 +50,7 @@ CYLINDER_VERTICAL_GUIDES = 8
 CYLINDER_TARGET_HEIGHT_FACTOR = 0.43
 
 GRASS_SEED = 1729
-GRASS_COUNT = 300
+GRASS_COUNT = 120
 GRASS_SEGMENTS = 5
 GRASS_MIN_HEIGHT = 18.0
 GRASS_MAX_HEIGHT = 46.0
@@ -59,6 +59,19 @@ GRASS_MAX_BEND = 15.0
 GRASS_MIN_STIFFNESS = 0.45
 GRASS_MAX_STIFFNESS = 1.0
 GRASS_WIDTH_MULTIPLIER = 2
+GRASS_CLUSTER_LAYOUT = (
+    (0.26, 0.18, 0.58, 0.28),
+    (0.46, 0.58, 0.68, 0.3),
+    (0.62, 0.83, 0.52, 0.24),
+    (0.78, 0.31, 0.42, 0.18),
+)
+GRASS_OPEN_SPACE_WEIGHT = 0.09
+GRASS_RADIAL_DENSITY_WEIGHT = 0.18
+
+GROUND_SOIL_SEED = 4931
+GROUND_SOIL_MARK_COUNT = 220
+GROUND_SOIL_MARK_MIN_RADIUS = 0.08
+GROUND_SOIL_MARK_MAX_RADIUS = 0.98
 
 FOXTAIL_SEED = 8123
 FOXTAIL_COUNT = 3
@@ -169,7 +182,7 @@ RAIN_GRASS_REACTION_BEND_SCALE = 4.8
 MENU_STAGE_MIN = 1
 MENU_STAGE_MAX = 3
 MENU_PHOTON_COUNTS = (LIGHT_PARTICLE_COUNT, 720, LIGHT_PARTICLE_MAX_COUNT)
-MENU_GRASS_COUNTS = (GRASS_COUNT, 375, 450)
+MENU_GRASS_COUNTS = (GRASS_COUNT, 180, 240)
 MENU_WIND_MULTIPLIERS = (1.0, 1.85, 2.7)
 MENU_WIND_SPEED_MULTIPLIERS = (1.0, 1.45, 2.0)
 MENU_RAIN_INTENSITIES = (RAIN_DEFAULT_INTENSITY, 0.65, 0.85)
@@ -237,8 +250,9 @@ PALETTE_PRESETS = {
         "foreground_grass": 3,
         "lit_grass": 3,
         "strongly_lit_grass": 11,
-        "ground_shadow": 5,
-        "ground_light": 13,
+        "ground_shadow": 4,
+        "ground_wet": 5,
+        "ground_light": 9,
         "ground_strong_light": 10,
         "dim_particle": 6,
         "bright_particle": 7,
@@ -261,8 +275,9 @@ PALETTE_PRESETS = {
         "foreground_grass": 3,
         "lit_grass": 3,
         "strongly_lit_grass": 11,
-        "ground_shadow": 5,
-        "ground_light": 10,
+        "ground_shadow": 4,
+        "ground_wet": 5,
+        "ground_light": 9,
         "ground_strong_light": 7,
         "dim_particle": 6,
         "bright_particle": 7,
@@ -285,8 +300,9 @@ PALETTE_PRESETS = {
         "foreground_grass": 3,
         "lit_grass": 3,
         "strongly_lit_grass": 11,
-        "ground_shadow": 5,
-        "ground_light": 4,
+        "ground_shadow": 4,
+        "ground_wet": 5,
+        "ground_light": 9,
         "ground_strong_light": 10,
         "dim_particle": 13,
         "bright_particle": 10,
@@ -312,6 +328,7 @@ PALETTE_FOREGROUND_GRASS = ACTIVE_PALETTE["foreground_grass"]
 PALETTE_LIT_GRASS = ACTIVE_PALETTE["lit_grass"]
 PALETTE_STRONGLY_LIT_GRASS = ACTIVE_PALETTE["strongly_lit_grass"]
 PALETTE_GROUND_SHADOW = ACTIVE_PALETTE["ground_shadow"]
+PALETTE_GROUND_WET = ACTIVE_PALETTE["ground_wet"]
 PALETTE_GROUND_LIGHT = ACTIVE_PALETTE["ground_light"]
 PALETTE_GROUND_STRONG_LIGHT = ACTIVE_PALETTE["ground_strong_light"]
 PALETTE_DIM_PARTICLE = ACTIVE_PALETTE["dim_particle"]
@@ -385,6 +402,25 @@ def validate_display_config() -> None:
         raise ValueError("grass stiffness range must be positive and ordered")
     if GRASS_WIDTH_MULTIPLIER < 1:
         raise ValueError("grass width multiplier must be positive")
+    if not 0.0 <= GRASS_OPEN_SPACE_WEIGHT <= 1.0:
+        raise ValueError("grass open-space weight must be normalized")
+    if not 0.0 <= GRASS_RADIAL_DENSITY_WEIGHT <= 1.0:
+        raise ValueError("grass radial density weight must be normalized")
+    if not GRASS_CLUSTER_LAYOUT:
+        raise ValueError("grass cluster layout must not be empty")
+    for radius, angle, strength, width in GRASS_CLUSTER_LAYOUT:
+        if not 0.0 <= radius <= 1.0:
+            raise ValueError("grass cluster radius must be normalized")
+        if not 0.0 <= angle <= 1.0:
+            raise ValueError("grass cluster angle must be normalized")
+        if not 0.0 <= strength <= 1.0:
+            raise ValueError("grass cluster strength must be normalized")
+        if width <= 0.0:
+            raise ValueError("grass cluster width must be positive")
+    if GROUND_SOIL_MARK_COUNT < 0:
+        raise ValueError("ground soil mark count must be non-negative")
+    if not 0.0 <= GROUND_SOIL_MARK_MIN_RADIUS <= GROUND_SOIL_MARK_MAX_RADIUS <= 1.0:
+        raise ValueError("ground soil mark radius range must be normalized and ordered")
     if FOXTAIL_COUNT < 0:
         raise ValueError("foxtail count must be non-negative")
     if FOXTAIL_STEM_SEGMENTS < 1:

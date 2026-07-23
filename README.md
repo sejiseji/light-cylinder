@@ -11,14 +11,14 @@ changes, run the public safety check and the full verification script.
 
 ## Current Stage
 
-LC012 adds foxtail grass as a small foreground plant variation. The scene still
-starts clear and manual, but a few taller fixed-seed foxtails now stand apart
-from the ordinary grass. Their stems sway slowly, their seed heads lag behind
-the wind, rain makes the heads droop slightly, and after-rain can leave a few
-small raindrops on the heads. Puddles, ripples, thunder, rain audio, all-grass
+LC012.6 optimizes the ground and grass field for the web preview. The scene
+still starts clear and manual, but the bottom plane now reads as dark soil with
+weaker wet and light-reflection states, ordinary grass uses lower
+`120 / 180 / 240` density stages, and fixed-seed clumps leave intentional soil
+openings around the foxtails. Puddles, ripples, thunder, rain audio, all-grass
 droplets, touch input, and iOS packaging remain later waves. GitHub Pages entry
-points are now generated at `index.html` and `docs/index.html` for browser
-launch checks.
+points are generated at `index.html` and `docs/index.html` for browser launch
+checks.
 
 The next development sequence is focused on making the summer air denser rather
 than adding summer symbols: foxtail grass, after-rain droplets, summer cumulus,
@@ -55,12 +55,12 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-The LC012 screen starts in a clear viewing state: light on, wind on, rain off,
+The LC012.6 screen starts in a clear viewing state: light on, wind on, rain off,
 fireflies off, boundary off, debug off, auto rotate off. It shows wind-animated
-grass, denser mixed-size light particles, tip lighting, subtle floor light, and
-five quiet mixed-width tapered light bands, with a few taller foxtails as
-foreground memory points. Bottom floor rings and radial lines stay hidden until
-the cylinder boundary is shown.
+clustered grass, dark soil, denser mixed-size light particles, tip lighting,
+subtle floor light, and five quiet mixed-width tapered light bands, with a few
+taller foxtails as foreground memory points. Bottom floor rings and radial lines
+stay hidden until the cylinder boundary is shown.
 Debug mode adds camera state, draw counters, the centered composition safe area,
 environment phase, rain counters, splash count, wetness, grass reaction count,
 tip droplet count, observation cycle phase, and light axis/radius guides. Bottom
@@ -69,7 +69,7 @@ coordinate axes stay hidden.
 The top-right `MENU` button opens a readable observation panel. Photon density,
 grass density, wind strength, rain amount, auto-rotate speed, and firefly visitor
 count are adjustable from stage 1 to 3, and auto-rotate, rain, and fireflies can
-also be toggled ON/OFF there.
+also be toggled ON/OFF there. Grass stages draw 120, 180, or 240 blades.
 WIND strengthens the stage 1 sway around the same steady bend instead of moving
 to a different resting bend, and higher stages also advance the wind motion time
 faster. Stage 1 is the current baseline look. These settings are session-only

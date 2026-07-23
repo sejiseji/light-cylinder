@@ -17,6 +17,7 @@ from light_cylinder.config import (
 from light_cylinder.grass import (
     GrassBlade,
     GrassField,
+    clump_density_weight,
     compute_wind_bend,
     density_weight,
     sample_blade_points,
@@ -90,6 +91,14 @@ def test_density_weight_is_deterministic_and_prefers_middle_radius() -> None:
     assert density_weight(0.5) == density_weight(0.5)
     assert middle > center
     assert middle > outer
+
+
+def test_clump_density_weight_prefers_planted_groups_over_open_soil() -> None:
+    world = CylinderWorld()
+    cluster_center = world.sample_bottom_point(0.46 * 0.46, 0.58)
+    open_soil = world.sample_bottom_point(0.92 * 0.92, 0.05)
+
+    assert clump_density_weight(cluster_center, world) > clump_density_weight(open_soil, world)
 
 
 def test_sample_blade_points_shape() -> None:
