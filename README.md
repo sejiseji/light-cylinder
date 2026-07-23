@@ -70,7 +70,9 @@ coordinate axes stay hidden.
 The top-right `MENU` button opens a readable observation panel. Photon density,
 grass density, wind strength, rain amount, auto-rotate speed, and firefly visitor
 count are adjustable from stage 1 to 3, and auto-rotate, rain, and fireflies can
-also be toggled ON/OFF there. Grass stages draw 120, 180, or 240 blades.
+also be toggled ON/OFF there. The same panel includes ZOOM IN/OUT buttons for
+mobile viewing without keyboard or wheel input. Grass stages draw 120, 180, or
+240 blades.
 WIND strengthens the stage 1 sway around the same steady bend instead of moving
 to a different resting bend, and higher stages also advance the wind motion time
 faster. Stage 1 is the current baseline look. These settings are session-only
@@ -103,6 +105,7 @@ angle follows the observer's chosen baseline.
 - R: reset camera
 - D: toggle debug HUD and light guides
 - MENU button: open the observation tuning panel
+- MENU ZOOM IN/OUT: adjust camera distance
 - ESC: quit
 
 ## Web Preview

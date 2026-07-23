@@ -80,6 +80,8 @@ LC012.6 Ground and Grass Optimization.
 - FIREFLY stage caps active visitors at 3, 6, or 9
 - MENU `AUTO` toggle changes the same auto-rotate state as the `X` key
 - MENU `RAIN` toggle changes the same rain ON/OFF state as the `N` key
+- MENU `ZOOM` buttons adjust camera distance for mobile viewing without
+  keyboard or wheel input
 - Pyxel-independent `ObservationCycle`
 - `M` toggle for clear, shadow, light-rain, rain, after-rain, clear playback
 - Observation cycle uses MENU rain stage as a base amount without mutating stages
@@ -175,6 +177,7 @@ python scripts/check_all.py
 - R: reset camera
 - D: toggle debug HUD and light guides
 - ESC: quit
+- MENU ZOOM IN/OUT: camera distance
 
 ## Camera
 

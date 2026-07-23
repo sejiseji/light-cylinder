@@ -344,6 +344,25 @@ def test_menu_firefly_toggle_changes_firefly_enabled() -> None:
     assert app.firefly_enabled
 
 
+def test_menu_zoom_buttons_change_camera_distance() -> None:
+    app = LightCylinderApp()
+    app.menu_open = True
+    initial_distance = app.camera.distance
+    zoom_in_rect, zoom_out_rect = app._menu_zoom_rects()
+    x, y, width, height = zoom_in_rect
+
+    handled = app._handle_menu_click_at(x + width // 2, y + height // 2)
+
+    assert handled
+    assert app.camera.distance < initial_distance
+
+    x, y, width, height = zoom_out_rect
+    handled = app._handle_menu_click_at(x + width // 2, y + height // 2)
+
+    assert handled
+    assert app.camera.distance == initial_distance
+
+
 def test_firefly_items_are_hidden_until_enabled() -> None:
     app = LightCylinderApp()
     app.firefly_field.spawn_timer = 0.0

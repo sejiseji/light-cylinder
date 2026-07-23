@@ -23,6 +23,7 @@ observation cycle. LC011 adds optional firefly visitors:
 - R: reset camera to the viewing composition
 - D: toggle debug HUD, camera details, and light guides
 - Top-right MENU button: open the observation tuning panel
+- MENU ZOOM IN/OUT buttons: adjust camera distance for mobile viewing
 - ESC: exit
 
 The readable MENU panel exposes six 1-3 stage controls: photon density, grass
@@ -40,7 +41,9 @@ fixed clumped field. The `AMOUNT` stage changes only the rain amount preset;
 rain ON/OFF is controlled by either `N` or MENU `RAIN`. The `FIREFLY` stage
 changes the active visitor cap through 3, 6, and 9, while the lower `FIREFLY`
 toggle controls whether visitors can appear at all. Fireflies start OFF and can
-be toggled by either `F` or MENU `FIREFLY`.
+be toggled by either `F` or MENU `FIREFLY`. The bottom `ZOOM` row changes only
+camera distance, matching the existing keyboard and wheel zoom behavior without
+changing observation stages.
 The panel captures mouse input only inside its button and panel region, so
 normal drag rotation continues elsewhere.
 

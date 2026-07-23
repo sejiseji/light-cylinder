@@ -115,12 +115,14 @@ LightBandLine = tuple[int, int, int, int, int]
 MenuRect = tuple[int, int, int, int]
 
 MENU_BUTTON_RECT: MenuRect = (SAFE_RIGHT - 78, 8, 70, 22)
-MENU_PANEL_RECT: MenuRect = (SAFE_RIGHT - 270, 34, 262, 232)
+MENU_PANEL_RECT: MenuRect = (SAFE_RIGHT - 270, 34, 262, 254)
 MENU_ROW_TOP = 62
 MENU_ROW_HEIGHT = 22
 MENU_AUTO_ROW_INDEX = 6
 MENU_RAIN_TOGGLE_ROW_INDEX = 7
 MENU_FIREFLY_TOGGLE_ROW_INDEX = 8
+MENU_ZOOM_ROW_INDEX = 9
+MENU_ZOOM_STEP = CAMERA_ZOOM_SPEED * 4.0
 MENU_ROW_LABELS = {
     "photons": "PHOTON",
     "grass": "GRASS",
@@ -404,6 +406,13 @@ class LightCylinderApp:
             return True
         if _point_in_rect(mouse_x, mouse_y, self._menu_firefly_toggle_rect()):
             self._set_firefly_enabled(not self.firefly_enabled)
+            return True
+        zoom_in_rect, zoom_out_rect = self._menu_zoom_rects()
+        if _point_in_rect(mouse_x, mouse_y, zoom_in_rect):
+            self.camera.zoom(-MENU_ZOOM_STEP)
+            return True
+        if _point_in_rect(mouse_x, mouse_y, zoom_out_rect):
+            self.camera.zoom(MENU_ZOOM_STEP)
             return True
         return True
 
@@ -1309,6 +1318,11 @@ class LightCylinderApp:
             self.firefly_enabled,
             "ON" if self.firefly_enabled else "OFF",
         )
+        zoom_y = MENU_ROW_TOP + MENU_ZOOM_ROW_INDEX * MENU_ROW_HEIGHT
+        self._draw_text(pyxel, panel_x + 10, zoom_y + 2, "ZOOM", PALETTE_DEBUG_TEXT)
+        zoom_in_rect, zoom_out_rect = self._menu_zoom_rects()
+        self._draw_menu_step_button(pyxel, zoom_in_rect, "IN")
+        self._draw_menu_step_button(pyxel, zoom_out_rect, "OUT")
 
     def _draw_menu_step_button(self, pyxel, rect: MenuRect, label: str) -> None:
         x, y, width, height = rect
@@ -1345,6 +1359,14 @@ class LightCylinderApp:
         panel_x, _panel_y, _panel_w, _panel_h = MENU_PANEL_RECT
         row_y = MENU_ROW_TOP + MENU_FIREFLY_TOGGLE_ROW_INDEX * MENU_ROW_HEIGHT
         return (panel_x + 132, row_y, 92, 20)
+
+    def _menu_zoom_rects(self) -> tuple[MenuRect, MenuRect]:
+        panel_x, _panel_y, _panel_w, _panel_h = MENU_PANEL_RECT
+        row_y = MENU_ROW_TOP + MENU_ZOOM_ROW_INDEX * MENU_ROW_HEIGHT
+        return (
+            (panel_x + 132, row_y, 44, 20),
+            (panel_x + 180, row_y, 44, 20),
+        )
 
     def _draw_light_debug(self, pyxel) -> None:
         beam = self.light_field.beam
