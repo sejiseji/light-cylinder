@@ -18,7 +18,8 @@ weaker wet and light-reflection states, ordinary grass uses lower
 openings around the foxtails. Puddles, ripples, thunder, rain audio, all-grass
 droplets, touch input, and iOS packaging remain later waves. GitHub Pages entry
 points are generated at `index.html` and `docs/index.html` for browser launch
-checks.
+checks, and the web launcher fits the Pyxel canvas to the visible mobile Safari
+viewport so the top-right MENU stays inside the usable screen area.
 
 The next development sequence is focused on making the summer air denser rather
 than adding summer symbols: foxtail grass, after-rain droplets, summer cumulus,
@@ -114,7 +115,9 @@ python scripts/build_web.py
 
 This writes `index.html` and `docs/index.html` as self-contained Pyxel Web
 pages. The generated launcher disables Pyxel's virtual gamepad, matching the
-Fireworks Observer-style browser preview without mobile gamepad controls.
+Fireworks Observer-style browser preview without mobile gamepad controls. It
+also uses the browser's visible viewport on mobile Safari, so the canvas shrinks
+when the address bar covers part of the screen instead of hiding the MENU area.
 
 For local browser confirmation:
 

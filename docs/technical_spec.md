@@ -35,6 +35,11 @@ future CSS or page shell should preserve aspect ratio with contain-style fitting
 prefer 100dvh, account for safe-area insets, and keep browser UI changes
 separate from the internal 448 x 852 render model.
 
+The committed web launcher uses `visualViewport` when available and stores the
+visible browser area in CSS variables. This keeps the canvas contained inside
+the actual mobile Safari viewport when the address bar overlaps the page, so
+the top-right MENU button remains reachable without changing Pyxel coordinates.
+
 ## Dependency Boundaries
 
 Pyxel-specific rendering and input should stay close to the app layer. Pure

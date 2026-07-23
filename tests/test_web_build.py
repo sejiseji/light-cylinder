@@ -5,6 +5,7 @@ import pytest
 from scripts.build_web import (
     DISABLED_GAMEPAD,
     ENABLED_GAMEPAD,
+    MOBILE_VIEWPORT_MARKER,
     disable_pyxel_web_gamepad,
     write_pyxapp,
 )
@@ -39,6 +40,17 @@ def test_committed_github_pages_entry_disables_virtual_gamepad() -> None:
         assert "Pythonのファイル名.py" not in html
         assert DISABLED_GAMEPAD in html
         assert ENABLED_GAMEPAD not in html
+
+
+def test_committed_github_pages_entry_fits_mobile_safari_viewport() -> None:
+    for entry in (Path("index.html"), Path("docs/index.html")):
+        html = entry.read_text(encoding="utf-8")
+
+        assert "viewport-fit=cover" in html
+        assert "window.visualViewport" in html
+        assert MOBILE_VIEWPORT_MARKER in html
+        assert "max-height: var(--light-cylinder-visible-height)" in html
+        assert "touch-action: none" in html
 
 
 def test_pyxapp_archive_is_deterministic(tmp_path: Path) -> None:

@@ -112,6 +112,8 @@ LC012.6 Ground and Grass Optimization.
 - GitHub Pages browser entries generated at `index.html` and `docs/index.html`
 - `scripts/build_web.py` packages the runtime Pyxel app, converts it to HTML,
   and disables Pyxel's virtual gamepad for Fireworks Observer-style web preview
+- Web launcher CSS/JS fits the canvas to the visible mobile Safari viewport via
+  `visualViewport`, keeping the top-right MENU inside the usable screen area
 - Dark soil ground marks render in normal viewing without showing floor rings
   or radial guide lines
 - Wet soil darkens, while soil in light shifts toward a weak ocher reflection
@@ -139,7 +141,8 @@ python -m http.server 8000
 
 Open `http://127.0.0.1:8000/`. The committed `index.html` and
 `docs/index.html` are equivalent GitHub Pages entry points and must keep
-`gamepad: "disabled"`.
+`gamepad: "disabled"`. They should also retain the mobile Safari visible
+viewport wrapper so browser address bars do not hide the MENU region.
 
 ## Validate
 
