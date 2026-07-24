@@ -118,10 +118,11 @@ LC012.6 Ground and Grass Optimization.
   `visualViewport`, keeping the top-right MENU inside the usable screen area
 - iOS Safari reserves an additional small browser-UI guard height because the
   reported viewport can still include part of the bottom toolbar
-- MENU button and panel positions are kept inside the mobile-safe 393-pixel
-  composition width instead of relying on the wider 448-pixel render edge
-- GitHub Pages HTML adds a fixed DOM `MENU` button that forwards taps to the
-  in-game MENU button; Pyxel's virtual gamepad remains disabled
+- MENU button and panel positions are kept inside the 393-pixel render width,
+  following the Fireworks Observer-style mobile browser profile
+- GitHub Pages HTML adds a fixed DOM `MENU` fallback button that forwards taps
+  to the in-game MENU button and keeps itself above Pyxel's generated DOM;
+  Pyxel's virtual gamepad remains disabled
 - Generated `.pyxapp` launch names include a short content hash to avoid mobile
   browsers running a stale cached package under the old fixed name
 - Dark soil ground marks render in normal viewing without showing floor rings
@@ -163,8 +164,8 @@ python scripts/check_all.py
 ## Screen Contract
 
 - Reference device: 393 x 852
-- Internal render: 448 x 852
-- Centered safe width: 393
+- Internal render: 393 x 852
+- Composition safe width: 393
 - Target FPS: 30
 
 ## Controls

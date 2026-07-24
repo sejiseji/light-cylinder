@@ -179,6 +179,11 @@ WEB_MENU_SCRIPT = """
     keepMenuButtonOnTop();
     window.setTimeout(keepMenuButtonOnTop, 250);
     window.setTimeout(keepMenuButtonOnTop, 1000);
+    window.setInterval(keepMenuButtonOnTop, 1000);
+    if (window.MutationObserver) {
+      const observer = new MutationObserver(keepMenuButtonOnTop);
+      observer.observe(document.body, { childList: true });
+    }
   });
 })();
 </script>

@@ -52,8 +52,9 @@ large asset pipelines are outside the MVP.
 
 ## Mobile-First Direction
 
-The design targets a 393 x 852 reference device area while rendering internally
-at 448 x 852. Important content belongs in the centered 393-pixel safe area.
+The design targets a 393 x 852 reference device area and renders internally at
+the same 393 x 852 portrait size. This keeps important content and mobile
+controls inside the same canvas Safari displays.
 
 ## Difference From Firework Observer
 

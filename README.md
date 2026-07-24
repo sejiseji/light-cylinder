@@ -29,13 +29,13 @@ heat haze, distant horizon, summer ambience, then a presentation pass toward
 ## Display Model
 
 - Reference device area: 393 x 852
-- Pyxel internal render size: 448 x 852
+- Pyxel internal render size: 393 x 852
 - Composition safe width: 393
 - Target FPS: 30
 
-The important composition area is the centered 393-pixel region inside the
-448-pixel render width. The side overscan area is reserved for visuals that can
-be clipped gracefully in future browser and mobile layouts.
+The Pyxel render width now matches the mobile reference width, following the
+Fireworks Observer-style browser profile. UI and important composition beats no
+longer depend on side overscan that mobile Safari may clip.
 
 ## Requirements
 
@@ -120,13 +120,13 @@ This writes `index.html` and `docs/index.html` as self-contained Pyxel Web
 pages. The generated launcher disables Pyxel's virtual gamepad, matching the
 Fireworks Observer-style browser preview without mobile gamepad controls. It
 also uses the browser's visible viewport on mobile Safari and keeps the MENU
-button inside the mobile-safe 393-pixel composition width instead of relying on
-the right edge of the wider 448-pixel render area.
+button inside the 393-pixel Pyxel render width.
 On iOS Safari, the launcher reserves a small browser-UI guard height because the
 reported viewport can still include part of the bottom bar.
 The web page also adds a small fixed `MENU` entry button outside the Pyxel
-canvas. It forwards a tap to the in-game MENU button and does not enable Pyxel's
-virtual gamepad.
+canvas as a Safari fallback. It forwards a tap to the in-game MENU button,
+keeps itself above Pyxel's generated DOM, and does not enable Pyxel's virtual
+gamepad.
 
 For local browser confirmation:
 

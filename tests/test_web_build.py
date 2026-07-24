@@ -46,6 +46,8 @@ def test_committed_github_pages_entry_disables_virtual_gamepad() -> None:
         assert "Open observation menu" in html
         assert "clickPyxelMenu" in html
         assert "keepMenuButtonOnTop" in html
+        assert "MutationObserver" in html
+        assert "setInterval(keepMenuButtonOnTop" in html
         assert "left: 12px" in html
         assert "right: 12px" not in html
         assert 'document.querySelector("#canvas")' in html

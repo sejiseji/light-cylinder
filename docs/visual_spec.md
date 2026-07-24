@@ -190,11 +190,11 @@ visual density.
 
 ## Vertical Composition
 
-The composition is tall and mobile-first. The internal render size is 448 x 852,
-while the centered safe composition width is 393 pixels.
+The composition is tall and mobile-first. The internal render size is 393 x 852,
+matching the reference mobile viewport used by the web preview.
 
-## Overscan
+## Mobile Frame
 
-The left and right overscan regions are for grass tips, background, rain, and
-particles that can be clipped without harming the composition. Important UI and
-important scene beats should remain in the central safe area.
+Grass tips, background, rain, and particles may still move near the edge of the
+frame, but important UI and important scene beats should remain inside the
+393-pixel portrait canvas rather than relying on clipped side overscan.

@@ -17,9 +17,11 @@ starts at y = 0. The origin represents the future cylinder bottom center.
 
 ## Resolution Model
 
-The reference device area is 393 x 852. The internal Pyxel render size is
-448 x 852. The central 393-pixel region is the composition safe area. CSS display
-scale and Pyxel internal resolution must remain separate concerns.
+The reference device area is 393 x 852, and the internal Pyxel render size is
+also 393 x 852. This follows the Fireworks Observer-style mobile browser
+profile: UI coordinates and important composition beats live inside the same
+portrait canvas that Safari displays. CSS display scale and Pyxel internal
+resolution must remain separate concerns.
 
 ## Web Preview
 
@@ -33,21 +35,21 @@ the virtual gamepad disabled. The committed entry points are `index.html` and
 The browser wrapper should continue to preserve the Pyxel coordinate system. Any
 future CSS or page shell should preserve aspect ratio with contain-style fitting,
 prefer 100dvh, account for safe-area insets, and keep browser UI changes
-separate from the internal 448 x 852 render model.
+separate from the internal 393 x 852 render model.
 
 The committed web launcher uses `visualViewport` when available and stores the
 visible browser area in CSS variables. The MENU button and panel stay inside
-the mobile-safe 393-pixel composition width rather than depending on the right
-edge of the wider 448-pixel render area, so the controls remain reachable when
-mobile Safari clips or overlaps the page chrome.
+the 393-pixel Pyxel render width, so the controls remain reachable when mobile
+Safari clips or overlaps the page chrome.
 For iOS Safari specifically, the wrapper also subtracts a small browser-UI guard
 from the body height because the reported viewport can still include part of the
 bottom toolbar while the page is in the compact launch layout.
-The page includes one fixed `MENU` button outside the Pyxel canvas. It forwards
-a tap to the in-game MENU button coordinates and remains separate from Pyxel's
-disabled virtual gamepad. The generated `.pyxapp` launch name includes a short
-content hash so mobile browsers do not keep running an older cached package
-under the same file name.
+The page includes one fixed `MENU` button outside the Pyxel canvas as a Safari
+fallback. It forwards a tap to the in-game MENU button coordinates, keeps itself
+above Pyxel's generated DOM, and remains separate from Pyxel's disabled virtual
+gamepad. The generated `.pyxapp` launch name includes a short content hash so
+mobile browsers do not keep running an older cached package under the same file
+name.
 
 ## Dependency Boundaries
 
