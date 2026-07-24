@@ -51,7 +51,11 @@ def test_committed_github_pages_entry_fits_mobile_safari_viewport() -> None:
         assert "viewport-fit=cover" in html
         assert "window.visualViewport" in html
         assert MOBILE_VIEWPORT_MARKER in html
-        assert "height: var(--light-cylinder-visible-height)" in html
+        assert "--light-cylinder-safari-ui-guard" in html
+        assert "100svh" in html
+        assert "safariChromeGuard" in html
+        assert "CriOS|FxiOS|EdgiOS|Chrome|Chromium" in html
+        assert "height: calc(var(--light-cylinder-visible-height)" in html
         assert "touch-action: none" in html
         assert "#pyxel-screen" not in html
         assert "canvas {" not in html

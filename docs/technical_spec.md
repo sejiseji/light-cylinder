@@ -39,6 +39,9 @@ The committed web launcher uses `visualViewport` when available and stores the
 visible browser area in CSS variables. This keeps the canvas contained inside
 the actual mobile Safari viewport when the address bar overlaps the page, so
 the top-right MENU button remains reachable without changing Pyxel coordinates.
+For iOS Safari specifically, the wrapper also subtracts a small browser-UI guard
+from the body height because the reported viewport can still include part of the
+bottom toolbar while the page is in the compact launch layout.
 
 ## Dependency Boundaries
 
