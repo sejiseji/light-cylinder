@@ -124,6 +124,9 @@ button inside the mobile-safe 393-pixel composition width instead of relying on
 the right edge of the wider 448-pixel render area.
 On iOS Safari, the launcher reserves a small browser-UI guard height because the
 reported viewport can still include part of the bottom bar.
+The web page also adds a small fixed `MENU` entry button outside the Pyxel
+canvas. It forwards a tap to the in-game MENU button and does not enable Pyxel's
+virtual gamepad.
 
 For local browser confirmation:
 

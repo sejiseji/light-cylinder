@@ -43,6 +43,11 @@ mobile Safari clips or overlaps the page chrome.
 For iOS Safari specifically, the wrapper also subtracts a small browser-UI guard
 from the body height because the reported viewport can still include part of the
 bottom toolbar while the page is in the compact launch layout.
+The page includes one fixed `MENU` button outside the Pyxel canvas. It forwards
+a tap to the in-game MENU button coordinates and remains separate from Pyxel's
+disabled virtual gamepad. The generated `.pyxapp` launch name includes a short
+content hash so mobile browsers do not keep running an older cached package
+under the same file name.
 
 ## Dependency Boundaries
 

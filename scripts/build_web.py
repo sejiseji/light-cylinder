@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import shutil
 import zipfile
@@ -9,12 +10,17 @@ from pathlib import Path
 
 import pyxel
 
+from light_cylinder.app import MENU_BUTTON_RECT
+from light_cylinder.config import RENDER_HEIGHT, RENDER_WIDTH
+
 ENABLED_GAMEPAD = 'gamepad: "enabled"'
 DISABLED_GAMEPAD = 'gamepad: "disabled"'
 APP_NAME = "light-cylinder-web"
 FIXED_ZIP_DATE = (1980, 1, 1, 0, 0, 0)
 DEFAULT_OUTPUTS = ("index.html", "docs/index.html")
 MOBILE_VIEWPORT_MARKER = "--light-cylinder-visible-height"
+WEB_MENU_BUTTON_ID = "light-cylinder-menu-button"
+WEB_APP_HASH_LENGTH = 12
 WEB_PAGE_STYLE = """
 <style>
 :root {
@@ -40,8 +46,29 @@ body {
   top: 0;
   touch-action: none;
 }
+
+#WEB_MENU_BUTTON_ID {
+  position: fixed;
+  left: 12px;
+  top: calc(env(safe-area-inset-top, 0px) + 72px);
+  z-index: 2147483647;
+  min-width: 82px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #d8e8ff;
+  border-radius: 4px;
+  background: rgba(17, 23, 44, 0.82);
+  color: #d8e8ff;
+  font: 700 16px/34px system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: 0;
+  text-align: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 </style>
 """
+WEB_PAGE_STYLE = WEB_PAGE_STYLE.replace("WEB_MENU_BUTTON_ID", WEB_MENU_BUTTON_ID)
 WEB_VIEWPORT_SCRIPT = """
 <script>
 (() => {
@@ -81,6 +108,90 @@ WEB_VIEWPORT_SCRIPT = """
 })();
 </script>
 """
+WEB_MENU_SCRIPT = """
+<script>
+(() => {
+  const internalMenuX = MENU_CLICK_X;
+  const internalMenuY = MENU_CLICK_Y;
+
+  const dispatchCanvasEvent = (canvas, type, clientX, clientY) => {
+    const options = {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+      clientX,
+      clientY,
+      screenX: clientX,
+      screenY: clientY,
+      button: 0,
+      buttons: type.endsWith("down") || type === "mousemove" ? 1 : 0,
+    };
+    if (window.PointerEvent && type.startsWith("pointer")) {
+      canvas.dispatchEvent(new PointerEvent(type, {
+        ...options,
+        pointerId: 1,
+        pointerType: "touch",
+        isPrimary: true,
+      }));
+      return;
+    }
+    if (!type.startsWith("pointer")) {
+      canvas.dispatchEvent(new MouseEvent(type, options));
+    }
+  };
+
+  const clickPyxelMenu = () => {
+    const canvas = document.querySelector("#canvas");
+    if (!canvas) {
+      return;
+    }
+    const rect = canvas.getBoundingClientRect();
+    const clientX = rect.left + (internalMenuX / GAME_WIDTH) * rect.width;
+    const clientY = rect.top + (internalMenuY / GAME_HEIGHT) * rect.height;
+    canvas.focus();
+    dispatchCanvasEvent(canvas, "pointermove", clientX, clientY);
+    dispatchCanvasEvent(canvas, "mousemove", clientX, clientY);
+    dispatchCanvasEvent(canvas, "pointerdown", clientX, clientY);
+    dispatchCanvasEvent(canvas, "mousedown", clientX, clientY);
+    window.setTimeout(() => {
+      dispatchCanvasEvent(canvas, "pointerup", clientX, clientY);
+      dispatchCanvasEvent(canvas, "mouseup", clientX, clientY);
+      dispatchCanvasEvent(canvas, "click", clientX, clientY);
+    }, 34);
+  };
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const button = document.getElementById("WEB_MENU_BUTTON_ID");
+    if (!button) {
+      return;
+    }
+    const keepMenuButtonOnTop = () => {
+      if (button.parentElement === document.body && button.nextElementSibling === null) {
+        return;
+      }
+      document.body.appendChild(button);
+    };
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      clickPyxelMenu();
+    });
+    keepMenuButtonOnTop();
+    window.setTimeout(keepMenuButtonOnTop, 250);
+    window.setTimeout(keepMenuButtonOnTop, 1000);
+  });
+})();
+</script>
+"""
+
+_menu_x, _menu_y, _menu_width, _menu_height = MENU_BUTTON_RECT
+WEB_MENU_SCRIPT = (
+    WEB_MENU_SCRIPT.replace("MENU_CLICK_X", str(_menu_x + _menu_width // 2))
+    .replace("MENU_CLICK_Y", str(_menu_y + _menu_height // 2))
+    .replace("GAME_WIDTH", str(RENDER_WIDTH))
+    .replace("GAME_HEIGHT", str(RENDER_HEIGHT))
+    .replace("WEB_MENU_BUTTON_ID", WEB_MENU_BUTTON_ID)
+)
 
 
 def disable_pyxel_web_gamepad(html: str) -> str:
@@ -129,9 +240,14 @@ def write_pyxapp(app_dir: Path, pyxapp: Path) -> None:
             write_zip_file(zf, app_dir, path)
 
 
+def cache_busted_pyxapp_name(pyxapp: Path) -> str:
+    digest = hashlib.sha256(pyxapp.read_bytes()).hexdigest()[:WEB_APP_HASH_LENGTH]
+    return f"{APP_NAME}-{digest}.pyxapp"
+
+
 def write_html(pyxapp: Path, html: Path) -> None:
     base64_string = base64.b64encode(pyxapp.read_bytes()).decode("ascii")
-    pyxapp_name = json.dumps(pyxapp.name, ensure_ascii=True)
+    pyxapp_name = json.dumps(cache_busted_pyxapp_name(pyxapp), ensure_ascii=True)
     html.write_text(
         "<!doctype html>\n"
         "<html>\n"
@@ -141,10 +257,13 @@ def write_html(pyxapp: Path, html: Path) -> None:
         'user-scalable=no">\n'
         f"{WEB_PAGE_STYLE}\n"
         f"{WEB_VIEWPORT_SCRIPT}\n"
+        f"{WEB_MENU_SCRIPT}\n"
         f'<script src="https://cdn.jsdelivr.net/gh/kitao/pyxel@{pyxel.VERSION}/wasm/pyxel.js">'
         "</script>\n"
         "</head>\n"
         "<body>\n"
+        f'<button id="{WEB_MENU_BUTTON_ID}" type="button" aria-label="Open observation menu">'
+        "MENU</button>\n"
         "<script>\n"
         f'launchPyxel({{ command: "play", name: {pyxapp_name}, '
         f'{DISABLED_GAMEPAD}, base64: "{base64_string}" }});\n'

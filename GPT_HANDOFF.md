@@ -120,6 +120,10 @@ LC012.6 Ground and Grass Optimization.
   reported viewport can still include part of the bottom toolbar
 - MENU button and panel positions are kept inside the mobile-safe 393-pixel
   composition width instead of relying on the wider 448-pixel render edge
+- GitHub Pages HTML adds a fixed DOM `MENU` button that forwards taps to the
+  in-game MENU button; Pyxel's virtual gamepad remains disabled
+- Generated `.pyxapp` launch names include a short content hash to avoid mobile
+  browsers running a stale cached package under the old fixed name
 - Dark soil ground marks render in normal viewing without showing floor rings
   or radial guide lines
 - Wet soil darkens, while soil in light shifts toward a weak ocher reflection
