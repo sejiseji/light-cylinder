@@ -114,9 +114,10 @@ LightBandQuad = tuple[int, int, int, int, int, int, int, int, int]
 LightBandLine = tuple[int, int, int, int, int]
 MenuRect = tuple[int, int, int, int]
 
-MENU_BUTTON_RECT: MenuRect = (SAFE_RIGHT - 78, 8, 70, 22)
-MENU_PANEL_RECT: MenuRect = (SAFE_RIGHT - 270, 34, 262, 254)
-MENU_ROW_TOP = 62
+MENU_SAFE_RIGHT = COMPOSITION_SAFE_WIDTH - 8
+MENU_BUTTON_RECT: MenuRect = (MENU_SAFE_RIGHT - 70, 64, 70, 22)
+MENU_PANEL_RECT: MenuRect = (MENU_SAFE_RIGHT - 262, 94, 262, 254)
+MENU_ROW_TOP = MENU_PANEL_RECT[1] + 28
 MENU_ROW_HEIGHT = 22
 MENU_AUTO_ROW_INDEX = 6
 MENU_RAIN_TOGGLE_ROW_INDEX = 7

@@ -118,6 +118,8 @@ LC012.6 Ground and Grass Optimization.
   `visualViewport`, keeping the top-right MENU inside the usable screen area
 - iOS Safari reserves an additional small browser-UI guard height because the
   reported viewport can still include part of the bottom toolbar
+- MENU button and panel positions are kept inside the mobile-safe 393-pixel
+  composition width instead of relying on the wider 448-pixel render edge
 - Dark soil ground marks render in normal viewing without showing floor rings
   or radial guide lines
 - Wet soil darkens, while soil in light shifts toward a weak ocher reflection

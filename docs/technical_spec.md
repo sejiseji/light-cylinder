@@ -36,9 +36,10 @@ prefer 100dvh, account for safe-area insets, and keep browser UI changes
 separate from the internal 448 x 852 render model.
 
 The committed web launcher uses `visualViewport` when available and stores the
-visible browser area in CSS variables. This keeps the canvas contained inside
-the actual mobile Safari viewport when the address bar overlaps the page, so
-the top-right MENU button remains reachable without changing Pyxel coordinates.
+visible browser area in CSS variables. The MENU button and panel stay inside
+the mobile-safe 393-pixel composition width rather than depending on the right
+edge of the wider 448-pixel render area, so the controls remain reachable when
+mobile Safari clips or overlaps the page chrome.
 For iOS Safari specifically, the wrapper also subtracts a small browser-UI guard
 from the body height because the reported viewport can still include part of the
 bottom toolbar while the page is in the compact launch layout.

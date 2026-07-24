@@ -119,8 +119,9 @@ python scripts/build_web.py
 This writes `index.html` and `docs/index.html` as self-contained Pyxel Web
 pages. The generated launcher disables Pyxel's virtual gamepad, matching the
 Fireworks Observer-style browser preview without mobile gamepad controls. It
-also uses the browser's visible viewport on mobile Safari, so the canvas shrinks
-when the address bar covers part of the screen instead of hiding the MENU area.
+also uses the browser's visible viewport on mobile Safari and keeps the MENU
+button inside the mobile-safe 393-pixel composition width instead of relying on
+the right edge of the wider 448-pixel render area.
 On iOS Safari, the launcher reserves a small browser-UI guard height because the
 reported viewport can still include part of the bottom bar.
 

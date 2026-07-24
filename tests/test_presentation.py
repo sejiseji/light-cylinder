@@ -1,5 +1,6 @@
 from light_cylinder.app import (
     MENU_BUTTON_RECT,
+    MENU_PANEL_RECT,
     LightCylinderApp,
     atmospheric_dither_density,
     atmospheric_dither_visible,
@@ -15,6 +16,7 @@ from light_cylinder.app import (
 )
 from light_cylinder.config import (
     ATMOSPHERIC_DITHER_BASE_DENSITY,
+    COMPOSITION_SAFE_WIDTH,
     GRASS_WIDTH_MULTIPLIER,
     GROUND_SOIL_MARK_COUNT,
     LIGHT_ACCENT_BAND_COUNT,
@@ -32,6 +34,7 @@ from light_cylinder.config import (
     PALETTE_LIT_GRASS,
     PALETTE_NORMAL_GRASS,
     PALETTE_STRONGLY_LIT_GRASS,
+    RENDER_HEIGHT,
 )
 
 
@@ -257,6 +260,19 @@ def test_menu_button_toggles_observation_panel() -> None:
 
     assert handled
     assert app.menu_open
+
+
+def test_menu_controls_fit_mobile_safe_area() -> None:
+    button_x, button_y, button_width, button_height = MENU_BUTTON_RECT
+    panel_x, panel_y, panel_width, panel_height = MENU_PANEL_RECT
+
+    assert button_x >= 0
+    assert button_x + button_width <= COMPOSITION_SAFE_WIDTH
+    assert button_y >= 48
+    assert panel_x >= 0
+    assert panel_x + panel_width <= COMPOSITION_SAFE_WIDTH
+    assert panel_y > button_y + button_height
+    assert panel_y + panel_height <= RENDER_HEIGHT
 
 
 def test_menu_stepper_updates_stage_and_rain_amount() -> None:
