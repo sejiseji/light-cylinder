@@ -116,9 +116,8 @@ LC012.6 Ground and Grass Optimization.
   and disables Pyxel's virtual gamepad for Fireworks Observer-style web preview
 - Web launcher CSS/JS fits the canvas to the visible mobile Safari viewport via
   `visualViewport`, keeping the top-right MENU inside the usable screen area
-- iOS Safari removes small top and bottom browser-UI guard areas from the
-  fitting box, then scales the full 448 x 852 Pyxel screen into the remaining
-  usable rectangle without changing internal Pyxel coordinates
+- iOS Safari reserves an additional small browser-UI guard height because the
+  reported viewport can still include part of the bottom toolbar
 - Dark soil ground marks render in normal viewing without showing floor rings
   or radial guide lines
 - Wet soil darkens, while soil in light shifts toward a weak ocher reflection

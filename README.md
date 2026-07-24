@@ -121,9 +121,8 @@ pages. The generated launcher disables Pyxel's virtual gamepad, matching the
 Fireworks Observer-style browser preview without mobile gamepad controls. It
 also uses the browser's visible viewport on mobile Safari, so the canvas shrinks
 when the address bar covers part of the screen instead of hiding the MENU area.
-On iOS Safari, the launcher removes small top and bottom browser-UI guard areas
-from the fitting box, then scales the full 448 x 852 Pyxel screen into the
-remaining usable rectangle.
+On iOS Safari, the launcher reserves a small browser-UI guard height because the
+reported viewport can still include part of the bottom bar.
 
 For local browser confirmation:
 
