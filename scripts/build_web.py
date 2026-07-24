@@ -9,6 +9,8 @@ from pathlib import Path
 
 import pyxel
 
+from light_cylinder.config import RENDER_HEIGHT, RENDER_WIDTH
+
 ENABLED_GAMEPAD = 'gamepad: "enabled"'
 DISABLED_GAMEPAD = 'gamepad: "disabled"'
 APP_NAME = "light-cylinder-web"
@@ -20,7 +22,11 @@ WEB_PAGE_STYLE = """
 :root {
   --light-cylinder-visible-width: 100vw;
   --light-cylinder-visible-height: 100svh;
-  --light-cylinder-safari-ui-guard: 0px;
+  --light-cylinder-safe-top: 0px;
+  --light-cylinder-safe-bottom: 0px;
+  --light-cylinder-app-left: 0px;
+  --light-cylinder-app-top: 0px;
+  --light-cylinder-app-scale: 1;
 }
 
 html,
@@ -28,7 +34,7 @@ body {
   margin: 0;
   padding: 0;
   width: var(--light-cylinder-visible-width);
-  height: calc(var(--light-cylinder-visible-height) - var(--light-cylinder-safari-ui-guard));
+  height: var(--light-cylinder-visible-height);
   overflow: hidden;
   background: #11172c;
   overscroll-behavior: none;
@@ -40,34 +46,60 @@ body {
   top: 0;
   touch-action: none;
 }
+
+#pyxel-screen {
+  position: fixed !important;
+  left: var(--light-cylinder-app-left) !important;
+  top: var(--light-cylinder-app-top) !important;
+  width: GAME_WIDTHpx !important;
+  height: GAME_HEIGHTpx !important;
+  margin: 0 !important;
+  transform: scale(var(--light-cylinder-app-scale)) !important;
+  transform-origin: left top !important;
+  overflow: hidden !important;
+}
 </style>
 """
 WEB_VIEWPORT_SCRIPT = """
 <script>
 (() => {
   const root = document.documentElement;
+  const gameWidth = GAME_WIDTH;
+  const gameHeight = GAME_HEIGHT;
   const userAgent = navigator.userAgent || "";
   const isIosLike = /iPad|iPhone|iPod/.test(userAgent)
     || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const isSafari = /Safari/.test(userAgent)
     && !/(CriOS|FxiOS|EdgiOS|Chrome|Chromium)/.test(userAgent);
 
-  const safariChromeGuard = (height) => {
+  const safariChromeGuards = (height) => {
     if (!isIosLike || !isSafari) {
-      return 0;
+      return { top: 0, bottom: 0 };
     }
-    return Math.round(Math.min(118, Math.max(72, height * 0.13)));
+    return {
+      top: Math.round(Math.min(28, Math.max(12, height * 0.025))),
+      bottom: Math.round(Math.min(168, Math.max(112, height * 0.18))),
+    };
   };
 
   const applyVisibleViewport = () => {
     const viewport = window.visualViewport;
     const width = viewport ? viewport.width : window.innerWidth;
     const height = viewport ? viewport.height : window.innerHeight;
-    const guard = safariChromeGuard(height);
+    const guards = safariChromeGuards(height);
+    const safeWidth = Math.max(1, Math.floor(width));
+    const safeHeight = Math.max(1, Math.floor(height - guards.top - guards.bottom));
+    const scale = Math.min(safeWidth / gameWidth, safeHeight / gameHeight, 1);
+    const appLeft = Math.floor((safeWidth - gameWidth * scale) * 0.5);
+    const appTop = Math.floor(guards.top + (safeHeight - gameHeight * scale) * 0.5);
 
-    root.style.setProperty("--light-cylinder-visible-width", `${Math.floor(width)}px`);
+    root.style.setProperty("--light-cylinder-visible-width", `${safeWidth}px`);
     root.style.setProperty("--light-cylinder-visible-height", `${Math.floor(height)}px`);
-    root.style.setProperty("--light-cylinder-safari-ui-guard", `${guard}px`);
+    root.style.setProperty("--light-cylinder-safe-top", `${guards.top}px`);
+    root.style.setProperty("--light-cylinder-safe-bottom", `${guards.bottom}px`);
+    root.style.setProperty("--light-cylinder-app-left", `${appLeft}px`);
+    root.style.setProperty("--light-cylinder-app-top", `${appTop}px`);
+    root.style.setProperty("--light-cylinder-app-scale", scale.toFixed(4));
   };
 
   applyVisibleViewport();
@@ -81,6 +113,12 @@ WEB_VIEWPORT_SCRIPT = """
 })();
 </script>
 """
+WEB_PAGE_STYLE = WEB_PAGE_STYLE.replace("GAME_WIDTH", str(RENDER_WIDTH)).replace(
+    "GAME_HEIGHT", str(RENDER_HEIGHT)
+)
+WEB_VIEWPORT_SCRIPT = WEB_VIEWPORT_SCRIPT.replace("GAME_WIDTH", str(RENDER_WIDTH)).replace(
+    "GAME_HEIGHT", str(RENDER_HEIGHT)
+)
 
 
 def disable_pyxel_web_gamepad(html: str) -> str:
