@@ -116,8 +116,8 @@ LC012.6 Ground and Grass Optimization.
   and disables Pyxel's virtual gamepad for Fireworks Observer-style web preview
 - Web launcher CSS/JS fits the canvas to the visible mobile Safari viewport via
   `visualViewport`, keeping the top-right MENU inside the usable screen area
-- iOS Safari reserves an additional small browser-UI guard height because the
-  reported viewport can still include part of the bottom toolbar
+- Web launcher uses `visualViewport.height` directly; it does not subtract an
+  additional Safari browser-UI guard that would leave a bottom gap
 - MENU button and panel positions are kept inside the 393-pixel render width,
   following the Fireworks Observer-style mobile browser profile
 - GitHub Pages HTML must not add a separate DOM `MENU` button; MENU is drawn

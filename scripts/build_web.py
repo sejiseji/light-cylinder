@@ -22,7 +22,6 @@ WEB_PAGE_STYLE = """
 :root {
   --light-cylinder-visible-width: 100vw;
   --light-cylinder-visible-height: 100svh;
-  --light-cylinder-safari-ui-guard: 0px;
 }
 
 html,
@@ -30,7 +29,7 @@ body {
   margin: 0;
   padding: 0;
   width: var(--light-cylinder-visible-width);
-  height: calc(var(--light-cylinder-visible-height) - var(--light-cylinder-safari-ui-guard));
+  height: var(--light-cylinder-visible-height);
   overflow: hidden;
   background: #11172c;
   overscroll-behavior: none;
@@ -49,28 +48,14 @@ WEB_VIEWPORT_SCRIPT = """
 <script>
 (() => {
   const root = document.documentElement;
-  const userAgent = navigator.userAgent || "";
-  const isIosLike = /iPad|iPhone|iPod/.test(userAgent)
-    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  const isSafari = /Safari/.test(userAgent)
-    && !/(CriOS|FxiOS|EdgiOS|Chrome|Chromium)/.test(userAgent);
-
-  const safariChromeGuard = (height) => {
-    if (!isIosLike || !isSafari) {
-      return 0;
-    }
-    return Math.round(Math.min(118, Math.max(72, height * 0.13)));
-  };
 
   const applyVisibleViewport = () => {
     const viewport = window.visualViewport;
     const width = viewport ? viewport.width : window.innerWidth;
     const height = viewport ? viewport.height : window.innerHeight;
-    const guard = safariChromeGuard(height);
 
     root.style.setProperty("--light-cylinder-visible-width", `${Math.floor(width)}px`);
     root.style.setProperty("--light-cylinder-visible-height", `${Math.floor(height)}px`);
-    root.style.setProperty("--light-cylinder-safari-ui-guard", `${guard}px`);
   };
 
   applyVisibleViewport();

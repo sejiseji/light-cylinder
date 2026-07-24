@@ -121,8 +121,8 @@ pages. The generated launcher disables Pyxel's virtual gamepad, matching the
 Fireworks Observer-style browser preview without mobile gamepad controls. It
 also uses the browser's visible viewport on mobile Safari and keeps the MENU
 button inside the 393-pixel Pyxel render width.
-On iOS Safari, the launcher reserves a small browser-UI guard height because the
-reported viewport can still include part of the bottom bar.
+It uses `visualViewport.height` directly so the Pyxel canvas fills the visible
+browser area instead of reserving an extra bottom gap.
 The MENU is drawn and handled only inside the Pyxel canvas. The page does not
 add a separate HTML menu button, and Pyxel's virtual gamepad remains disabled.
 

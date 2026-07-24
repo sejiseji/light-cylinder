@@ -41,9 +41,9 @@ The committed web launcher uses `visualViewport` when available and stores the
 visible browser area in CSS variables. The MENU button and panel stay inside
 the 393-pixel Pyxel render width, so the controls remain reachable when mobile
 Safari clips or overlaps the page chrome.
-For iOS Safari specifically, the wrapper also subtracts a small browser-UI guard
-from the body height because the reported viewport can still include part of the
-bottom toolbar while the page is in the compact launch layout.
+The wrapper uses `visualViewport.height` directly and does not subtract an
+additional Safari browser-UI guard, keeping the canvas aligned with the actual
+visible browser area instead of creating an extra bottom gap.
 The page must not add a separate HTML menu button. MENU is drawn and handled
 inside the Pyxel canvas, while Pyxel's virtual gamepad remains disabled. The
 generated `.pyxapp` launch name includes a short content hash so mobile browsers
