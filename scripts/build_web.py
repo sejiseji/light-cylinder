@@ -20,17 +20,6 @@ WEB_PAGE_STYLE = """
 :root {
   --light-cylinder-visible-width: 100vw;
   --light-cylinder-visible-height: 100dvh;
-  --light-cylinder-visible-left: 0px;
-  --light-cylinder-visible-top: 0px;
-  --light-cylinder-aspect: 0.5258215962;
-  --light-cylinder-canvas-width: min(
-    var(--light-cylinder-visible-width),
-    calc(var(--light-cylinder-visible-height) * var(--light-cylinder-aspect))
-  );
-  --light-cylinder-canvas-height: min(
-    var(--light-cylinder-visible-height),
-    calc(var(--light-cylinder-visible-width) / var(--light-cylinder-aspect))
-  );
 }
 
 html,
@@ -39,8 +28,6 @@ body {
   padding: 0;
   width: var(--light-cylinder-visible-width);
   height: var(--light-cylinder-visible-height);
-  min-width: var(--light-cylinder-visible-width);
-  min-height: var(--light-cylinder-visible-height);
   overflow: hidden;
   background: #11172c;
   overscroll-behavior: none;
@@ -48,29 +35,9 @@ body {
 
 body {
   position: fixed;
-  left: var(--light-cylinder-visible-left);
-  top: var(--light-cylinder-visible-top);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  left: 0;
+  top: 0;
   touch-action: none;
-}
-
-canvas,
-#pyxel-canvas,
-#pyxel-screen,
-.pyxel-screen {
-  width: var(--light-cylinder-canvas-width) !important;
-  height: var(--light-cylinder-canvas-height) !important;
-  max-width: var(--light-cylinder-visible-width) !important;
-  max-height: var(--light-cylinder-visible-height) !important;
-  display: block;
-  object-fit: contain;
-}
-
-canvas {
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
 }
 </style>
 """
@@ -83,13 +50,9 @@ WEB_VIEWPORT_SCRIPT = """
     const viewport = window.visualViewport;
     const width = viewport ? viewport.width : window.innerWidth;
     const height = viewport ? viewport.height : window.innerHeight;
-    const left = viewport ? viewport.offsetLeft : 0;
-    const top = viewport ? viewport.offsetTop : 0;
 
     root.style.setProperty("--light-cylinder-visible-width", `${Math.floor(width)}px`);
     root.style.setProperty("--light-cylinder-visible-height", `${Math.floor(height)}px`);
-    root.style.setProperty("--light-cylinder-visible-left", `${Math.floor(left)}px`);
-    root.style.setProperty("--light-cylinder-visible-top", `${Math.floor(top)}px`);
   };
 
   applyVisibleViewport();
@@ -156,6 +119,8 @@ def write_html(pyxapp: Path, html: Path) -> None:
     pyxapp_name = json.dumps(pyxapp.name, ensure_ascii=True)
     html.write_text(
         "<!doctype html>\n"
+        "<html>\n"
+        "<head>\n"
         '<meta name="viewport" '
         'content="width=device-width, initial-scale=1, viewport-fit=cover, '
         'user-scalable=no">\n'
@@ -163,10 +128,14 @@ def write_html(pyxapp: Path, html: Path) -> None:
         f"{WEB_VIEWPORT_SCRIPT}\n"
         f'<script src="https://cdn.jsdelivr.net/gh/kitao/pyxel@{pyxel.VERSION}/wasm/pyxel.js">'
         "</script>\n"
+        "</head>\n"
+        "<body>\n"
         "<script>\n"
         f'launchPyxel({{ command: "play", name: {pyxapp_name}, '
         f'{DISABLED_GAMEPAD}, base64: "{base64_string}" }});\n'
-        "</script>\n",
+        "</script>\n"
+        "</body>\n"
+        "</html>\n",
         encoding="utf-8",
     )
 

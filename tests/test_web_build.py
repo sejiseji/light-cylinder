@@ -46,11 +46,15 @@ def test_committed_github_pages_entry_fits_mobile_safari_viewport() -> None:
     for entry in (Path("index.html"), Path("docs/index.html")):
         html = entry.read_text(encoding="utf-8")
 
+        assert "<body>" in html
+        assert html.index("<body>") < html.index("launchPyxel")
         assert "viewport-fit=cover" in html
         assert "window.visualViewport" in html
         assert MOBILE_VIEWPORT_MARKER in html
-        assert "max-height: var(--light-cylinder-visible-height)" in html
+        assert "height: var(--light-cylinder-visible-height)" in html
         assert "touch-action: none" in html
+        assert "#pyxel-screen" not in html
+        assert "canvas {" not in html
 
 
 def test_pyxapp_archive_is_deterministic(tmp_path: Path) -> None:
