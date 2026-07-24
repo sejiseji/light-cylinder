@@ -120,9 +120,8 @@ LC012.6 Ground and Grass Optimization.
   reported viewport can still include part of the bottom toolbar
 - MENU button and panel positions are kept inside the 393-pixel render width,
   following the Fireworks Observer-style mobile browser profile
-- GitHub Pages HTML adds a fixed DOM `MENU` fallback button that forwards taps
-  to the in-game MENU button and keeps itself above Pyxel's generated DOM;
-  Pyxel's virtual gamepad remains disabled
+- GitHub Pages HTML must not add a separate DOM `MENU` button; MENU is drawn
+  and handled only inside Pyxel, and Pyxel's virtual gamepad remains disabled
 - Generated `.pyxapp` launch names include a short content hash to avoid mobile
   browsers running a stale cached package under the old fixed name
 - Dark soil ground marks render in normal viewing without showing floor rings

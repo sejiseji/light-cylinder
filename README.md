@@ -123,10 +123,8 @@ also uses the browser's visible viewport on mobile Safari and keeps the MENU
 button inside the 393-pixel Pyxel render width.
 On iOS Safari, the launcher reserves a small browser-UI guard height because the
 reported viewport can still include part of the bottom bar.
-The web page also adds a small fixed `MENU` entry button outside the Pyxel
-canvas as a Safari fallback. It forwards a tap to the in-game MENU button,
-keeps itself above Pyxel's generated DOM, and does not enable Pyxel's virtual
-gamepad.
+The MENU is drawn and handled only inside the Pyxel canvas. The page does not
+add a separate HTML menu button, and Pyxel's virtual gamepad remains disabled.
 
 For local browser confirmation:
 
